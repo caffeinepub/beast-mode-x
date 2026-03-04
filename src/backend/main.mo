@@ -1,13 +1,15 @@
+import Array "mo:core/Array";
 import Int "mo:core/Int";
 import Iter "mo:core/Iter";
-import Array "mo:core/Array";
 import Map "mo:core/Map";
 import Order "mo:core/Order";
 import Principal "mo:core/Principal";
 import Runtime "mo:core/Runtime";
 import AccessControl "authorization/access-control";
 import MixinAuthorization "authorization/MixinAuthorization";
+import Migration "migration";
 
+(with migration = Migration.run)
 actor {
   public type PlayerStats = {
     strength : Nat;
@@ -18,13 +20,31 @@ actor {
     aura : Nat;
   };
 
+  public type CategoryXP = {
+    fitness : Nat;
+    intelligence : Nat;
+    focus : Nat;
+    martial : Nat;
+    discipline : Nat;
+    mindset : Nat;
+  };
+
   public type PlayerProfile = {
     username : Text;
+    age : Nat;
+    gender : Text;
+    goal : Text;
+    fitnessLevel : Text;
+    bodyType : Text;
     level : Nat;
     xp : Nat;
     skillPoints : Nat;
     stats : PlayerStats;
     achievements : [Nat];
+    completedMissions : [Text];
+    martialArtsLevel : Nat;
+    martialArtsXP : Nat;
+    categoryXP : CategoryXP;
   };
 
   module PlayerProfile {
@@ -40,7 +60,7 @@ actor {
 
   include MixinAuthorization(accessControlState);
 
-  public shared ({ caller }) func registerPlayer(username : Text) : async () {
+  public shared ({ caller }) func registerPlayer(username : Text, age : Nat, gender : Text, goal : Text, fitnessLevel : Text, bodyType : Text) : async () {
     // No authorization check needed - anyone (including guests) can register
     // This effectively converts a guest to a user
     if (players.containsKey(caller)) {
@@ -49,6 +69,11 @@ actor {
 
     let newPlayer : PlayerProfile = {
       username;
+      age;
+      gender;
+      goal;
+      fitnessLevel;
+      bodyType;
       level = 1;
       xp = 0;
       skillPoints = 0;
@@ -61,6 +86,17 @@ actor {
         aura = 10;
       };
       achievements = [];
+      completedMissions = [];
+      martialArtsLevel = 1;
+      martialArtsXP = 0;
+      categoryXP = {
+        fitness = 0;
+        intelligence = 0;
+        focus = 0;
+        martial = 0;
+        discipline = 0;
+        mindset = 0;
+      };
     };
 
     players.add(caller, newPlayer);
@@ -74,34 +110,100 @@ actor {
     players.get(caller);
   };
 
-  public shared ({ caller }) func addXP(xpToAdd : Nat) : async () {
-    // Only authenticated users can add XP to their profile
+  public shared ({ caller }) func completeMission(missionId : Text, category : Text, xpReward : Nat) : async () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can add XP");
+      Runtime.trap("Unauthorized: Only users can complete missions");
     };
 
     switch (players.get(caller)) {
       case (null) { Runtime.trap("Player not found. Please register first.") };
       case (?current) {
-        let currentXP = current.xp + xpToAdd;
+        // Check for duplicate mission completion
+        if (current.completedMissions.find<Text>(func(id) { id == missionId }) != null) {
+          Runtime.trap("Mission already completed");
+        };
 
-        let levelUps = if (currentXP >= 1000) {
-          (currentXP / 1000) - (current.xp / 1000);
-        } else { 0 };
+        // Update total XP first
+        let newTotalXP = current.xp + xpReward;
+
+        // Determine new level based on updated total XP
+        let tempLevel = newTotalXP / 100.toNat();
+        let newLevel = tempLevel + 1;
+
+        // Update category XP based on the category of the mission
+        let updatedCategoryXP = switch (category) {
+          case ("fitness") {
+            { current.categoryXP with fitness = current.categoryXP.fitness + xpReward };
+          };
+          case ("intelligence") {
+            { current.categoryXP with intelligence = current.categoryXP.intelligence + xpReward };
+          };
+          case ("focus") {
+            { current.categoryXP with focus = current.categoryXP.focus + xpReward };
+          };
+          case ("martial") {
+            { current.categoryXP with martial = current.categoryXP.martial + xpReward };
+          };
+          case ("discipline") {
+            { current.categoryXP with discipline = current.categoryXP.discipline + xpReward };
+          };
+          case ("mindset") {
+            { current.categoryXP with mindset = current.categoryXP.mindset + xpReward };
+          };
+          case (_) { current.categoryXP };
+        };
 
         let updatedProfile = {
           current with
-          xp = currentXP;
-          level = current.level + levelUps;
-          skillPoints = current.skillPoints + (levelUps * 5);
+          xp = newTotalXP;
+          level = newLevel;
+          completedMissions = current.completedMissions.concat([missionId]);
+          categoryXP = updatedCategoryXP;
         };
         players.add(caller, updatedProfile);
       };
     };
   };
 
+  public query ({ caller }) func getMissionCompletions() : async [Text] {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can view mission completions");
+    };
+
+    switch (players.get(caller)) {
+      case (null) { Runtime.trap("Player not found. Please register first.") };
+      case (?profile) {
+        profile.completedMissions;
+      };
+    };
+  };
+
+  public query ({ caller }) func getPublicProfile(player : Principal) : async ?PlayerProfile {
+    // No authorization check - profiles are public
+    players.get(player);
+  };
+
+  public shared ({ caller }) func unlockAchievement(badgeId : Nat) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can unlock achievements");
+    };
+
+    switch (players.get(caller)) {
+      case (null) { Runtime.trap("Player not found. Please register first.") };
+      case (?current) {
+        // Check for duplicate achievement
+        if (current.achievements.find<Nat>(func(id) { id == badgeId }) != null) {
+          Runtime.trap("Achievement already unlocked");
+        };
+
+        let updatedAchievements = current.achievements.concat([badgeId]);
+        let updatedProfile = { current with achievements = updatedAchievements };
+        players.add(caller, updatedProfile);
+      };
+    };
+  };
+
   public shared ({ caller }) func updateStats(newStats : PlayerStats) : async () {
-    // Only authenticated users can update their stats
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can update stats");
     };
@@ -115,30 +217,41 @@ actor {
     };
   };
 
-  public shared ({ caller }) func unlockAchievement(badgeId : Nat) : async () {
-    // Only authenticated users can unlock achievements
+  public query ({ caller }) func getLeaderboard() : async [PlayerProfile] {
+    // No authorization check - leaderboard is public
+    let sortedPlayers : [PlayerProfile] = players.values().toArray().sort(PlayerProfile.compareByXP);
+    sortedPlayers.sliceToArray(0, Int.min(10, sortedPlayers.size()));
+  };
+
+  public shared ({ caller }) func updateMartialArtsXP(xpToAdd : Nat) : async () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can unlock achievements");
+      Runtime.trap("Unauthorized: Only users can update martial arts XP");
     };
 
     switch (players.get(caller)) {
       case (null) { Runtime.trap("Player not found. Please register first.") };
       case (?current) {
-        // Check if achievement already unlocked
-        if (current.achievements.find<Nat>(func(id) { id == badgeId }) != null) {
-          Runtime.trap("Achievement already unlocked");
+        let newMartialArtsXP = current.martialArtsXP + xpToAdd;
+        let newMartialArtsLevel = newMartialArtsXP / 500 + 1;
+
+        let updatedCategoryXP = {
+          current.categoryXP with martial = current.categoryXP.martial + xpToAdd
         };
 
-        let updatedAchievements = current.achievements.concat([badgeId]);
-        let updatedProfile = { current with achievements = updatedAchievements };
+        let newTotalXP = current.xp + xpToAdd;
+        let tempLevel = newTotalXP / 100.toNat();
+        let newLevel = tempLevel + 1;
+
+        let updatedProfile = {
+          current with
+          martialArtsXP = newMartialArtsXP;
+          martialArtsLevel = newMartialArtsLevel;
+          xp = newTotalXP;
+          level = newLevel;
+          categoryXP = updatedCategoryXP;
+        };
         players.add(caller, updatedProfile);
       };
     };
-  };
-
-  public query ({ caller }) func getLeaderboard() : async [PlayerProfile] {
-    // No authorization check - leaderboard is public and accessible to everyone
-    let sortedPlayers : [PlayerProfile] = players.values().toArray().sort(PlayerProfile.compareByXP);
-    sortedPlayers.sliceToArray(0, Int.min(10, sortedPlayers.size()));
   };
 };

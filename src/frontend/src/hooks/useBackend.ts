@@ -28,14 +28,48 @@ export function useLeaderboard() {
   });
 }
 
+// ─── Query: Get mission completions ───
+export function useMissionCompletions() {
+  const { actor, isFetching } = useActor();
+  return useQuery<string[]>({
+    queryKey: ["missionCompletions"],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.getMissionCompletions();
+    },
+    enabled: !!actor && !isFetching,
+  });
+}
+
 // ─── Mutation: Register player ───
 export function useRegisterPlayer() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (username: string) => {
+    mutationFn: async ({
+      username,
+      age,
+      gender,
+      goal,
+      fitnessLevel,
+      bodyType,
+    }: {
+      username: string;
+      age: bigint;
+      gender: string;
+      goal: string;
+      fitnessLevel: string;
+      bodyType: string;
+    }) => {
       if (!actor) throw new Error("Not connected");
-      return actor.registerPlayer(username);
+      return actor.registerPlayer(
+        username,
+        age,
+        gender,
+        goal,
+        fitnessLevel,
+        bodyType,
+      );
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["playerProfile"] });
@@ -43,18 +77,42 @@ export function useRegisterPlayer() {
   });
 }
 
-// ─── Mutation: Add XP ───
-export function useAddXP() {
+// ─── Mutation: Complete mission ───
+export function useCompleteMission() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (amount: bigint) => {
+    mutationFn: async ({
+      missionId,
+      category,
+      xpReward,
+    }: {
+      missionId: string;
+      category: string;
+      xpReward: bigint;
+    }) => {
       if (!actor) throw new Error("Not connected");
-      return actor.addXP(amount);
+      return actor.completeMission(missionId, category, xpReward);
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["playerProfile"] });
+      void queryClient.invalidateQueries({ queryKey: ["missionCompletions"] });
       void queryClient.invalidateQueries({ queryKey: ["leaderboard"] });
+    },
+  });
+}
+
+// ─── Mutation: Update martial arts XP ───
+export function useUpdateMartialArtsXP() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (xpToAdd: bigint) => {
+      if (!actor) throw new Error("Not connected");
+      return actor.updateMartialArtsXP(xpToAdd);
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["playerProfile"] });
     },
   });
 }

@@ -89,6 +89,14 @@ export class ExternalBlob {
         return this;
     }
 }
+export interface CategoryXP {
+    focus: bigint;
+    discipline: bigint;
+    mindset: bigint;
+    martial: bigint;
+    fitness: bigint;
+    intelligence: bigint;
+}
 export interface PlayerStats {
     focus: bigint;
     aura: bigint;
@@ -99,11 +107,20 @@ export interface PlayerStats {
 }
 export interface PlayerProfile {
     xp: bigint;
+    age: bigint;
+    categoryXP: CategoryXP;
+    fitnessLevel: string;
     username: string;
+    goal: string;
+    martialArtsLevel: bigint;
+    completedMissions: Array<string>;
     level: bigint;
     stats: PlayerStats;
     achievements: Array<bigint>;
+    gender: string;
     skillPoints: bigint;
+    martialArtsXP: bigint;
+    bodyType: string;
 }
 export enum UserRole {
     admin = "admin",
@@ -112,14 +129,17 @@ export enum UserRole {
 }
 export interface backendInterface {
     _initializeAccessControlWithSecret(userSecret: string): Promise<void>;
-    addXP(xpToAdd: bigint): Promise<void>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
+    completeMission(missionId: string, category: string, xpReward: bigint): Promise<void>;
     getCallerUserRole(): Promise<UserRole>;
     getLeaderboard(): Promise<Array<PlayerProfile>>;
+    getMissionCompletions(): Promise<Array<string>>;
     getPlayerProfile(): Promise<PlayerProfile | null>;
+    getPublicProfile(player: Principal): Promise<PlayerProfile | null>;
     isCallerAdmin(): Promise<boolean>;
-    registerPlayer(username: string): Promise<void>;
+    registerPlayer(username: string, age: bigint, gender: string, goal: string, fitnessLevel: string, bodyType: string): Promise<void>;
     unlockAchievement(badgeId: bigint): Promise<void>;
+    updateMartialArtsXP(xpToAdd: bigint): Promise<void>;
     updateStats(newStats: PlayerStats): Promise<void>;
 }
 import type { PlayerProfile as _PlayerProfile, UserRole as _UserRole } from "./declarations/backend.did.d.ts";
@@ -139,20 +159,6 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async addXP(arg0: bigint): Promise<void> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.addXP(arg0);
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.addXP(arg0);
-            return result;
-        }
-    }
     async assignCallerUserRole(arg0: Principal, arg1: UserRole): Promise<void> {
         if (this.processError) {
             try {
@@ -164,6 +170,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.assignCallerUserRole(arg0, to_candid_UserRole_n1(this._uploadFile, this._downloadFile, arg1));
+            return result;
+        }
+    }
+    async completeMission(arg0: string, arg1: string, arg2: bigint): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.completeMission(arg0, arg1, arg2);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.completeMission(arg0, arg1, arg2);
             return result;
         }
     }
@@ -195,6 +215,20 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async getMissionCompletions(): Promise<Array<string>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getMissionCompletions();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getMissionCompletions();
+            return result;
+        }
+    }
     async getPlayerProfile(): Promise<PlayerProfile | null> {
         if (this.processError) {
             try {
@@ -206,6 +240,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.getPlayerProfile();
+            return from_candid_opt_n5(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getPublicProfile(arg0: Principal): Promise<PlayerProfile | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getPublicProfile(arg0);
+                return from_candid_opt_n5(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getPublicProfile(arg0);
             return from_candid_opt_n5(this._uploadFile, this._downloadFile, result);
         }
     }
@@ -223,17 +271,17 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async registerPlayer(arg0: string): Promise<void> {
+    async registerPlayer(arg0: string, arg1: bigint, arg2: string, arg3: string, arg4: string, arg5: string): Promise<void> {
         if (this.processError) {
             try {
-                const result = await this.actor.registerPlayer(arg0);
+                const result = await this.actor.registerPlayer(arg0, arg1, arg2, arg3, arg4, arg5);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.registerPlayer(arg0);
+            const result = await this.actor.registerPlayer(arg0, arg1, arg2, arg3, arg4, arg5);
             return result;
         }
     }
@@ -248,6 +296,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.unlockAchievement(arg0);
+            return result;
+        }
+    }
+    async updateMartialArtsXP(arg0: bigint): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.updateMartialArtsXP(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.updateMartialArtsXP(arg0);
             return result;
         }
     }

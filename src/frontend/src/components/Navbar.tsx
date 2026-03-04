@@ -1,13 +1,19 @@
 import { useAuth } from "@/components/auth/AuthProvider";
+import { usePlayerProfile } from "@/hooks/useBackend";
+import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { getRankInfo } from "./PlayerDashboard";
 
 interface NavbarProps {
   onLoginClick: () => void;
   onSignupClick: () => void;
+  activeSection?: string;
+  onNavClick?: (section: string) => void;
 }
 
 export function Navbar({ onLoginClick, onSignupClick }: NavbarProps) {
-  const { isLoggedIn, logout, identity } = useAuth();
+  const { isLoggedIn, logout } = useAuth();
+  const { data: profile } = usePlayerProfile();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -18,21 +24,40 @@ export function Navbar({ onLoginClick, onSignupClick }: NavbarProps) {
   }, []);
 
   const navLinks = [
-    { label: "Home", href: "#home", ocid: "nav.home.link" },
-    { label: "Missions", href: "#missions", ocid: "nav.missions.link" },
-    { label: "Habits", href: "#habits", ocid: "nav.habits.link" },
-    { label: "Dashboard", href: "#dashboard", ocid: "nav.dashboard.link" },
-    { label: "Skills", href: "#skills", ocid: "nav.skills.link" },
+    { label: "Home", href: "#home", ocid: "nav.home.link", section: "home" },
+    {
+      label: "Trainers",
+      href: "#trainers",
+      ocid: "nav.trainers.link",
+      section: "trainers",
+    },
+    {
+      label: "Missions",
+      href: "#trainers",
+      ocid: "nav.missions.link",
+      section: "trainers",
+    },
+    {
+      label: "Martial Arts",
+      href: "#martial",
+      ocid: "nav.martial.link",
+      section: "martial",
+    },
     {
       label: "Leaderboard",
       href: "#leaderboard",
       ocid: "nav.leaderboard.link",
+      section: "leaderboard",
+    },
+    {
+      label: "Profile",
+      href: "#dashboard",
+      ocid: "nav.profile.link",
+      section: "dashboard",
     },
   ];
 
-  const principalShort = identity
-    ? `${identity.getPrincipal().toString().slice(0, 10)}...`
-    : null;
+  const rankInfo = profile ? getRankInfo(Number(profile.level)) : null;
 
   return (
     <header
@@ -45,12 +70,12 @@ export function Navbar({ onLoginClick, onSignupClick }: NavbarProps) {
         zIndex: 100,
         transition: "all 0.3s ease",
         background: scrolled
-          ? "oklch(0.07 0.01 250 / 0.9)"
+          ? "oklch(0.07 0.01 250 / 0.92)"
           : "oklch(0.07 0.01 250 / 0.5)",
         backdropFilter: "blur(20px)",
         WebkitBackdropFilter: "blur(20px)",
         borderBottom: scrolled
-          ? "1px solid oklch(0.62 0.25 22 / 0.25)"
+          ? "1px solid oklch(0.62 0.25 22 / 0.2)"
           : "1px solid transparent",
         boxShadow: scrolled ? "0 4px 24px oklch(0 0 0 / 0.4)" : "none",
       }}
@@ -64,16 +89,16 @@ export function Navbar({ onLoginClick, onSignupClick }: NavbarProps) {
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          gap: "2rem",
+          gap: "1.5rem",
         }}
       >
         {/* Logo */}
         <a
           href="#home"
           style={{
-            fontFamily: '"Orbitron", monospace',
+            fontFamily: '"Sora", sans-serif',
             fontWeight: 900,
-            fontSize: "clamp(1rem, 2.5vw, 1.3rem)",
+            fontSize: "clamp(1rem, 2.2vw, 1.25rem)",
             letterSpacing: "0.08em",
             textDecoration: "none",
             background:
@@ -81,7 +106,6 @@ export function Navbar({ onLoginClick, onSignupClick }: NavbarProps) {
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
             backgroundClip: "text",
-            textShadow: "none",
             flexShrink: 0,
           }}
         >
@@ -90,27 +114,23 @@ export function Navbar({ onLoginClick, onSignupClick }: NavbarProps) {
 
         {/* Desktop nav links */}
         <div
-          style={{
-            display: "flex",
-            gap: "0.25rem",
-            alignItems: "center",
-          }}
+          style={{ display: "flex", gap: "0.15rem", alignItems: "center" }}
           className="hidden md:flex"
         >
           {navLinks.map((link) => (
             <a
-              key={link.href}
+              key={link.ocid}
               href={link.href}
               data-ocid={link.ocid}
               style={{
                 fontFamily: '"Sora", sans-serif',
-                fontSize: "0.82rem",
+                fontSize: "0.78rem",
                 fontWeight: 500,
                 letterSpacing: "0.08em",
                 textTransform: "uppercase",
                 textDecoration: "none",
-                color: "oklch(0.75 0.03 260)",
-                padding: "0.4rem 0.85rem",
+                color: "oklch(0.72 0.03 260)",
+                padding: "0.4rem 0.75rem",
                 borderRadius: "4px",
                 transition: "all 0.2s ease",
                 border: "1px solid transparent",
@@ -125,7 +145,7 @@ export function Navbar({ onLoginClick, onSignupClick }: NavbarProps) {
                   "0 0 8px oklch(0.62 0.25 22 / 0.6)";
               }}
               onMouseLeave={(e) => {
-                (e.target as HTMLElement).style.color = "oklch(0.75 0.03 260)";
+                (e.target as HTMLElement).style.color = "oklch(0.72 0.03 260)";
                 (e.target as HTMLElement).style.borderColor = "transparent";
                 (e.target as HTMLElement).style.background = "transparent";
                 (e.target as HTMLElement).style.textShadow = "none";
@@ -143,26 +163,38 @@ export function Navbar({ onLoginClick, onSignupClick }: NavbarProps) {
         >
           {isLoggedIn ? (
             <>
-              <span
-                style={{
-                  fontFamily: '"Geist Mono", monospace',
-                  fontSize: "0.75rem",
-                  color: "oklch(0.62 0.22 295)",
-                  letterSpacing: "0.05em",
-                  padding: "0.3rem 0.75rem",
-                  background: "oklch(0.62 0.22 295 / 0.08)",
-                  border: "1px solid oklch(0.62 0.22 295 / 0.3)",
-                  borderRadius: "4px",
-                }}
-              >
-                {principalShort}
-              </span>
+              {rankInfo && profile && (
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.5rem",
+                    padding: "0.3rem 0.75rem",
+                    background: "oklch(0.62 0.25 22 / 0.08)",
+                    border: "1px solid oklch(0.62 0.25 22 / 0.3)",
+                    borderRadius: "6px",
+                  }}
+                >
+                  <span style={{ fontSize: "0.9rem" }}>{rankInfo.badge}</span>
+                  <span
+                    style={{
+                      fontFamily: '"Sora", sans-serif',
+                      fontSize: "0.7rem",
+                      fontWeight: 700,
+                      color: rankInfo.color,
+                      letterSpacing: "0.06em",
+                    }}
+                  >
+                    LVL {Number(profile.level)} · {profile.username}
+                  </span>
+                </div>
+              )}
               <button
                 type="button"
-                data-ocid="navbar.logout.button"
+                data-ocid="nav.logout.button"
                 onClick={logout}
                 style={{
-                  fontFamily: '"Orbitron", monospace',
+                  fontFamily: '"Sora", sans-serif',
                   fontWeight: 700,
                   fontSize: "0.7rem",
                   letterSpacing: "0.1em",
@@ -178,12 +210,9 @@ export function Navbar({ onLoginClick, onSignupClick }: NavbarProps) {
                 onMouseEnter={(e) => {
                   (e.target as HTMLElement).style.background =
                     "oklch(0.62 0.25 22 / 0.12)";
-                  (e.target as HTMLElement).style.boxShadow =
-                    "0 0 10px oklch(0.62 0.25 22 / 0.3)";
                 }}
                 onMouseLeave={(e) => {
                   (e.target as HTMLElement).style.background = "transparent";
-                  (e.target as HTMLElement).style.boxShadow = "none";
                 }}
               >
                 Logout
@@ -193,10 +222,10 @@ export function Navbar({ onLoginClick, onSignupClick }: NavbarProps) {
             <>
               <button
                 type="button"
-                data-ocid="navbar.login.button"
+                data-ocid="nav.login.button"
                 onClick={onLoginClick}
                 style={{
-                  fontFamily: '"Orbitron", monospace',
+                  fontFamily: '"Sora", sans-serif',
                   fontWeight: 700,
                   fontSize: "0.7rem",
                   letterSpacing: "0.1em",
@@ -212,22 +241,19 @@ export function Navbar({ onLoginClick, onSignupClick }: NavbarProps) {
                 onMouseEnter={(e) => {
                   (e.target as HTMLElement).style.background =
                     "oklch(0.62 0.22 295 / 0.1)";
-                  (e.target as HTMLElement).style.boxShadow =
-                    "0 0 12px oklch(0.62 0.22 295 / 0.35)";
                 }}
                 onMouseLeave={(e) => {
                   (e.target as HTMLElement).style.background = "transparent";
-                  (e.target as HTMLElement).style.boxShadow = "none";
                 }}
               >
                 Login
               </button>
               <button
                 type="button"
-                data-ocid="navbar.signup.button"
+                data-ocid="nav.login.button"
                 onClick={onSignupClick}
                 style={{
-                  fontFamily: '"Orbitron", monospace',
+                  fontFamily: '"Sora", sans-serif',
                   fontWeight: 700,
                   fontSize: "0.7rem",
                   letterSpacing: "0.1em",
@@ -239,19 +265,18 @@ export function Navbar({ onLoginClick, onSignupClick }: NavbarProps) {
                   borderRadius: "4px",
                   color: "oklch(0.98 0 0)",
                   cursor: "pointer",
-                  boxShadow:
-                    "0 0 8px oklch(0.62 0.25 22 / 0.4), 0 0 20px oklch(0.62 0.25 22 / 0.2)",
+                  boxShadow: "0 0 8px oklch(0.62 0.25 22 / 0.4)",
                   transition: "all 0.2s ease",
                 }}
                 onMouseEnter={(e) => {
                   (e.target as HTMLElement).style.boxShadow =
-                    "0 0 12px oklch(0.62 0.25 22 / 0.8), 0 0 30px oklch(0.62 0.25 22 / 0.4)";
+                    "0 0 16px oklch(0.62 0.25 22 / 0.7)";
                   (e.target as HTMLElement).style.transform =
                     "translateY(-1px)";
                 }}
                 onMouseLeave={(e) => {
                   (e.target as HTMLElement).style.boxShadow =
-                    "0 0 8px oklch(0.62 0.25 22 / 0.4), 0 0 20px oklch(0.62 0.25 22 / 0.2)";
+                    "0 0 8px oklch(0.62 0.25 22 / 0.4)";
                   (e.target as HTMLElement).style.transform = "translateY(0)";
                 }}
               >
@@ -270,13 +295,15 @@ export function Navbar({ onLoginClick, onSignupClick }: NavbarProps) {
             background: "transparent",
             border: "1px solid oklch(0.62 0.25 22 / 0.4)",
             borderRadius: "4px",
-            padding: "0.4rem 0.6rem",
+            padding: "0.4rem 0.5rem",
             color: "oklch(0.62 0.25 22)",
             cursor: "pointer",
-            fontSize: "1.1rem",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
           }}
         >
-          {menuOpen ? "✕" : "☰"}
+          {menuOpen ? <X size={18} /> : <Menu size={18} />}
         </button>
       </nav>
 
@@ -290,45 +317,51 @@ export function Navbar({ onLoginClick, onSignupClick }: NavbarProps) {
             padding: "1rem 2rem",
             display: "flex",
             flexDirection: "column",
-            gap: "0.75rem",
+            gap: "0.5rem",
           }}
         >
           {navLinks.map((link) => (
             <a
-              key={link.href}
+              key={link.ocid}
               href={link.href}
               data-ocid={link.ocid}
               onClick={() => setMenuOpen(false)}
               style={{
                 fontFamily: '"Sora", sans-serif',
-                fontSize: "0.9rem",
+                fontSize: "0.88rem",
                 fontWeight: 500,
                 letterSpacing: "0.08em",
                 textTransform: "uppercase",
                 textDecoration: "none",
                 color: "oklch(0.75 0.03 260)",
                 padding: "0.6rem 0",
-                borderBottom: "1px solid oklch(0.25 0.04 260 / 0.4)",
+                borderBottom: "1px solid oklch(0.2 0.02 260 / 0.4)",
               }}
             >
               {link.label}
             </a>
           ))}
-          <div style={{ display: "flex", gap: "0.75rem", marginTop: "0.5rem" }}>
+          <div
+            style={{
+              display: "flex",
+              gap: "0.75rem",
+              marginTop: "0.5rem",
+              paddingTop: "0.5rem",
+            }}
+          >
             {isLoggedIn ? (
               <button
                 type="button"
-                data-ocid="navbar.logout.button"
+                data-ocid="nav.logout.button"
                 onClick={() => {
                   logout();
                   setMenuOpen(false);
                 }}
                 style={{
-                  fontFamily: '"Orbitron", monospace',
+                  fontFamily: '"Sora", sans-serif',
                   fontWeight: 700,
-                  fontSize: "0.7rem",
+                  fontSize: "0.72rem",
                   letterSpacing: "0.1em",
-                  textTransform: "uppercase",
                   padding: "0.5rem 1rem",
                   background: "transparent",
                   border: "1px solid oklch(0.62 0.25 22 / 0.5)",
@@ -343,17 +376,16 @@ export function Navbar({ onLoginClick, onSignupClick }: NavbarProps) {
               <>
                 <button
                   type="button"
-                  data-ocid="navbar.login.button"
+                  data-ocid="nav.login.button"
                   onClick={() => {
                     onLoginClick();
                     setMenuOpen(false);
                   }}
                   style={{
-                    fontFamily: '"Orbitron", monospace',
+                    fontFamily: '"Sora", sans-serif',
                     fontWeight: 700,
-                    fontSize: "0.7rem",
+                    fontSize: "0.72rem",
                     letterSpacing: "0.1em",
-                    textTransform: "uppercase",
                     padding: "0.5rem 1rem",
                     background: "transparent",
                     border: "1px solid oklch(0.62 0.22 295 / 0.5)",
@@ -366,17 +398,16 @@ export function Navbar({ onLoginClick, onSignupClick }: NavbarProps) {
                 </button>
                 <button
                   type="button"
-                  data-ocid="navbar.signup.button"
+                  data-ocid="nav.login.button"
                   onClick={() => {
                     onSignupClick();
                     setMenuOpen(false);
                   }}
                   style={{
-                    fontFamily: '"Orbitron", monospace',
+                    fontFamily: '"Sora", sans-serif',
                     fontWeight: 700,
-                    fontSize: "0.7rem",
+                    fontSize: "0.72rem",
                     letterSpacing: "0.1em",
-                    textTransform: "uppercase",
                     padding: "0.5rem 1.2rem",
                     background:
                       "linear-gradient(135deg, oklch(0.62 0.25 22) 0%, oklch(0.55 0.22 340) 100%)",

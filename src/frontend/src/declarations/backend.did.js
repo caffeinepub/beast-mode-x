@@ -13,6 +13,14 @@ export const UserRole = IDL.Variant({
   'user' : IDL.Null,
   'guest' : IDL.Null,
 });
+export const CategoryXP = IDL.Record({
+  'focus' : IDL.Nat,
+  'discipline' : IDL.Nat,
+  'mindset' : IDL.Nat,
+  'martial' : IDL.Nat,
+  'fitness' : IDL.Nat,
+  'intelligence' : IDL.Nat,
+});
 export const PlayerStats = IDL.Record({
   'focus' : IDL.Nat,
   'aura' : IDL.Nat,
@@ -23,23 +31,43 @@ export const PlayerStats = IDL.Record({
 });
 export const PlayerProfile = IDL.Record({
   'xp' : IDL.Nat,
+  'age' : IDL.Nat,
+  'categoryXP' : CategoryXP,
+  'fitnessLevel' : IDL.Text,
   'username' : IDL.Text,
+  'goal' : IDL.Text,
+  'martialArtsLevel' : IDL.Nat,
+  'completedMissions' : IDL.Vec(IDL.Text),
   'level' : IDL.Nat,
   'stats' : PlayerStats,
   'achievements' : IDL.Vec(IDL.Nat),
+  'gender' : IDL.Text,
   'skillPoints' : IDL.Nat,
+  'martialArtsXP' : IDL.Nat,
+  'bodyType' : IDL.Text,
 });
 
 export const idlService = IDL.Service({
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
-  'addXP' : IDL.Func([IDL.Nat], [], []),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+  'completeMission' : IDL.Func([IDL.Text, IDL.Text, IDL.Nat], [], []),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
   'getLeaderboard' : IDL.Func([], [IDL.Vec(PlayerProfile)], ['query']),
+  'getMissionCompletions' : IDL.Func([], [IDL.Vec(IDL.Text)], ['query']),
   'getPlayerProfile' : IDL.Func([], [IDL.Opt(PlayerProfile)], ['query']),
+  'getPublicProfile' : IDL.Func(
+      [IDL.Principal],
+      [IDL.Opt(PlayerProfile)],
+      ['query'],
+    ),
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
-  'registerPlayer' : IDL.Func([IDL.Text], [], []),
+  'registerPlayer' : IDL.Func(
+      [IDL.Text, IDL.Nat, IDL.Text, IDL.Text, IDL.Text, IDL.Text],
+      [],
+      [],
+    ),
   'unlockAchievement' : IDL.Func([IDL.Nat], [], []),
+  'updateMartialArtsXP' : IDL.Func([IDL.Nat], [], []),
   'updateStats' : IDL.Func([PlayerStats], [], []),
 });
 
@@ -51,6 +79,14 @@ export const idlFactory = ({ IDL }) => {
     'user' : IDL.Null,
     'guest' : IDL.Null,
   });
+  const CategoryXP = IDL.Record({
+    'focus' : IDL.Nat,
+    'discipline' : IDL.Nat,
+    'mindset' : IDL.Nat,
+    'martial' : IDL.Nat,
+    'fitness' : IDL.Nat,
+    'intelligence' : IDL.Nat,
+  });
   const PlayerStats = IDL.Record({
     'focus' : IDL.Nat,
     'aura' : IDL.Nat,
@@ -61,23 +97,43 @@ export const idlFactory = ({ IDL }) => {
   });
   const PlayerProfile = IDL.Record({
     'xp' : IDL.Nat,
+    'age' : IDL.Nat,
+    'categoryXP' : CategoryXP,
+    'fitnessLevel' : IDL.Text,
     'username' : IDL.Text,
+    'goal' : IDL.Text,
+    'martialArtsLevel' : IDL.Nat,
+    'completedMissions' : IDL.Vec(IDL.Text),
     'level' : IDL.Nat,
     'stats' : PlayerStats,
     'achievements' : IDL.Vec(IDL.Nat),
+    'gender' : IDL.Text,
     'skillPoints' : IDL.Nat,
+    'martialArtsXP' : IDL.Nat,
+    'bodyType' : IDL.Text,
   });
   
   return IDL.Service({
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
-    'addXP' : IDL.Func([IDL.Nat], [], []),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+    'completeMission' : IDL.Func([IDL.Text, IDL.Text, IDL.Nat], [], []),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
     'getLeaderboard' : IDL.Func([], [IDL.Vec(PlayerProfile)], ['query']),
+    'getMissionCompletions' : IDL.Func([], [IDL.Vec(IDL.Text)], ['query']),
     'getPlayerProfile' : IDL.Func([], [IDL.Opt(PlayerProfile)], ['query']),
+    'getPublicProfile' : IDL.Func(
+        [IDL.Principal],
+        [IDL.Opt(PlayerProfile)],
+        ['query'],
+      ),
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
-    'registerPlayer' : IDL.Func([IDL.Text], [], []),
+    'registerPlayer' : IDL.Func(
+        [IDL.Text, IDL.Nat, IDL.Text, IDL.Text, IDL.Text, IDL.Text],
+        [],
+        [],
+      ),
     'unlockAchievement' : IDL.Func([IDL.Nat], [], []),
+    'updateMartialArtsXP' : IDL.Func([IDL.Nat], [], []),
     'updateStats' : IDL.Func([PlayerStats], [], []),
   });
 };

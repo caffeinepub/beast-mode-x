@@ -164,6 +164,19 @@
   100% { transform: rotate(360deg); }
 }
 
+@keyframes levelUpFlash {
+  0% { opacity: 0; }
+  10% { opacity: 1; }
+  50% { opacity: 0.8; }
+  90% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes xpFloat {
+  0% { opacity: 1; transform: translateY(0) translateX(-50%); }
+  100% { opacity: 0; transform: translateY(-60px) translateX(-50%); }
+}
+
 /* ─── Utility classes ─── */
 @layer utilities {
   .font-orbitron {

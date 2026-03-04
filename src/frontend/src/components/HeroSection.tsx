@@ -288,7 +288,7 @@ export function HeroSection({ onStartClick }: HeroSectionProps) {
             transition: "all 0.7s ease 0.3s",
           }}
         >
-          Level Up Your Life
+          Awaken. Train. Ascend.
         </p>
 
         {/* CTA Buttons */}

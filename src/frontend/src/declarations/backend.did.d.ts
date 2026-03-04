@@ -10,13 +10,30 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
+export interface CategoryXP {
+  'focus' : bigint,
+  'discipline' : bigint,
+  'mindset' : bigint,
+  'martial' : bigint,
+  'fitness' : bigint,
+  'intelligence' : bigint,
+}
 export interface PlayerProfile {
   'xp' : bigint,
+  'age' : bigint,
+  'categoryXP' : CategoryXP,
+  'fitnessLevel' : string,
   'username' : string,
+  'goal' : string,
+  'martialArtsLevel' : bigint,
+  'completedMissions' : Array<string>,
   'level' : bigint,
   'stats' : PlayerStats,
   'achievements' : Array<bigint>,
+  'gender' : string,
   'skillPoints' : bigint,
+  'martialArtsXP' : bigint,
+  'bodyType' : string,
 }
 export interface PlayerStats {
   'focus' : bigint,
@@ -31,14 +48,20 @@ export type UserRole = { 'admin' : null } |
   { 'guest' : null };
 export interface _SERVICE {
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
-  'addXP' : ActorMethod<[bigint], undefined>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
+  'completeMission' : ActorMethod<[string, string, bigint], undefined>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
   'getLeaderboard' : ActorMethod<[], Array<PlayerProfile>>,
+  'getMissionCompletions' : ActorMethod<[], Array<string>>,
   'getPlayerProfile' : ActorMethod<[], [] | [PlayerProfile]>,
+  'getPublicProfile' : ActorMethod<[Principal], [] | [PlayerProfile]>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
-  'registerPlayer' : ActorMethod<[string], undefined>,
+  'registerPlayer' : ActorMethod<
+    [string, bigint, string, string, string, string],
+    undefined
+  >,
   'unlockAchievement' : ActorMethod<[bigint], undefined>,
+  'updateMartialArtsXP' : ActorMethod<[bigint], undefined>,
   'updateStats' : ActorMethod<[PlayerStats], undefined>,
 }
 export declare const idlService: IDL.ServiceClass;

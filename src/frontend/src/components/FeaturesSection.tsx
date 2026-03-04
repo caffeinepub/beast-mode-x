@@ -1,45 +1,78 @@
-import { Award, Calendar, Target, TrendingUp, Zap } from "lucide-react";
+import {
+  Award,
+  Brain,
+  Calendar,
+  Shield,
+  Target,
+  TrendingUp,
+  UserCircle,
+  Zap,
+} from "lucide-react";
 
 const FEATURES = [
   {
-    icon: Target,
-    title: "Daily Missions",
+    icon: UserCircle,
+    title: "AI Trainers",
     description:
-      "Complete real-life challenges every day. Workout, study, meditate, and earn XP for each win.",
+      "Six elite anime-style AI trainers — each a master of their domain. Choose your mentor and receive personalized missions.",
     color: "oklch(0.62 0.25 22)",
     glow: "0 0 20px oklch(0.62 0.25 22 / 0.3)",
   },
   {
-    icon: Zap,
-    title: "Habit Streaks",
+    icon: Shield,
+    title: "Martial Arts Dojo",
     description:
-      "Build unstoppable habits with streak tracking. Consistency is your greatest superpower.",
+      "Train under RYU in the dojo. Earn martial arts XP, rank up through belt levels, and forge an iron spirit.",
     color: "oklch(0.62 0.22 295)",
     glow: "0 0 20px oklch(0.62 0.22 295 / 0.3)",
   },
   {
-    icon: TrendingUp,
-    title: "XP & Level System",
+    icon: Target,
+    title: "Daily Missions",
     description:
-      "Every action you take earns XP. Level up as you grow — your stats reflect your real progress.",
+      "Real-life challenges every day. Workout, study, meditate, and earn XP for each completed mission.",
+    color: "oklch(0.62 0.25 22)",
+    glow: "0 0 20px oklch(0.62 0.25 22 / 0.3)",
+  },
+  {
+    icon: TrendingUp,
+    title: "10-Rank Level System",
+    description:
+      "Rise from Unawakened to BEAST MODE through 10 distinct ranks. Every rank unlocks new titles and power.",
+    color: "oklch(0.62 0.22 295)",
+    glow: "0 0 20px oklch(0.62 0.22 295 / 0.3)",
+  },
+  {
+    icon: Brain,
+    title: "Skill Tree",
+    description:
+      "Spend skill points to unlock abilities across Fitness, Mind, Discipline, Knowledge, and Social categories.",
     color: "oklch(0.62 0.25 22)",
     glow: "0 0 20px oklch(0.62 0.25 22 / 0.3)",
   },
   {
     icon: Award,
-    title: "Achievement Badges",
+    title: "Achievements & Profile",
     description:
-      "Unlock 12 exclusive badges as you hit real milestones. Wear your discipline like armor.",
+      "Unlock badges, view your full player profile, and inspect the stats of top players on the leaderboard.",
     color: "oklch(0.62 0.22 295)",
     glow: "0 0 20px oklch(0.62 0.22 295 / 0.3)",
+  },
+  {
+    icon: Zap,
+    title: "Habit Streaks",
+    description:
+      "Build unstoppable habits with streak tracking and fire indicators. Consistency is your superpower.",
+    color: "oklch(0.62 0.25 22)",
+    glow: "0 0 20px oklch(0.62 0.25 22 / 0.3)",
   },
   {
     icon: Calendar,
     title: "Leaderboard Ranking",
     description:
-      "Compete with others on the self-improvement leaderboard. Rise to the top through consistency.",
-    color: "oklch(0.62 0.25 22)",
-    glow: "0 0 20px oklch(0.62 0.25 22 / 0.3)",
+      "Compete on the self-improvement leaderboard. Rise to the top through discipline, not luck.",
+    color: "oklch(0.62 0.22 295)",
+    glow: "0 0 20px oklch(0.62 0.22 295 / 0.3)",
   },
 ];
 
@@ -152,7 +185,8 @@ export function FeaturesSection() {
               lineHeight: 1.6,
             }}
           >
-            Five powerful systems to transform every area of your life.
+            Eight powerful systems — from AI trainers to martial arts, skill
+            trees to leaderboards.
           </p>
         </div>
 
@@ -160,10 +194,10 @@ export function FeaturesSection() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
+            gridTemplateColumns: "repeat(4, 1fr)",
             gap: "1.5rem",
           }}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
         >
           {FEATURES.map((feature, idx) => {
             const Icon = feature.icon;
@@ -181,9 +215,6 @@ export function FeaturesSection() {
                   cursor: "default",
                   position: "relative",
                   overflow: "hidden",
-                  ...(idx === 4 && {
-                    gridColumn: "span 1",
-                  }),
                 }}
                 onMouseEnter={(e) => {
                   const el = e.currentTarget;
