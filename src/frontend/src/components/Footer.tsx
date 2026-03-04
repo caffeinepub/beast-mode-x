@@ -90,7 +90,7 @@ export function Footer() {
                 textTransform: "uppercase",
               }}
             >
-              BUILT FOR LEGENDS
+              BUILT FOR THOSE WHO REFUSE TO STAY THE SAME
             </p>
           </div>
 

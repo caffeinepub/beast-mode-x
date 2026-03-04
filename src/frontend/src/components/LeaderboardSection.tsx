@@ -19,6 +19,48 @@ const RANK_COLORS = [
   },
 ];
 
+interface RankBadgeInfo {
+  name: string;
+  image: string;
+  color: string;
+}
+
+function getPlayerRankInfo(xp: number): RankBadgeInfo {
+  if (xp >= 25000) {
+    return {
+      name: "BEAST",
+      image: "/assets/generated/badge-beast-transparent.dim_200x200.png",
+      color: "oklch(0.62 0.25 22)",
+    };
+  }
+  if (xp >= 10000) {
+    return {
+      name: "LEGEND",
+      image: "/assets/generated/badge-legend-transparent.dim_200x200.png",
+      color: "oklch(0.82 0.18 85)",
+    };
+  }
+  if (xp >= 5000) {
+    return {
+      name: "ELITE",
+      image: "/assets/generated/badge-elite-transparent.dim_200x200.png",
+      color: "oklch(0.62 0.22 295)",
+    };
+  }
+  if (xp >= 1000) {
+    return {
+      name: "WARRIOR",
+      image: "/assets/generated/badge-warrior-transparent.dim_200x200.png",
+      color: "oklch(0.62 0.22 295)",
+    };
+  }
+  return {
+    name: "NOVICE",
+    image: "/assets/generated/badge-novice-transparent.dim_200x200.png",
+    color: "oklch(0.65 0.04 260)",
+  };
+}
+
 // Fallback data for display when backend not connected
 const SAMPLE_LEADERS = [
   { username: "SHADOWBLADE_X", level: 42n, xp: 41850n },
@@ -77,7 +119,7 @@ export function LeaderboardSection() {
 
       <div
         style={{
-          maxWidth: "800px",
+          maxWidth: "900px",
           margin: "0 auto",
           position: "relative",
           zIndex: 1,
@@ -106,7 +148,7 @@ export function LeaderboardSection() {
                 color: "oklch(0.82 0.18 85)",
               }}
             >
-              TOP PLAYERS
+              HALL OF LEGENDS
             </span>
           </div>
           <h2
@@ -132,7 +174,7 @@ export function LeaderboardSection() {
               color: "oklch(0.6 0.04 260)",
             }}
           >
-            The elite warriors who dominate the battlefield
+            The most consistent self-improvers in the arena
           </p>
         </div>
 
@@ -210,14 +252,14 @@ export function LeaderboardSection() {
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "60px 1fr 80px 100px",
+                gridTemplateColumns: "60px 1fr 70px 80px 100px",
                 padding: "0.75rem 1.5rem",
                 background: "oklch(0.12 0.02 260)",
                 borderBottom: "1px solid oklch(0.25 0.04 260 / 0.6)",
                 gap: "1rem",
               }}
             >
-              {["RANK", "PLAYER", "LEVEL", "XP"].map((label) => (
+              {["RANK", "PLAYER", "BADGE", "LEVEL", "XP"].map((label) => (
                 <span
                   key={label}
                   style={{
@@ -252,6 +294,7 @@ export function LeaderboardSection() {
                 const rank = idx + 1;
                 const rankInfo = RANK_COLORS[idx] ?? null;
                 const isFirst = rank === 1;
+                const playerRank = getPlayerRankInfo(Number(player.xp));
 
                 return (
                   <div
@@ -259,7 +302,7 @@ export function LeaderboardSection() {
                     data-ocid={`leaderboard.row.item.${rank}`}
                     style={{
                       display: "grid",
-                      gridTemplateColumns: "60px 1fr 80px 100px",
+                      gridTemplateColumns: "60px 1fr 70px 80px 100px",
                       padding: "0.9rem 1.5rem",
                       gap: "1rem",
                       alignItems: "center",
@@ -340,6 +383,37 @@ export function LeaderboardSection() {
                     >
                       {player.username}
                     </span>
+
+                    {/* Rank Badge */}
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        gap: "2px",
+                      }}
+                    >
+                      <img
+                        src={playerRank.image}
+                        alt={playerRank.name}
+                        width={32}
+                        height={32}
+                        style={{
+                          filter: `drop-shadow(0 0 4px ${playerRank.color.replace(")", " / 0.6)")})`,
+                        }}
+                      />
+                      <span
+                        style={{
+                          fontFamily: '"Orbitron", monospace',
+                          fontSize: "0.45rem",
+                          fontWeight: 700,
+                          letterSpacing: "0.06em",
+                          color: playerRank.color,
+                        }}
+                      >
+                        {playerRank.name}
+                      </span>
+                    </div>
 
                     {/* Level */}
                     <div

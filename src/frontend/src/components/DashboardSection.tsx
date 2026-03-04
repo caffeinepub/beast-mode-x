@@ -14,24 +14,91 @@ interface DashboardSectionProps {
 }
 
 const STAT_ICONS: Record<string, string> = {
-  STR: "⚔",
-  SPD: "⚡",
-  END: "🛡",
-  INT: "🧠",
-  FOC: "🎯",
-  AUR: "✨",
+  FITNESS: "💪",
+  PRODUCTIVITY: "⚡",
+  DISCIPLINE: "🛡",
+  KNOWLEDGE: "📚",
+  FOCUS: "🎯",
+  MINDSET: "🧠",
 };
 
 const ACHIEVEMENT_DATA = [
-  { id: 1n, name: "FIRST BLOOD", icon: "🩸" },
-  { id: 2n, name: "XP HUNTER", icon: "⭐" },
-  { id: 3n, name: "LEVEL 5", icon: "🔥" },
-  { id: 4n, name: "SPEEDSTER", icon: "⚡" },
-  { id: 5n, name: "IRON WILL", icon: "💪" },
-  { id: 6n, name: "SAGE MIND", icon: "📚" },
-  { id: 7n, name: "FOCUSED", icon: "🎯" },
-  { id: 8n, name: "LEGENDARY", icon: "👑" },
+  {
+    id: 1n,
+    name: "FIRST STEP",
+    icon: "👣",
+    desc: "Complete your first mission",
+  },
+  { id: 2n, name: "7-DAY STREAK", icon: "🔥", desc: "7 days consistent" },
+  { id: 3n, name: "IRON BODY", icon: "💪", desc: "30 workout sessions" },
+  { id: 4n, name: "MIND MASTER", icon: "🧠", desc: "Read 10 books" },
+  { id: 5n, name: "IRON WILL", icon: "🛡", desc: "30 days discipline" },
+  {
+    id: 6n,
+    name: "KNOWLEDGE SEEKER",
+    icon: "📚",
+    desc: "Complete 50 study sessions",
+  },
+  { id: 7n, name: "ZEN WARRIOR", icon: "🧘", desc: "30 meditation sessions" },
+  { id: 8n, name: "SOCIAL BEAST", icon: "🤝", desc: "Connect with 10 people" },
+  { id: 9n, name: "EARLY RISER", icon: "🌅", desc: "Wake up early 21 days" },
+  {
+    id: 10n,
+    name: "NO EXCUSES",
+    icon: "⚡",
+    desc: "Zero missed days in a month",
+  },
+  { id: 11n, name: "ELITE RANK", icon: "👑", desc: "Reach ELITE rank" },
+  { id: 12n, name: "BEAST MODE", icon: "🦁", desc: "Reach BEAST rank" },
 ];
+
+interface RankInfo {
+  name: string;
+  image: string;
+  color: string;
+  glow: string;
+}
+
+function getRankInfo(xp: number): RankInfo {
+  if (xp >= 25000) {
+    return {
+      name: "BEAST",
+      image: "/assets/generated/badge-beast-transparent.dim_200x200.png",
+      color: "oklch(0.62 0.25 22)",
+      glow: "0 0 16px oklch(0.62 0.25 22 / 0.8), 0 0 40px oklch(0.62 0.25 22 / 0.4)",
+    };
+  }
+  if (xp >= 10000) {
+    return {
+      name: "LEGEND",
+      image: "/assets/generated/badge-legend-transparent.dim_200x200.png",
+      color: "oklch(0.82 0.18 85)",
+      glow: "0 0 16px oklch(0.82 0.18 85 / 0.8), 0 0 40px oklch(0.82 0.18 85 / 0.4)",
+    };
+  }
+  if (xp >= 5000) {
+    return {
+      name: "ELITE",
+      image: "/assets/generated/badge-elite-transparent.dim_200x200.png",
+      color: "oklch(0.62 0.22 295)",
+      glow: "0 0 16px oklch(0.62 0.22 295 / 0.8), 0 0 40px oklch(0.62 0.22 295 / 0.4)",
+    };
+  }
+  if (xp >= 1000) {
+    return {
+      name: "WARRIOR",
+      image: "/assets/generated/badge-warrior-transparent.dim_200x200.png",
+      color: "oklch(0.62 0.22 295)",
+      glow: "0 0 16px oklch(0.62 0.22 295 / 0.6), 0 0 30px oklch(0.62 0.22 295 / 0.3)",
+    };
+  }
+  return {
+    name: "NOVICE",
+    image: "/assets/generated/badge-novice-transparent.dim_200x200.png",
+    color: "oklch(0.65 0.04 260)",
+    glow: "0 0 12px oklch(0.65 0.04 260 / 0.4)",
+  };
+}
 
 function StatCard({
   label,
@@ -121,6 +188,62 @@ function StatCard({
   );
 }
 
+function RankBadge({ xp }: { xp: number }) {
+  const rank = getRankInfo(xp);
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: "0.4rem",
+        padding: "1.25rem",
+        background: "oklch(0.09 0.015 260 / 0.8)",
+        border: `1px solid ${rank.color.replace(")", " / 0.4)")}`,
+        borderRadius: "8px",
+        backdropFilter: "blur(16px)",
+        textAlign: "center",
+        boxShadow: rank.glow,
+      }}
+    >
+      <div
+        style={{
+          fontFamily: '"Orbitron", monospace',
+          fontSize: "0.55rem",
+          fontWeight: 700,
+          letterSpacing: "0.2em",
+          color: "oklch(0.55 0.04 260)",
+          marginBottom: "0.25rem",
+        }}
+      >
+        CURRENT RANK
+      </div>
+      <img
+        src={rank.image}
+        alt={rank.name}
+        width={80}
+        height={80}
+        style={{
+          filter: `drop-shadow(0 0 8px ${rank.color.replace(")", " / 0.8)")})`,
+          animation: "float 4s ease-in-out infinite",
+        }}
+      />
+      <span
+        style={{
+          fontFamily: '"Orbitron", monospace',
+          fontSize: "0.75rem",
+          fontWeight: 900,
+          letterSpacing: "0.15em",
+          color: rank.color,
+          textShadow: rank.glow.split(",")[0],
+        }}
+      >
+        {rank.name}
+      </span>
+    </div>
+  );
+}
+
 function ProfileCard({ profile }: { profile: PlayerProfile }) {
   const xpInLevel = Number(profile.xp) % 1000;
   const xpPct = (xpInLevel / 1000) * 100;
@@ -136,37 +259,49 @@ function ProfileCard({ profile }: { profile: PlayerProfile }) {
 
   const stats = [
     {
-      label: "STR",
+      label: "FITNESS",
       value: Number(profile.stats.strength),
-      icon: STAT_ICONS.STR,
+      icon: STAT_ICONS.FITNESS,
     },
-    { label: "SPD", value: Number(profile.stats.speed), icon: STAT_ICONS.SPD },
     {
-      label: "END",
+      label: "PRODUCTIVITY",
+      value: Number(profile.stats.speed),
+      icon: STAT_ICONS.PRODUCTIVITY,
+    },
+    {
+      label: "DISCIPLINE",
       value: Number(profile.stats.endurance),
-      icon: STAT_ICONS.END,
+      icon: STAT_ICONS.DISCIPLINE,
     },
     {
-      label: "INT",
+      label: "KNOWLEDGE",
       value: Number(profile.stats.intelligence),
-      icon: STAT_ICONS.INT,
+      icon: STAT_ICONS.KNOWLEDGE,
     },
-    { label: "FOC", value: Number(profile.stats.focus), icon: STAT_ICONS.FOC },
-    { label: "AUR", value: Number(profile.stats.aura), icon: STAT_ICONS.AUR },
+    {
+      label: "FOCUS",
+      value: Number(profile.stats.focus),
+      icon: STAT_ICONS.FOCUS,
+    },
+    {
+      label: "MINDSET",
+      value: Number(profile.stats.aura),
+      icon: STAT_ICONS.MINDSET,
+    },
   ];
 
   const unlockedIds = profile.achievements.map((a) => Number(a));
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-      {/* Top profile row */}
+      {/* Top profile row — 3 columns: avatar, rank badge, xp */}
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "1fr 1fr",
+          gridTemplateColumns: "1fr 180px 1fr",
           gap: "1.5rem",
         }}
-        className="grid-cols-1 sm:grid-cols-2"
+        className="grid-cols-1 sm:grid-cols-3"
       >
         {/* Avatar + Identity */}
         <div
@@ -198,7 +333,7 @@ function ProfileCard({ profile }: { profile: PlayerProfile }) {
               animation: "float 4s ease-in-out infinite",
             }}
           >
-            🎮
+            🏆
           </div>
           <div>
             <div
@@ -231,10 +366,13 @@ function ProfileCard({ profile }: { profile: PlayerProfile }) {
                 boxShadow: "0 0 8px oklch(0.62 0.25 22 / 0.4)",
               }}
             >
-              ⚔ LEVEL {Number(profile.level)}
+              🏆 LEVEL {Number(profile.level)}
             </div>
           </div>
         </div>
+
+        {/* Rank Badge (center) */}
+        <RankBadge xp={Number(profile.xp)} />
 
         {/* XP + SP */}
         <div
@@ -381,7 +519,7 @@ function ProfileCard({ profile }: { profile: PlayerProfile }) {
             textTransform: "uppercase",
           }}
         >
-          ◆ Combat Stats
+          ◆ Life Stats
         </h3>
         <div
           style={{
@@ -418,7 +556,7 @@ function ProfileCard({ profile }: { profile: PlayerProfile }) {
             gridTemplateColumns: "repeat(4, 1fr)",
             gap: "0.75rem",
           }}
-          className="grid-cols-4"
+          className="grid-cols-4 sm:grid-cols-6"
         >
           {ACHIEVEMENT_DATA.map((ach, idx) => {
             const unlocked = unlockedIds.includes(Number(ach.id));
@@ -427,6 +565,7 @@ function ProfileCard({ profile }: { profile: PlayerProfile }) {
                 type="button"
                 key={ach.id}
                 data-ocid={`dashboard.achievement.item.${idx + 1}`}
+                title={ach.desc}
                 onClick={() => {
                   if (!unlocked) {
                     unlockAchievement.mutate(ach.id);
@@ -476,9 +615,9 @@ function ProfileCard({ profile }: { profile: PlayerProfile }) {
                 <span
                   style={{
                     fontFamily: '"Orbitron", monospace',
-                    fontSize: "0.55rem",
+                    fontSize: "0.5rem",
                     fontWeight: 700,
-                    letterSpacing: "0.08em",
+                    letterSpacing: "0.06em",
                     textAlign: "center",
                     color: unlocked
                       ? "oklch(0.82 0.18 85)"
@@ -516,10 +655,10 @@ function ProfileCard({ profile }: { profile: PlayerProfile }) {
           {addXp.isPending && (
             <Loader2
               size={14}
-              style={{ animation: "spin 1s linear infinite" }}
+              style={{ animation: "spinGlow 0.8s linear infinite" }}
             />
           )}
-          ⚡ ADD XP (+100)
+          ⚡ COMPLETE MISSION (+100 XP)
         </button>
       </div>
     </div>
@@ -551,7 +690,7 @@ function RegisterForm() {
           animation: "float 4s ease-in-out infinite",
         }}
       >
-        ⚔
+        🏆
       </div>
       <h3
         style={{
@@ -564,7 +703,7 @@ function RegisterForm() {
           marginBottom: "0.5rem",
         }}
       >
-        CREATE YOUR LEGEND
+        FORGE YOUR IDENTITY
       </h3>
       <p
         style={{
@@ -574,7 +713,7 @@ function RegisterForm() {
           marginBottom: "2rem",
         }}
       >
-        Choose your battle name to begin your journey
+        Choose your warrior name to begin your self-improvement journey
       </p>
 
       <form
@@ -637,10 +776,10 @@ function RegisterForm() {
           {register.isPending && (
             <Loader2
               size={16}
-              style={{ animation: "spin 1s linear infinite" }}
+              style={{ animation: "spinGlow 0.8s linear infinite" }}
             />
           )}
-          {register.isPending ? "CREATING..." : "⚡ BEGIN YOUR LEGEND"}
+          {register.isPending ? "CREATING..." : "⚡ BEGIN YOUR JOURNEY"}
         </button>
 
         {register.isError && (
@@ -732,7 +871,7 @@ export function DashboardSection({
                 color: "oklch(0.62 0.22 295)",
               }}
             >
-              PLAYER HQ
+              MY PROGRESS
             </span>
           </div>
           <h2
@@ -746,7 +885,7 @@ export function DashboardSection({
               textShadow: "0 0 20px oklch(0.62 0.22 295 / 0.3)",
             }}
           >
-            PLAYER DASHBOARD
+            YOUR DASHBOARD
           </h2>
         </div>
 
@@ -783,8 +922,8 @@ export function DashboardSection({
                 marginBottom: "1.5rem",
               }}
             >
-              Login to access your player dashboard, track your progress, and
-              compete with legends.
+              Login to access your dashboard, track your self-improvement
+              journey, and rise through the ranks.
             </p>
             <button
               type="button"
@@ -797,11 +936,12 @@ export function DashboardSection({
                 cursor: "pointer",
               }}
             >
-              ⚡ LOGIN TO PLAY
+              ⚡ LOGIN TO BEGIN
             </button>
           </div>
         ) : isLoading ? (
           <div
+            data-ocid="dashboard.loading_state"
             style={{
               display: "flex",
               justifyContent: "center",

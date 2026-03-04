@@ -2,42 +2,42 @@ import { Award, Calendar, Target, TrendingUp, Zap } from "lucide-react";
 
 const FEATURES = [
   {
-    icon: TrendingUp,
-    title: "Real-time Level System",
+    icon: Target,
+    title: "Daily Missions",
     description:
-      "Watch your power grow in real time as you conquer challenges. Every battle shapes your destiny.",
+      "Complete real-life challenges every day. Workout, study, meditate, and earn XP for each win.",
     color: "oklch(0.62 0.25 22)",
     glow: "0 0 20px oklch(0.62 0.25 22 / 0.3)",
   },
   {
     icon: Zap,
-    title: "XP Tracking",
+    title: "Habit Streaks",
     description:
-      "Every action earns XP. Track your progress on the road to legend with precision analytics.",
+      "Build unstoppable habits with streak tracking. Consistency is your greatest superpower.",
     color: "oklch(0.62 0.22 295)",
     glow: "0 0 20px oklch(0.62 0.22 295 / 0.3)",
   },
   {
-    icon: Target,
-    title: "Skill Upgrade System",
+    icon: TrendingUp,
+    title: "XP & Level System",
     description:
-      "Spend SP to unlock devastating abilities and passive upgrades. Build your ultimate warrior.",
+      "Every action you take earns XP. Level up as you grow — your stats reflect your real progress.",
     color: "oklch(0.62 0.25 22)",
     glow: "0 0 20px oklch(0.62 0.25 22 / 0.3)",
   },
   {
     icon: Award,
-    title: "Achievement Unlock System",
+    title: "Achievement Badges",
     description:
-      "Earn exclusive badges that showcase your elite status. Prove you are in a class of your own.",
+      "Unlock 12 exclusive badges as you hit real milestones. Wear your discipline like armor.",
     color: "oklch(0.62 0.22 295)",
     glow: "0 0 20px oklch(0.62 0.22 295 / 0.3)",
   },
   {
     icon: Calendar,
-    title: "Daily Missions System",
+    title: "Leaderboard Ranking",
     description:
-      "New challenges every day. Complete them for massive XP rewards and rare achievement badges.",
+      "Compete with others on the self-improvement leaderboard. Rise to the top through consistency.",
     color: "oklch(0.62 0.25 22)",
     glow: "0 0 20px oklch(0.62 0.25 22 / 0.3)",
   },
@@ -123,7 +123,7 @@ export function FeaturesSection() {
                 color: "oklch(0.62 0.25 22)",
               }}
             >
-              GAME MECHANICS
+              YOUR TOOLKIT
             </span>
           </div>
           <h2
@@ -140,7 +140,7 @@ export function FeaturesSection() {
               backgroundClip: "text",
             }}
           >
-            POWER UP YOUR GAME
+            UPGRADE YOUR LIFE
           </h2>
           <p
             style={{
@@ -152,8 +152,7 @@ export function FeaturesSection() {
               lineHeight: 1.6,
             }}
           >
-            Five core systems engineered to transform you from a player into a
-            legend.
+            Five powerful systems to transform every area of your life.
           </p>
         </div>
 

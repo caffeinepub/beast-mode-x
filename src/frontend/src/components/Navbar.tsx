@@ -18,13 +18,15 @@ export function Navbar({ onLoginClick, onSignupClick }: NavbarProps) {
   }, []);
 
   const navLinks = [
-    { label: "Home", href: "#home", ocid: "navbar.home.link" },
-    { label: "Dashboard", href: "#dashboard", ocid: "navbar.dashboard.link" },
-    { label: "Features", href: "#features", ocid: "navbar.features.link" },
+    { label: "Home", href: "#home", ocid: "nav.home.link" },
+    { label: "Missions", href: "#missions", ocid: "nav.missions.link" },
+    { label: "Habits", href: "#habits", ocid: "nav.habits.link" },
+    { label: "Dashboard", href: "#dashboard", ocid: "nav.dashboard.link" },
+    { label: "Skills", href: "#skills", ocid: "nav.skills.link" },
     {
       label: "Leaderboard",
       href: "#leaderboard",
-      ocid: "navbar.leaderboard.link",
+      ocid: "nav.leaderboard.link",
     },
   ];
 

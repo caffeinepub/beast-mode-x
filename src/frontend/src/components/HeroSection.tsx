@@ -243,7 +243,7 @@ export function HeroSection({ onStartClick }: HeroSectionProps) {
               color: "oklch(0.62 0.25 22)",
             }}
           >
-            Next-Gen Gaming Platform
+            Self Improvement Platform
           </span>
         </div>
 
@@ -288,7 +288,7 @@ export function HeroSection({ onStartClick }: HeroSectionProps) {
             transition: "all 0.7s ease 0.3s",
           }}
         >
-          Level Up Your Reality
+          Level Up Your Life
         </p>
 
         {/* CTA Buttons */}

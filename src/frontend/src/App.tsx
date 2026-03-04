@@ -1,12 +1,16 @@
 import { AuthModals } from "@/components/AuthModals";
+import { DailyMissionsSection } from "@/components/DailyMissionsSection";
 import { DashboardSection } from "@/components/DashboardSection";
 import { FeaturesSection } from "@/components/FeaturesSection";
 import { Footer } from "@/components/Footer";
+import { HabitTrackerSection } from "@/components/HabitTrackerSection";
 import { HeroSection } from "@/components/HeroSection";
 import { LeaderboardSection } from "@/components/LeaderboardSection";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { MusicToggle } from "@/components/MusicToggle";
 import { Navbar } from "@/components/Navbar";
+import { QuotesSection } from "@/components/QuotesSection";
+import { SkillTreeSection } from "@/components/SkillTreeSection";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { Toaster } from "@/components/ui/sonner";
 import { useEffect, useState } from "react";
@@ -55,10 +59,21 @@ export default function App() {
         <main>
           <HeroSection onStartClick={handleStartJourney} />
 
+          <DailyMissionsSection
+            isLoggedIn={isLoggedIn}
+            onLoginClick={() => setLoginModalOpen(true)}
+          />
+
+          <HabitTrackerSection />
+
           <DashboardSection
             isLoggedIn={isLoggedIn}
             onLoginClick={() => setLoginModalOpen(true)}
           />
+
+          <SkillTreeSection />
+
+          <QuotesSection />
 
           <FeaturesSection />
 
