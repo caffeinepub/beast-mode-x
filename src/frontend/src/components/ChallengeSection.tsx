@@ -1,4 +1,5 @@
 import { useAuth } from "@/components/auth/AuthProvider";
+import { useActorSafe } from "@/hooks/useActorSafe";
 import {
   useAdvanceChallengeDay,
   usePlayerProfile,
@@ -70,6 +71,7 @@ const TOUCH_BTN: React.CSSProperties = {
 
 export function ChallengeSection() {
   const { isLoggedIn } = useAuth();
+  const { actor, isFetching: actorLoading } = useActorSafe();
   const { data: profile } = usePlayerProfile();
   const startChallenge = useStartChallenge();
   const advanceDay = useAdvanceChallengeDay();
@@ -78,10 +80,16 @@ export function ChallengeSection() {
   const [switchConfirmId, setSwitchConfirmId] = useState<string | null>(null);
 
   const activeChallenge = profile?.activeChallenge;
+  const isActorReady = !!actor && !actorLoading;
 
   const handleStart = async (challengeId: string) => {
     if (!isLoggedIn) {
       toast.error("Login to start a challenge!");
+      return;
+    }
+
+    if (!isActorReady) {
+      toast.error("Still connecting... please wait a moment and try again.");
       return;
     }
 
@@ -109,12 +117,23 @@ export function ChallengeSection() {
       });
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Unknown error";
-      toast.error(`Failed to start challenge: ${msg}. Try again.`);
+      if (
+        msg.toLowerCase().includes("not connected") ||
+        msg.toLowerCase().includes("connect")
+      ) {
+        toast.error("Connection lost. Please refresh the page and try again.");
+      } else {
+        toast.error("Failed to start challenge. Try again.");
+      }
     }
   };
 
   const handleAdvance = async () => {
     if (!isLoggedIn) return;
+    if (!isActorReady) {
+      toast.error("Still connecting... please wait a moment and try again.");
+      return;
+    }
     try {
       await advanceDay.mutateAsync();
       toast.success("⚡ Day advanced! Keep pushing forward!", {
@@ -122,7 +141,14 @@ export function ChallengeSection() {
       });
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Unknown error";
-      toast.error(`Failed to advance day: ${msg}. Try again.`);
+      if (
+        msg.toLowerCase().includes("not connected") ||
+        msg.toLowerCase().includes("connect")
+      ) {
+        toast.error("Connection lost. Please refresh the page and try again.");
+      } else {
+        toast.error("Failed to advance day. Try again.");
+      }
     }
   };
 
@@ -527,48 +553,56 @@ export function ChallengeSection() {
                     type="button"
                     data-ocid="challenge.advance.button"
                     onClick={handleAdvance}
-                    disabled={advanceDay.isPending}
+                    disabled={advanceDay.isPending || !isActorReady}
                     style={{
                       ...TOUCH_BTN,
                       width: "100%",
                       padding: "0.85rem",
-                      background: `linear-gradient(135deg, ${challenge.color} 0%, ${challenge.color.replace(")", " / 0.7)")} 100%)`,
-                      border: `1px solid ${challenge.color.replace(")", " / 0.6)")}`,
+                      background: !isActorReady
+                        ? "oklch(0.15 0.015 260)"
+                        : `linear-gradient(135deg, ${challenge.color} 0%, ${challenge.color.replace(")", " / 0.7)")} 100%)`,
+                      border: `1px solid ${!isActorReady ? "oklch(0.3 0.02 260 / 0.5)" : challenge.color.replace(")", " / 0.6)")}`,
                       borderRadius: "8px",
                       fontFamily: '"Sora", sans-serif',
                       fontSize: "0.78rem",
                       fontWeight: 900,
                       letterSpacing: "0.12em",
-                      color: "oklch(0.98 0 0)",
+                      color: !isActorReady
+                        ? "oklch(0.45 0.03 260)"
+                        : "oklch(0.98 0 0)",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                       gap: "0.4rem",
-                      boxShadow: advanceDay.isPending
-                        ? "none"
-                        : `0 0 16px ${challenge.color.replace(")", " / 0.5)")}`,
-                      opacity: advanceDay.isPending ? 0.7 : 1,
+                      boxShadow:
+                        advanceDay.isPending || !isActorReady
+                          ? "none"
+                          : `0 0 16px ${challenge.color.replace(")", " / 0.5)")}`,
+                      opacity: advanceDay.isPending || !isActorReady ? 0.7 : 1,
                       transition: "all 0.2s ease",
                       marginTop: "auto",
-                      animation: advanceDay.isPending
-                        ? "none"
-                        : "advancePulse 2s ease-in-out infinite",
+                      animation:
+                        advanceDay.isPending || !isActorReady
+                          ? "none"
+                          : "advancePulse 2s ease-in-out infinite",
                     }}
                   >
-                    {advanceDay.isPending ? (
+                    {advanceDay.isPending || actorLoading ? (
                       <Loader2
                         size={16}
                         style={{ animation: "spin 1s linear infinite" }}
                       />
                     ) : null}
-                    ⚡ ADVANCE DAY
+                    {!isActorReady && !advanceDay.isPending
+                      ? "CONNECTING..."
+                      : "⚡ ADVANCE DAY"}
                   </button>
                 ) : (
                   <button
                     type="button"
                     data-ocid={`challenge.start.button.${idx + 1}`}
                     onClick={() => handleStart(challenge.id)}
-                    disabled={startChallenge.isPending}
+                    disabled={startChallenge.isPending || !isActorReady}
                     style={{
                       ...TOUCH_BTN,
                       width: "100%",
@@ -598,25 +632,29 @@ export function ChallengeSection() {
                         : activeChallenge
                           ? "0 0 8px oklch(0.62 0.22 295 / 0.35)"
                           : "0 0 10px oklch(0.62 0.25 22 / 0.4)",
-                      opacity: startChallenge.isPending ? 0.7 : 1,
+                      opacity:
+                        startChallenge.isPending || !isActorReady ? 0.7 : 1,
                       transition: "all 0.2s ease",
                       marginTop: "auto",
                     }}
                   >
-                    {startChallenge.isPending ? (
+                    {startChallenge.isPending || actorLoading ? (
                       <Loader2
                         size={14}
                         style={{
                           animation: "spin 1s linear infinite",
                         }}
                       />
-                    ) : isSwitchPending ? (
-                      "⚠️ CONFIRM SWITCH"
-                    ) : activeChallenge ? (
-                      "🔄 SWITCH CHALLENGE"
-                    ) : (
-                      "⚡ START CHALLENGE"
-                    )}
+                    ) : null}
+                    {startChallenge.isPending
+                      ? ""
+                      : !isActorReady
+                        ? "CONNECTING..."
+                        : isSwitchPending
+                          ? "⚠️ CONFIRM SWITCH"
+                          : activeChallenge
+                            ? "🔄 SWITCH CHALLENGE"
+                            : "⚡ START CHALLENGE"}
                   </button>
                 )}
               </div>

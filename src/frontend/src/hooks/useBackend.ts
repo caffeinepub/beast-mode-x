@@ -1,10 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { PlayerProfile, PlayerStats } from "../backend.d";
-import { useActor } from "./useActor";
+import { useActorSafe } from "./useActorSafe";
 
 // ─── Query: Get player profile ───
 export function usePlayerProfile() {
-  const { actor, isFetching } = useActor();
+  const { actor, isFetching } = useActorSafe();
   return useQuery<PlayerProfile | null>({
     queryKey: ["playerProfile"],
     queryFn: async () => {
@@ -17,7 +17,7 @@ export function usePlayerProfile() {
 
 // ─── Query: Get leaderboard ───
 export function useLeaderboard() {
-  const { actor, isFetching } = useActor();
+  const { actor, isFetching } = useActorSafe();
   return useQuery<PlayerProfile[]>({
     queryKey: ["leaderboard"],
     queryFn: async () => {
@@ -30,7 +30,7 @@ export function useLeaderboard() {
 
 // ─── Query: Get mission completions ───
 export function useMissionCompletions() {
-  const { actor, isFetching } = useActor();
+  const { actor, isFetching } = useActorSafe();
   return useQuery<string[]>({
     queryKey: ["missionCompletions"],
     queryFn: async () => {
@@ -43,7 +43,7 @@ export function useMissionCompletions() {
 
 // ─── Mutation: Register player ───
 export function useRegisterPlayer() {
-  const { actor } = useActor();
+  const { actor } = useActorSafe();
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({
@@ -85,7 +85,7 @@ export function useRegisterPlayer() {
 
 // ─── Mutation: Complete mission ───
 export function useCompleteMission() {
-  const { actor } = useActor();
+  const { actor } = useActorSafe();
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({
@@ -110,7 +110,7 @@ export function useCompleteMission() {
 
 // ─── Mutation: Update martial arts XP ───
 export function useUpdateMartialArtsXP() {
-  const { actor } = useActor();
+  const { actor } = useActorSafe();
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (xpToAdd: bigint) => {
@@ -125,7 +125,7 @@ export function useUpdateMartialArtsXP() {
 
 // ─── Mutation: Unlock achievement ───
 export function useUnlockAchievement() {
-  const { actor } = useActor();
+  const { actor } = useActorSafe();
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (badgeId: bigint) => {
@@ -140,7 +140,7 @@ export function useUnlockAchievement() {
 
 // ─── Mutation: Update stats ───
 export function useUpdateStats() {
-  const { actor } = useActor();
+  const { actor } = useActorSafe();
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (newStats: PlayerStats) => {
@@ -155,7 +155,7 @@ export function useUpdateStats() {
 
 // ─── Query: Get habit completions ───
 export function useHabitCompletions() {
-  const { actor, isFetching } = useActor();
+  const { actor, isFetching } = useActorSafe();
   return useQuery<string[]>({
     queryKey: ["habitCompletions"],
     queryFn: async () => {
@@ -168,7 +168,7 @@ export function useHabitCompletions() {
 
 // ─── Mutation: Complete habit ───
 export function useCompleteHabit() {
-  const { actor } = useActor();
+  const { actor } = useActorSafe();
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({
@@ -190,7 +190,7 @@ export function useCompleteHabit() {
 
 // ─── Mutation: Complete workout ───
 export function useCompleteWorkout() {
-  const { actor } = useActor();
+  const { actor } = useActorSafe();
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({
@@ -213,7 +213,7 @@ export function useCompleteWorkout() {
 
 // ─── Mutation: Start challenge ───
 export function useStartChallenge() {
-  const { actor } = useActor();
+  const { actor } = useActorSafe();
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({
@@ -234,7 +234,7 @@ export function useStartChallenge() {
 
 // ─── Mutation: Advance challenge day ───
 export function useAdvanceChallengeDay() {
-  const { actor } = useActor();
+  const { actor } = useActorSafe();
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async () => {
@@ -249,7 +249,7 @@ export function useAdvanceChallengeDay() {
 
 // ─── Combined hook for easy access ───
 export function useBackend() {
-  const { actor, isFetching } = useActor();
+  const { actor, isFetching } = useActorSafe();
   return {
     actor,
     isFetching,

@@ -1,5 +1,5 @@
 import { MissionConfirmModal } from "@/components/MissionConfirmModal";
-import { useActor } from "@/hooks/useActor";
+import { useActorSafe } from "@/hooks/useActorSafe";
 import {
   type MissionDef,
   type MissionTier,
@@ -443,7 +443,7 @@ function TrainerPanel({
   playerLevel,
   onClose,
 }: TrainerPanelProps) {
-  const { actor, isFetching: actorFetching } = useActor();
+  const { actor, isFetching: actorFetching } = useActorSafe();
   const queryClient = useQueryClient();
   const [completing, setCompleting] = useState<string | null>(null);
   const [dialogue, setDialogue] = useState(trainer.intro);
