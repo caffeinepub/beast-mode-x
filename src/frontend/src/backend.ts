@@ -109,6 +109,8 @@ export interface PlayerProfile {
     xp: bigint;
     age: bigint;
     categoryXP: CategoryXP;
+    weight: string;
+    height: string;
     fitnessLevel: string;
     username: string;
     goal: string;
@@ -129,15 +131,19 @@ export enum UserRole {
 }
 export interface backendInterface {
     _initializeAccessControlWithSecret(userSecret: string): Promise<void>;
+    applyPenalty(player: Principal, xpLoss: bigint): Promise<void>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
+    awardCameraXP(xpAmount: bigint, category: string): Promise<void>;
     completeMission(missionId: string, category: string, xpReward: bigint): Promise<void>;
+    deletePlayer(): Promise<void>;
     getCallerUserRole(): Promise<UserRole>;
     getLeaderboard(): Promise<Array<PlayerProfile>>;
     getMissionCompletions(): Promise<Array<string>>;
     getPlayerProfile(): Promise<PlayerProfile | null>;
     getPublicProfile(player: Principal): Promise<PlayerProfile | null>;
     isCallerAdmin(): Promise<boolean>;
-    registerPlayer(username: string, age: bigint, gender: string, goal: string, fitnessLevel: string, bodyType: string): Promise<void>;
+    registerPlayer(username: string, age: bigint, gender: string, goal: string, fitnessLevel: string, bodyType: string, weight: string, height: string): Promise<void>;
+    resetPlayerProgress(): Promise<void>;
     unlockAchievement(badgeId: bigint): Promise<void>;
     updateMartialArtsXP(xpToAdd: bigint): Promise<void>;
     updateStats(newStats: PlayerStats): Promise<void>;
@@ -159,6 +165,20 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async applyPenalty(arg0: Principal, arg1: bigint): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.applyPenalty(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.applyPenalty(arg0, arg1);
+            return result;
+        }
+    }
     async assignCallerUserRole(arg0: Principal, arg1: UserRole): Promise<void> {
         if (this.processError) {
             try {
@@ -173,6 +193,20 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async awardCameraXP(arg0: bigint, arg1: string): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.awardCameraXP(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.awardCameraXP(arg0, arg1);
+            return result;
+        }
+    }
     async completeMission(arg0: string, arg1: string, arg2: bigint): Promise<void> {
         if (this.processError) {
             try {
@@ -184,6 +218,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.completeMission(arg0, arg1, arg2);
+            return result;
+        }
+    }
+    async deletePlayer(): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.deletePlayer();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.deletePlayer();
             return result;
         }
     }
@@ -271,17 +319,31 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async registerPlayer(arg0: string, arg1: bigint, arg2: string, arg3: string, arg4: string, arg5: string): Promise<void> {
+    async registerPlayer(arg0: string, arg1: bigint, arg2: string, arg3: string, arg4: string, arg5: string, arg6: string, arg7: string): Promise<void> {
         if (this.processError) {
             try {
-                const result = await this.actor.registerPlayer(arg0, arg1, arg2, arg3, arg4, arg5);
+                const result = await this.actor.registerPlayer(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.registerPlayer(arg0, arg1, arg2, arg3, arg4, arg5);
+            const result = await this.actor.registerPlayer(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+            return result;
+        }
+    }
+    async resetPlayerProgress(): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.resetPlayerProgress();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.resetPlayerProgress();
             return result;
         }
     }

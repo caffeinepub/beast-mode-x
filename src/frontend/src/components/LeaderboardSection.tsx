@@ -1,4 +1,6 @@
+import { AvatarCircle } from "@/components/AvatarCircle";
 import { useLeaderboard } from "@/hooks/useBackend";
+import { getClassInfo } from "@/utils/gameUtils";
 import { Crown, X } from "lucide-react";
 import { useState } from "react";
 import type { PlayerProfile } from "../backend.d";
@@ -32,6 +34,8 @@ const SAMPLE_LEADERS: PlayerProfile[] = [
     goal: "Become Unstoppable",
     fitnessLevel: "Elite",
     bodyType: "athletic",
+    weight: "78",
+    height: "182",
     skillPoints: 42n,
     martialArtsXP: 3200n,
     martialArtsLevel: 8n,
@@ -63,6 +67,8 @@ const SAMPLE_LEADERS: PlayerProfile[] = [
     goal: "Build Muscle",
     fitnessLevel: "Advanced",
     bodyType: "athletic",
+    weight: "62",
+    height: "168",
     skillPoints: 38n,
     martialArtsXP: 2600n,
     martialArtsLevel: 7n,
@@ -94,6 +100,8 @@ const SAMPLE_LEADERS: PlayerProfile[] = [
     goal: "Discipline & Focus",
     fitnessLevel: "Advanced",
     bodyType: "slim",
+    weight: "70",
+    height: "176",
     skillPoints: 35n,
     martialArtsXP: 2200n,
     martialArtsLevel: 6n,
@@ -125,6 +133,8 @@ const SAMPLE_LEADERS: PlayerProfile[] = [
     goal: "Build Muscle",
     fitnessLevel: "Advanced",
     bodyType: "bulky",
+    weight: "95",
+    height: "185",
     skillPoints: 31n,
     martialArtsXP: 1800n,
     martialArtsLevel: 5n,
@@ -156,6 +166,8 @@ const SAMPLE_LEADERS: PlayerProfile[] = [
     goal: "Mental Clarity",
     fitnessLevel: "Intermediate",
     bodyType: "average",
+    weight: "68",
+    height: "172",
     skillPoints: 28n,
     martialArtsXP: 1500n,
     martialArtsLevel: 5n,
@@ -187,6 +199,8 @@ const SAMPLE_LEADERS: PlayerProfile[] = [
     goal: "Build Muscle",
     fitnessLevel: "Advanced",
     bodyType: "bulky",
+    weight: "100",
+    height: "180",
     skillPoints: 25n,
     martialArtsXP: 1200n,
     martialArtsLevel: 4n,
@@ -218,6 +232,8 @@ const SAMPLE_LEADERS: PlayerProfile[] = [
     goal: "Lose Weight",
     fitnessLevel: "Intermediate",
     bodyType: "average",
+    weight: "65",
+    height: "165",
     skillPoints: 22n,
     martialArtsXP: 900n,
     martialArtsLevel: 4n,
@@ -249,6 +265,8 @@ const SAMPLE_LEADERS: PlayerProfile[] = [
     goal: "Discipline & Focus",
     fitnessLevel: "Intermediate",
     bodyType: "athletic",
+    weight: "75",
+    height: "178",
     skillPoints: 19n,
     martialArtsXP: 750n,
     martialArtsLevel: 3n,
@@ -280,6 +298,8 @@ const SAMPLE_LEADERS: PlayerProfile[] = [
     goal: "Become Unstoppable",
     fitnessLevel: "Beginner",
     bodyType: "slim",
+    weight: "65",
+    height: "174",
     skillPoints: 17n,
     martialArtsXP: 650n,
     martialArtsLevel: 3n,
@@ -311,6 +331,8 @@ const SAMPLE_LEADERS: PlayerProfile[] = [
     goal: "Mental Clarity",
     fitnessLevel: "Beginner",
     bodyType: "slim",
+    weight: "55",
+    height: "163",
     skillPoints: 14n,
     martialArtsXP: 500n,
     martialArtsLevel: 2n,
@@ -750,23 +772,46 @@ export function LeaderboardSection() {
                         </span>
                       </div>
 
-                      {/* Player name */}
-                      <span
+                      {/* Player name + avatar + class */}
+                      <div
                         style={{
-                          fontFamily: '"Sora", sans-serif',
-                          fontSize: "0.78rem",
-                          fontWeight: isFirst ? 700 : 500,
-                          letterSpacing: "0.05em",
-                          color: isFirst
-                            ? "oklch(0.92 0.04 260)"
-                            : "oklch(0.78 0.03 260)",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "0.5rem",
                           overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          whiteSpace: "nowrap",
                         }}
                       >
-                        {player.username}
-                      </span>
+                        <AvatarCircle
+                          avatarIndex={idx % 8}
+                          size={32}
+                          showBorder={false}
+                        />
+                        <span
+                          style={{
+                            fontFamily: '"Sora", sans-serif',
+                            fontSize: "0.78rem",
+                            fontWeight: isFirst ? 700 : 500,
+                            letterSpacing: "0.05em",
+                            color: isFirst
+                              ? "oklch(0.92 0.04 260)"
+                              : "oklch(0.78 0.03 260)",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {player.username}
+                        </span>
+                        <span
+                          style={{
+                            fontSize: "0.75rem",
+                            flexShrink: 0,
+                          }}
+                          title={getClassInfo(player.categoryXP).name}
+                        >
+                          {getClassInfo(player.categoryXP).icon}
+                        </span>
+                      </div>
 
                       {/* Rank title */}
                       <span

@@ -214,6 +214,8 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   const [username, setUsername] = useState("");
   const [age, setAge] = useState("");
   const [gender, setGender] = useState<Gender | "">("");
+  const [weight, setWeight] = useState("");
+  const [height, setHeight] = useState("");
   const [bodyType, setBodyType] = useState<BodyType | "">("");
   const [goal, setGoal] = useState<Goal | "">("");
   const [fitnessLevel, setFitnessLevel] = useState<FitnessLevel | "">("");
@@ -253,6 +255,8 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
         goal,
         fitnessLevel,
         bodyType,
+        weight || "0",
+        height || "0",
       );
       transitionToStep(5);
       setTimeout(() => {
@@ -266,7 +270,13 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
 
   const canProceed = () => {
     if (step === 1)
-      return username.trim().length >= 2 && age !== "" && gender !== "";
+      return (
+        username.trim().length >= 2 &&
+        age !== "" &&
+        gender !== "" &&
+        weight !== "" &&
+        height !== ""
+      );
     if (step === 2) return bodyType !== "";
     if (step === 3) return goal !== "";
     if (step === 4) return fitnessLevel !== "";
@@ -518,6 +528,116 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                     (e.target as HTMLElement).style.boxShadow = "none";
                   }}
                 />
+              </div>
+
+              {/* Weight + Height row */}
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: "0.75rem",
+                }}
+              >
+                <div>
+                  <label
+                    htmlFor="onboarding-weight"
+                    style={{
+                      display: "block",
+                      fontFamily: '"Sora", sans-serif',
+                      fontSize: "0.68rem",
+                      fontWeight: 600,
+                      letterSpacing: "0.15em",
+                      color: "oklch(0.62 0.25 22)",
+                      marginBottom: "0.5rem",
+                    }}
+                  >
+                    WEIGHT (kg)
+                  </label>
+                  <input
+                    id="onboarding-weight"
+                    data-ocid="onboarding.weight.input"
+                    type="number"
+                    value={weight}
+                    onChange={(e) => setWeight(e.target.value)}
+                    placeholder="70"
+                    min={30}
+                    max={300}
+                    style={{
+                      width: "100%",
+                      fontFamily: '"Sora", sans-serif',
+                      fontSize: "0.9rem",
+                      fontWeight: 600,
+                      padding: "0.85rem 1rem",
+                      background: "oklch(0.12 0.02 260)",
+                      border: "1px solid oklch(0.62 0.25 22 / 0.4)",
+                      borderRadius: "8px",
+                      color: "oklch(0.9 0.02 260)",
+                      outline: "none",
+                      boxSizing: "border-box",
+                    }}
+                    onFocus={(e) => {
+                      (e.target as HTMLElement).style.borderColor =
+                        "oklch(0.62 0.25 22 / 0.8)";
+                      (e.target as HTMLElement).style.boxShadow =
+                        "0 0 12px oklch(0.62 0.25 22 / 0.2)";
+                    }}
+                    onBlur={(e) => {
+                      (e.target as HTMLElement).style.borderColor =
+                        "oklch(0.62 0.25 22 / 0.4)";
+                      (e.target as HTMLElement).style.boxShadow = "none";
+                    }}
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="onboarding-height"
+                    style={{
+                      display: "block",
+                      fontFamily: '"Sora", sans-serif',
+                      fontSize: "0.68rem",
+                      fontWeight: 600,
+                      letterSpacing: "0.15em",
+                      color: "oklch(0.62 0.22 295)",
+                      marginBottom: "0.5rem",
+                    }}
+                  >
+                    HEIGHT (cm)
+                  </label>
+                  <input
+                    id="onboarding-height"
+                    data-ocid="onboarding.height.input"
+                    type="number"
+                    value={height}
+                    onChange={(e) => setHeight(e.target.value)}
+                    placeholder="175"
+                    min={100}
+                    max={250}
+                    style={{
+                      width: "100%",
+                      fontFamily: '"Sora", sans-serif',
+                      fontSize: "0.9rem",
+                      fontWeight: 600,
+                      padding: "0.85rem 1rem",
+                      background: "oklch(0.12 0.02 260)",
+                      border: "1px solid oklch(0.62 0.22 295 / 0.4)",
+                      borderRadius: "8px",
+                      color: "oklch(0.9 0.02 260)",
+                      outline: "none",
+                      boxSizing: "border-box",
+                    }}
+                    onFocus={(e) => {
+                      (e.target as HTMLElement).style.borderColor =
+                        "oklch(0.62 0.22 295 / 0.8)";
+                      (e.target as HTMLElement).style.boxShadow =
+                        "0 0 12px oklch(0.62 0.22 295 / 0.2)";
+                    }}
+                    onBlur={(e) => {
+                      (e.target as HTMLElement).style.borderColor =
+                        "oklch(0.62 0.22 295 / 0.4)";
+                      (e.target as HTMLElement).style.boxShadow = "none";
+                    }}
+                  />
+                </div>
               </div>
 
               {/* Gender */}

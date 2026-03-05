@@ -22,6 +22,8 @@ export interface PlayerProfile {
   'xp' : bigint,
   'age' : bigint,
   'categoryXP' : CategoryXP,
+  'weight' : string,
+  'height' : string,
   'fitnessLevel' : string,
   'username' : string,
   'goal' : string,
@@ -48,8 +50,11 @@ export type UserRole = { 'admin' : null } |
   { 'guest' : null };
 export interface _SERVICE {
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
+  'applyPenalty' : ActorMethod<[Principal, bigint], undefined>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
+  'awardCameraXP' : ActorMethod<[bigint, string], undefined>,
   'completeMission' : ActorMethod<[string, string, bigint], undefined>,
+  'deletePlayer' : ActorMethod<[], undefined>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
   'getLeaderboard' : ActorMethod<[], Array<PlayerProfile>>,
   'getMissionCompletions' : ActorMethod<[], Array<string>>,
@@ -57,9 +62,10 @@ export interface _SERVICE {
   'getPublicProfile' : ActorMethod<[Principal], [] | [PlayerProfile]>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
   'registerPlayer' : ActorMethod<
-    [string, bigint, string, string, string, string],
+    [string, bigint, string, string, string, string, string, string],
     undefined
   >,
+  'resetPlayerProgress' : ActorMethod<[], undefined>,
   'unlockAchievement' : ActorMethod<[bigint], undefined>,
   'updateMartialArtsXP' : ActorMethod<[bigint], undefined>,
   'updateStats' : ActorMethod<[PlayerStats], undefined>,

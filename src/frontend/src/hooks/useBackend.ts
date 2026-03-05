@@ -53,6 +53,8 @@ export function useRegisterPlayer() {
       goal,
       fitnessLevel,
       bodyType,
+      weight,
+      height,
     }: {
       username: string;
       age: bigint;
@@ -60,6 +62,8 @@ export function useRegisterPlayer() {
       goal: string;
       fitnessLevel: string;
       bodyType: string;
+      weight: string;
+      height: string;
     }) => {
       if (!actor) throw new Error("Not connected");
       return actor.registerPlayer(
@@ -69,6 +73,8 @@ export function useRegisterPlayer() {
         goal,
         fitnessLevel,
         bodyType,
+        weight,
+        height,
       );
     },
     onSuccess: () => {

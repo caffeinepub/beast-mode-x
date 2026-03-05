@@ -1,16 +1,14 @@
 import { useActor } from "@/hooks/useActor";
+import {
+  type MissionDef,
+  type MissionTier,
+  getScaledMissions,
+  getSpecialMissions,
+} from "@/utils/missionData";
 import { useQueryClient } from "@tanstack/react-query";
-import { CheckCircle, X } from "lucide-react";
+import { CheckCircle, Flame, Star, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-
-interface Mission {
-  id: string;
-  name: string;
-  desc: string;
-  xp: number;
-  category: string;
-}
 
 interface TrainerData {
   id: string;
@@ -22,12 +20,9 @@ interface TrainerData {
   colorDim: string;
   intro: string;
   praiseLines: string[];
-  missions: Omit<Mission, "id" | "category">[];
   category: string;
   glow: string;
 }
-
-const today = new Date().toDateString();
 
 const TRAINERS: TrainerData[] = [
   {
@@ -47,33 +42,6 @@ const TRAINERS: TrainerData[] = [
     ],
     category: "fitness",
     glow: "0 0 20px oklch(0.62 0.25 22 / 0.4)",
-    missions: [
-      {
-        name: "100 Push-ups",
-        desc: "Full push-ups, no cheating. Feel every rep burn.",
-        xp: 150,
-      },
-      {
-        name: "30 min Run",
-        desc: "Steady pace, no stopping. Own that distance.",
-        xp: 120,
-      },
-      {
-        name: "Plank for 3 min",
-        desc: "Core like iron. Hold position. Don't quit.",
-        xp: 80,
-      },
-      {
-        name: "50 Squats",
-        desc: "Deep, full squats. Legs are the foundation.",
-        xp: 100,
-      },
-      {
-        name: "Cold Shower",
-        desc: "End with 2 minutes cold. Discipline your mind.",
-        xp: 60,
-      },
-    ],
   },
   {
     id: "ryu",
@@ -92,33 +60,6 @@ const TRAINERS: TrainerData[] = [
     ],
     category: "martial",
     glow: "0 0 20px oklch(0.62 0.22 295 / 0.4)",
-    missions: [
-      {
-        name: "50 Basic Strikes",
-        desc: "Perfect form on every punch. Speed follows precision.",
-        xp: 130,
-      },
-      {
-        name: "Practice Kata #1",
-        desc: "Complete the full kata sequence without stopping.",
-        xp: 160,
-      },
-      {
-        name: "Shadow Boxing 10 min",
-        desc: "Full intensity, visualize your opponent.",
-        xp: 140,
-      },
-      {
-        name: "Stance Training 5 min",
-        desc: "Hold your fighting stance. Stability is everything.",
-        xp: 100,
-      },
-      {
-        name: "10 Roundhouse Kicks",
-        desc: "10 kicks each leg. Power from the hip rotation.",
-        xp: 120,
-      },
-    ],
   },
   {
     id: "nova",
@@ -137,33 +78,6 @@ const TRAINERS: TrainerData[] = [
     ],
     category: "intelligence",
     glow: "0 0 20px oklch(0.65 0.22 250 / 0.4)",
-    missions: [
-      {
-        name: "Read 20 pages",
-        desc: "Deep reading, no skimming. Absorb every word.",
-        xp: 100,
-      },
-      {
-        name: "Watch 1 educational video",
-        desc: "Take notes. Apply what you learn.",
-        xp: 80,
-      },
-      {
-        name: "Solve 5 math puzzles",
-        desc: "Logic sharpens the mind. No calculators.",
-        xp: 120,
-      },
-      {
-        name: "Learn 10 new words",
-        desc: "Vocabulary is the foundation of intelligence.",
-        xp: 90,
-      },
-      {
-        name: "Write a journal entry",
-        desc: "Reflection transforms experience into wisdom.",
-        xp: 70,
-      },
-    ],
   },
   {
     id: "zen",
@@ -182,33 +96,6 @@ const TRAINERS: TrainerData[] = [
     ],
     category: "focus",
     glow: "0 0 20px oklch(0.82 0.18 85 / 0.4)",
-    missions: [
-      {
-        name: "Meditate 15 min",
-        desc: "Silence. Breathe. Let all thoughts pass.",
-        xp: 110,
-      },
-      {
-        name: "No phone for 1 hour",
-        desc: "Disconnect to reconnect with your true self.",
-        xp: 130,
-      },
-      {
-        name: "Deep breathing 10 min",
-        desc: "Box breathing technique: 4-4-4-4 pattern.",
-        xp: 80,
-      },
-      {
-        name: "Gratitude list (5 things)",
-        desc: "Write 5 things you're genuinely grateful for.",
-        xp: 70,
-      },
-      {
-        name: "Digital detox 2 hours",
-        desc: "No screens. Be present in the physical world.",
-        xp: 150,
-      },
-    ],
   },
   {
     id: "vega",
@@ -228,33 +115,6 @@ const TRAINERS: TrainerData[] = [
     ],
     category: "discipline",
     glow: "0 0 20px oklch(0.62 0.22 295 / 0.4)",
-    missions: [
-      {
-        name: "Wake up at 6 AM",
-        desc: "Own the morning. Own the day. Own your life.",
-        xp: 140,
-      },
-      {
-        name: "No junk food today",
-        desc: "Fuel your body like the machine it is.",
-        xp: 120,
-      },
-      {
-        name: "Complete all planned tasks",
-        desc: "Zero tolerance for procrastination today.",
-        xp: 180,
-      },
-      {
-        name: "Sleep by 11 PM",
-        desc: "Recovery is part of the discipline. Rest is earned.",
-        xp: 100,
-      },
-      {
-        name: "No social media browsing",
-        desc: "Reclaim your attention. Focus it on your goals.",
-        xp: 160,
-      },
-    ],
   },
   {
     id: "apex",
@@ -273,39 +133,8 @@ const TRAINERS: TrainerData[] = [
     ],
     category: "mindset",
     glow: "0 0 20px oklch(0.72 0.2 45 / 0.4)",
-    missions: [
-      {
-        name: "Visualize goals 10 min",
-        desc: "Close your eyes. See your success in vivid detail.",
-        xp: 90,
-      },
-      {
-        name: "Positive affirmations x10",
-        desc: "Speak your future into existence. Believe every word.",
-        xp: 70,
-      },
-      {
-        name: "Face one fear today",
-        desc: "Do the thing that scares you. That's where growth lives.",
-        xp: 200,
-      },
-      {
-        name: "Help someone today",
-        desc: "Contribution creates meaning. Give without expectation.",
-        xp: 80,
-      },
-      {
-        name: "Review weekly progress",
-        desc: "Reflect on your wins. Identify what to improve.",
-        xp: 110,
-      },
-    ],
   },
 ];
-
-function getMissionId(trainerId: string, missionName: string): string {
-  return `${trainerId}-${missionName}-${today}`;
-}
 
 interface XPFloater {
   id: number;
@@ -352,7 +181,6 @@ function TrainerCard({ trainer, onOpen }: TrainerCardProps) {
         el.style.borderColor = trainer.color.replace(")", " / 0.3)");
       }}
     >
-      {/* Trainer image - fill top portion */}
       <div style={{ flex: 1, overflow: "hidden", position: "relative" }}>
         <img
           src={trainer.image}
@@ -365,7 +193,6 @@ function TrainerCard({ trainer, onOpen }: TrainerCardProps) {
             filter: "contrast(1.05) saturate(1.1)",
           }}
         />
-        {/* Gradient overlay on image */}
         <div
           style={{
             position: "absolute",
@@ -374,8 +201,6 @@ function TrainerCard({ trainer, onOpen }: TrainerCardProps) {
           }}
         />
       </div>
-
-      {/* Info section */}
       <div
         style={{
           padding: "1.25rem",
@@ -450,12 +275,14 @@ function TrainerCard({ trainer, onOpen }: TrainerCardProps) {
 interface TrainerPanelProps {
   trainer: TrainerData;
   completedMissions: string[];
+  playerLevel: number;
   onClose: () => void;
 }
 
 function TrainerPanel({
   trainer,
   completedMissions,
+  playerLevel,
   onClose,
 }: TrainerPanelProps) {
   const { actor } = useActor();
@@ -464,6 +291,7 @@ function TrainerPanel({
   const [dialogue, setDialogue] = useState(trainer.intro);
   const [displayedDialogue, setDisplayedDialogue] = useState("");
   const [floaters, setFloaters] = useState<XPFloater[]>([]);
+  const [activeTier, setActiveTier] = useState<MissionTier>("daily");
   const floaterIdRef = useRef(0);
 
   // Typewriter effect
@@ -474,17 +302,23 @@ function TrainerPanel({
       setDisplayedDialogue(dialogue.slice(0, i + 1));
       i++;
       if (i >= dialogue.length) clearInterval(interval);
-    }, 30);
+    }, 28);
     return () => clearInterval(interval);
   }, [dialogue]);
 
-  const missions: Mission[] = trainer.missions.map((m) => ({
-    ...m,
-    id: getMissionId(trainer.id, m.name),
-    category: trainer.category,
-  }));
+  const dailyMissions = getScaledMissions(trainer.id, "daily", playerLevel);
+  const weeklyMissions = getScaledMissions(trainer.id, "weekly", playerLevel);
+  const monthlyMissions = getScaledMissions(trainer.id, "monthly", playerLevel);
+  const specialMissions = getSpecialMissions(playerLevel);
 
-  const handleComplete = async (mission: Mission) => {
+  const currentMissions =
+    activeTier === "daily"
+      ? dailyMissions
+      : activeTier === "weekly"
+        ? weeklyMissions
+        : monthlyMissions;
+
+  const handleComplete = async (mission: MissionDef) => {
     if (!actor || completing) return;
     const isAlreadyDone = completedMissions.includes(mission.id);
     if (isAlreadyDone) return;
@@ -499,7 +333,6 @@ function TrainerPanel({
       await queryClient.invalidateQueries({ queryKey: ["playerProfile"] });
       await queryClient.invalidateQueries({ queryKey: ["missionCompletions"] });
 
-      // Show XP floater
       const floaterId = floaterIdRef.current++;
       setFloaters((prev) => [
         ...prev,
@@ -510,7 +343,6 @@ function TrainerPanel({
         1500,
       );
 
-      // Show praise dialogue
       const praise =
         trainer.praiseLines[
           Math.floor(Math.random() * trainer.praiseLines.length)
@@ -525,6 +357,51 @@ function TrainerPanel({
     } finally {
       setCompleting(null);
     }
+  };
+
+  const handleSpecialComplete = async (mission: MissionDef) => {
+    if (!actor || completing) return;
+    if (completedMissions.includes(mission.id)) return;
+    setCompleting(mission.id);
+    try {
+      await actor.completeMission(
+        mission.id,
+        mission.category,
+        BigInt(mission.xp),
+      );
+      await queryClient.invalidateQueries({ queryKey: ["playerProfile"] });
+
+      const floaterId = floaterIdRef.current++;
+      setFloaters((prev) => [
+        ...prev,
+        { id: floaterId, xp: mission.xp, x: 50 },
+      ]);
+      setTimeout(
+        () => setFloaters((prev) => prev.filter((f) => f.id !== floaterId)),
+        2000,
+      );
+
+      toast.success(`⚡ SPECIAL MISSION COMPLETE! +${mission.xp} XP!`, {
+        description: mission.name,
+        duration: 5000,
+      });
+    } catch {
+      toast.error("Failed to complete special mission.");
+    } finally {
+      setCompleting(null);
+    }
+  };
+
+  const tierColors: Record<MissionTier, string> = {
+    daily: trainer.color,
+    weekly: "oklch(0.62 0.22 295)",
+    monthly: "oklch(0.82 0.18 85)",
+  };
+
+  const tierLabels: Record<MissionTier, string> = {
+    daily: "DAILY",
+    weekly: "WEEKLY",
+    monthly: "MONTHLY",
   };
 
   return (
@@ -546,7 +423,6 @@ function TrainerPanel({
       }}
       role="presentation"
     >
-      {/* Backdrop */}
       <div
         style={{
           position: "absolute",
@@ -556,7 +432,6 @@ function TrainerPanel({
         }}
       />
 
-      {/* Panel */}
       <div
         style={{
           position: "relative",
@@ -565,7 +440,7 @@ function TrainerPanel({
           border: `1px solid ${trainer.color.replace(")", " / 0.5)")}`,
           borderRadius: "16px",
           width: "100%",
-          maxWidth: "800px",
+          maxWidth: "860px",
           maxHeight: "90vh",
           overflowY: "auto",
           boxShadow: `0 0 40px ${trainer.color.replace(")", " / 0.2)")}, 0 40px 80px oklch(0 0 0 / 0.6)`,
@@ -594,7 +469,7 @@ function TrainerPanel({
           </div>
         ))}
 
-        {/* Close button */}
+        {/* Close */}
         <button
           type="button"
           data-ocid="trainer.panel.close_button"
@@ -619,11 +494,10 @@ function TrainerPanel({
           <X size={18} />
         </button>
 
-        {/* Panel grid layout */}
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "280px 1fr",
+            gridTemplateColumns: "260px 1fr",
             minHeight: "500px",
           }}
           className="grid-cols-1 md:grid-cols-2"
@@ -654,7 +528,6 @@ function TrainerPanel({
                 background: `linear-gradient(to top, oklch(0.09 0.015 260) 0%, ${trainer.color.replace(")", " / 0.2)")} 50%, transparent 100%)`,
               }}
             />
-            {/* Name overlay */}
             <div
               style={{
                 position: "absolute",
@@ -692,16 +565,42 @@ function TrainerPanel({
               >
                 {trainer.specialty}
               </div>
+
+              {/* Level info */}
+              <div
+                style={{
+                  marginTop: "0.75rem",
+                  padding: "0.5rem 0.75rem",
+                  background: "oklch(0.06 0.01 260 / 0.8)",
+                  border: `1px solid ${trainer.color.replace(")", " / 0.2)")}`,
+                  borderRadius: "6px",
+                  fontFamily: '"Sora", sans-serif',
+                  fontSize: "0.65rem",
+                  color: "oklch(0.6 0.04 260)",
+                }}
+              >
+                Your Level:{" "}
+                <strong style={{ color: trainer.color }}>{playerLevel}</strong>{" "}
+                —{" "}
+                {playerLevel <= 10
+                  ? "Beginner"
+                  : playerLevel <= 30
+                    ? "Intermediate"
+                    : playerLevel <= 60
+                      ? "Advanced"
+                      : "Elite"}{" "}
+                tasks
+              </div>
             </div>
           </div>
 
-          {/* Right: Missions + dialogue */}
+          {/* Right: Missions */}
           <div
             style={{
               padding: "1.5rem",
               display: "flex",
               flexDirection: "column",
-              gap: "1.25rem",
+              gap: "1rem",
             }}
           >
             {/* Trainer dialogue */}
@@ -712,7 +611,6 @@ function TrainerPanel({
                 border: `1px solid ${trainer.color.replace(")", " / 0.3)")}`,
                 borderRadius: "8px",
                 borderLeft: `3px solid ${trainer.color}`,
-                position: "relative",
               }}
             >
               <div
@@ -752,7 +650,189 @@ function TrainerPanel({
               </p>
             </div>
 
-            {/* Missions */}
+            {/* Tier tabs */}
+            <div
+              style={{
+                display: "flex",
+                gap: "0.5rem",
+                flexWrap: "wrap",
+              }}
+            >
+              {(["daily", "weekly", "monthly"] as MissionTier[]).map((tier) => {
+                const isActive = activeTier === tier;
+                const tColor = tierColors[tier];
+                return (
+                  <button
+                    key={tier}
+                    type="button"
+                    data-ocid={`trainer.${tier}.tab`}
+                    onClick={() => setActiveTier(tier)}
+                    style={{
+                      padding: "0.35rem 0.85rem",
+                      background: isActive
+                        ? tColor.replace(")", " / 0.2)")
+                        : "oklch(0.12 0.02 260)",
+                      border: `1px solid ${isActive ? tColor.replace(")", " / 0.7)") : "oklch(0.25 0.03 260 / 0.6)"}`,
+                      borderRadius: "100px",
+                      fontFamily: '"Sora", sans-serif',
+                      fontSize: "0.65rem",
+                      fontWeight: 700,
+                      letterSpacing: "0.12em",
+                      color: isActive ? tColor : "oklch(0.55 0.03 260)",
+                      cursor: "pointer",
+                      transition: "all 0.2s ease",
+                      boxShadow: isActive
+                        ? `0 0 8px ${tColor.replace(")", " / 0.3)")}`
+                        : "none",
+                    }}
+                  >
+                    {tierLabels[tier]}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Special missions banner (only when level % 5 === 0) */}
+            {activeTier === "daily" && specialMissions.length > 0 && (
+              <div>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.5rem",
+                    marginBottom: "0.5rem",
+                  }}
+                >
+                  <Star size={12} style={{ color: "oklch(0.82 0.18 85)" }} />
+                  <span
+                    style={{
+                      fontFamily: '"Sora", sans-serif',
+                      fontSize: "0.62rem",
+                      fontWeight: 700,
+                      letterSpacing: "0.2em",
+                      color: "oklch(0.82 0.18 85)",
+                    }}
+                  >
+                    ◆ SPECIAL MISSIONS — MILESTONE BONUS
+                  </span>
+                </div>
+                {specialMissions.map((mission, idx) => {
+                  const isDone = completedMissions.includes(mission.id);
+                  return (
+                    <div
+                      key={mission.id}
+                      style={{
+                        padding: "0.75rem 1rem",
+                        background: isDone
+                          ? "oklch(0.82 0.18 85 / 0.06)"
+                          : "oklch(0.82 0.18 85 / 0.05)",
+                        border: `1px solid ${isDone ? "oklch(0.82 0.18 85 / 0.4)" : "oklch(0.82 0.18 85 / 0.25)"}`,
+                        borderRadius: "8px",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.75rem",
+                        marginBottom: "0.5rem",
+                        boxShadow: isDone
+                          ? "none"
+                          : "0 0 12px oklch(0.82 0.18 85 / 0.08)",
+                      }}
+                    >
+                      <Flame
+                        size={16}
+                        style={{ color: "oklch(0.82 0.18 85)", flexShrink: 0 }}
+                      />
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div
+                          style={{
+                            fontFamily: '"Sora", sans-serif',
+                            fontSize: "0.75rem",
+                            fontWeight: 700,
+                            letterSpacing: "0.06em",
+                            color: isDone
+                              ? "oklch(0.65 0.12 85)"
+                              : "oklch(0.82 0.18 85)",
+                            marginBottom: "0.2rem",
+                            textDecoration: isDone ? "line-through" : "none",
+                          }}
+                        >
+                          {mission.name}
+                        </div>
+                        <div
+                          style={{
+                            fontFamily: '"Sora", sans-serif',
+                            fontSize: "0.68rem",
+                            color: "oklch(0.55 0.04 260)",
+                            lineHeight: 1.4,
+                          }}
+                        >
+                          {mission.desc}
+                        </div>
+                      </div>
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "flex-end",
+                          gap: "0.4rem",
+                          flexShrink: 0,
+                        }}
+                      >
+                        <span
+                          style={{
+                            fontFamily: '"Sora", sans-serif',
+                            fontSize: "0.7rem",
+                            fontWeight: 700,
+                            color: "oklch(0.82 0.18 85)",
+                            textShadow: "0 0 6px oklch(0.82 0.18 85 / 0.6)",
+                          }}
+                        >
+                          +{mission.xp} XP ⭐
+                        </span>
+                        {isDone ? (
+                          <span
+                            style={{
+                              fontFamily: '"Sora", sans-serif',
+                              fontSize: "0.62rem",
+                              color: "oklch(0.65 0.12 85)",
+                              fontWeight: 700,
+                            }}
+                          >
+                            ✓ DONE
+                          </span>
+                        ) : (
+                          <button
+                            type="button"
+                            data-ocid={`special.mission.button.${idx + 1}`}
+                            onClick={() => handleSpecialComplete(mission)}
+                            disabled={!!completing || !actor}
+                            style={{
+                              padding: "0.3rem 0.65rem",
+                              background: "oklch(0.82 0.18 85 / 0.2)",
+                              border: "1px solid oklch(0.82 0.18 85 / 0.6)",
+                              borderRadius: "4px",
+                              color: "oklch(0.9 0.15 85)",
+                              fontFamily: '"Sora", sans-serif',
+                              fontSize: "0.62rem",
+                              fontWeight: 700,
+                              letterSpacing: "0.08em",
+                              cursor:
+                                completing || !actor
+                                  ? "not-allowed"
+                                  : "pointer",
+                              transition: "all 0.2s ease",
+                            }}
+                          >
+                            {completing === mission.id ? "..." : "COMPLETE"}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Regular missions for active tier */}
             <div>
               <div
                 style={{
@@ -763,9 +843,34 @@ function TrainerPanel({
                   color: "oklch(0.55 0.04 260)",
                   marginBottom: "0.75rem",
                   textTransform: "uppercase",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.4rem",
                 }}
               >
-                ◆ DAILY MISSIONS
+                ◆{" "}
+                {activeTier === "daily"
+                  ? "DAILY MISSIONS"
+                  : activeTier === "weekly"
+                    ? "WEEKLY MISSIONS"
+                    : "MONTHLY MISSIONS"}
+                <span
+                  style={{
+                    padding: "0.1rem 0.45rem",
+                    background: "oklch(0.62 0.25 22 / 0.1)",
+                    border: "1px solid oklch(0.62 0.25 22 / 0.3)",
+                    borderRadius: "100px",
+                    fontSize: "0.6rem",
+                    color: "oklch(0.62 0.25 22)",
+                  }}
+                >
+                  Resets{" "}
+                  {activeTier === "daily"
+                    ? "daily"
+                    : activeTier === "weekly"
+                      ? "weekly"
+                      : "monthly"}
+                </span>
               </div>
 
               <div
@@ -775,7 +880,7 @@ function TrainerPanel({
                   gap: "0.6rem",
                 }}
               >
-                {missions.map((mission, idx) => {
+                {currentMissions.map((mission, idx) => {
                   const isDone = completedMissions.includes(mission.id);
                   const isCompletingThis = completing === mission.id;
 
@@ -792,7 +897,7 @@ function TrainerPanel({
                         display: "flex",
                         alignItems: "center",
                         gap: "0.75rem",
-                        opacity: isDone ? 0.75 : 1,
+                        opacity: isDone ? 0.8 : 1,
                         transition: "all 0.2s ease",
                       }}
                     >
@@ -917,12 +1022,14 @@ interface TrainerHubProps {
   completedMissions: string[];
   isLoggedIn: boolean;
   onLoginClick: () => void;
+  playerLevel?: number;
 }
 
 export function TrainerHub({
   completedMissions,
   isLoggedIn,
   onLoginClick,
+  playerLevel = 1,
 }: TrainerHubProps) {
   const [activeTrainer, setActiveTrainer] = useState<TrainerData | null>(null);
 
@@ -1020,7 +1127,8 @@ export function TrainerHub({
               margin: "0 auto",
             }}
           >
-            Six elite trainers. Each a master of their domain. Choose wisely.
+            Six elite trainers. Daily · Weekly · Monthly missions. Tasks scale
+            with your level.
           </p>
         </div>
 
@@ -1091,6 +1199,7 @@ export function TrainerHub({
         <TrainerPanel
           trainer={activeTrainer}
           completedMissions={completedMissions}
+          playerLevel={playerLevel}
           onClose={() => setActiveTrainer(null)}
         />
       )}

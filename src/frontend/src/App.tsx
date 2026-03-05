@@ -1,4 +1,6 @@
+import { AccountSettingsModal } from "@/components/AccountSettingsModal";
 import { AuthModals } from "@/components/AuthModals";
+import { CameraTracker } from "@/components/CameraTracker";
 import { FeaturesSection } from "@/components/FeaturesSection";
 import { Footer } from "@/components/Footer";
 import { HabitTrackerSection } from "@/components/HabitTrackerSection";
@@ -17,25 +19,30 @@ import { useAuth } from "@/components/auth/AuthProvider";
 import { Toaster } from "@/components/ui/sonner";
 import { useActor } from "@/hooks/useActor";
 import { usePlayerProfile } from "@/hooks/useBackend";
+import { getDateString, getYesterdayString } from "@/utils/gameUtils";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 type AppState = "loading" | "app";
 
+const PENALTY_CHECK_KEY = "bmx-last-penalty-check";
+
 function AppContent() {
   const [appState, setAppState] = useState<AppState>("loading");
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const [signupModalOpen, setSignupModalOpen] = useState(false);
+  const [accountSettingsOpen, setAccountSettingsOpen] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [prevLevel, setPrevLevel] = useState<number | null>(null);
   const [levelUpFlash, setLevelUpFlash] = useState(false);
 
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, identity } = useAuth();
   const { actor } = useActor();
   const { data: profile, isLoading: profileLoading } = usePlayerProfile();
   const queryClient = useQueryClient();
   const onboardingCheckedRef = useRef(false);
+  const penaltyCheckedRef = useRef(false);
 
   useEffect(() => {
     document.documentElement.classList.add("dark");
@@ -55,6 +62,60 @@ function AppContent() {
       setShowOnboarding(true);
     }
   }, [isLoggedIn, profile, profileLoading, actor]);
+
+  // Penalty check (Solo Leveling style)
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentional - penalty runs once per session per day
+  useEffect(() => {
+    if (!isLoggedIn || !actor || !profile || penaltyCheckedRef.current) return;
+    penaltyCheckedRef.current = true;
+
+    const today = getDateString();
+    const yesterday = getYesterdayString();
+    const lastCheck = localStorage.getItem(PENALTY_CHECK_KEY);
+
+    if (lastCheck === yesterday) return; // already checked today for yesterday
+
+    // Count missions completed yesterday
+    const completedMissions = profile.completedMissions ?? [];
+    const yesterdayCount = completedMissions.filter((id: string) =>
+      id.includes(yesterday),
+    ).length;
+
+    if (yesterdayCount < 2 && lastCheck !== today) {
+      // Apply penalty - pass caller's principal as first argument
+      // identity.getPrincipal() is structurally compatible with the Principal type expected
+      const callerPrincipal = identity?.getPrincipal();
+      if (!callerPrincipal) return;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const principal = callerPrincipal as unknown as Parameters<
+        typeof actor.applyPenalty
+      >[0];
+      actor
+        .applyPenalty(principal, BigInt(50))
+        .then(() => {
+          void queryClient.invalidateQueries({ queryKey: ["playerProfile"] });
+          toast.error(
+            "⚠️ PENALTY! You failed to complete missions yesterday. -50 XP deducted!",
+            {
+              description:
+                "Complete at least 2 missions daily to avoid penalties.",
+              duration: 6000,
+              style: {
+                background: "oklch(0.12 0.04 22)",
+                border: "1px solid oklch(0.62 0.25 22 / 0.6)",
+                color: "oklch(0.9 0.05 22)",
+              },
+            },
+          );
+        })
+        .catch(() => {
+          // silently fail if penalty call fails
+        });
+      localStorage.setItem(PENALTY_CHECK_KEY, yesterday);
+    } else if (yesterdayCount >= 2) {
+      localStorage.setItem(PENALTY_CHECK_KEY, yesterday);
+    }
+  }, [isLoggedIn, actor, profile]);
 
   // Level up detection
   // biome-ignore lint/correctness/useExhaustiveDependencies: intentional - only track level changes
@@ -169,6 +230,9 @@ function AppContent() {
         <Navbar
           onLoginClick={() => setLoginModalOpen(true)}
           onSignupClick={() => setSignupModalOpen(true)}
+          onAccountSettings={
+            isLoggedIn ? () => setAccountSettingsOpen(true) : undefined
+          }
         />
 
         <main>
@@ -178,6 +242,7 @@ function AppContent() {
             completedMissions={completedMissions}
             isLoggedIn={isLoggedIn}
             onLoginClick={() => setLoginModalOpen(true)}
+            playerLevel={profile ? Number(profile.level) : 1}
           />
 
           <MartialArtsSection
@@ -185,6 +250,8 @@ function AppContent() {
             isLoggedIn={isLoggedIn}
             onLoginClick={() => setLoginModalOpen(true)}
           />
+
+          <CameraTracker />
 
           <PlayerDashboardSection
             isLoggedIn={isLoggedIn}
@@ -206,6 +273,14 @@ function AppContent() {
 
         <MusicToggle />
       </div>
+
+      {/* Account Settings Modal */}
+      {isLoggedIn && (
+        <AccountSettingsModal
+          open={accountSettingsOpen}
+          onClose={() => setAccountSettingsOpen(false)}
+        />
+      )}
 
       {/* Auth modals */}
       <AuthModals

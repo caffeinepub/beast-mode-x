@@ -1,4 +1,9 @@
+import { AvatarCircle, AvatarSelector } from "@/components/AvatarCircle";
+import { RanksModal } from "@/components/RanksModal";
 import { usePlayerProfile } from "@/hooks/useBackend";
+import { useInternetIdentity } from "@/hooks/useInternetIdentity";
+import { getClassInfo, loadAvatar, saveAvatar } from "@/utils/gameUtils";
+import { Check, Copy } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { PlayerProfile } from "../backend.d";
 
@@ -120,12 +125,6 @@ const ACHIEVEMENT_DATA = [
   { id: 12n, name: "BEAST MODE", icon: "🦁", desc: "Reach BEAST MODE rank" },
 ];
 
-function getGenderAvatar(gender: string): string {
-  if (gender === "female") return "👩‍🦰";
-  if (gender === "male") return "👨‍🦱";
-  return "🧑‍🚀";
-}
-
 interface StatBarProps {
   label: string;
   value: number;
@@ -208,13 +207,47 @@ function StatBar({ label, value, icon, color }: StatBarProps) {
   );
 }
 
-export function ProfileView({ profile }: { profile: PlayerProfile }) {
+interface ProfileViewProps {
+  profile: PlayerProfile;
+  principalId?: string;
+}
+
+export function ProfileView({ profile, principalId }: ProfileViewProps) {
   const level = Number(profile.level);
   const xp = Number(profile.xp);
   const rankInfo = getRankInfo(level);
+  const classInfo = getClassInfo(profile.categoryXP);
   const xpInLevel = xp % 1000;
   const xpPct = (xpInLevel / 1000) * 100;
   const [animXp, setAnimXp] = useState(0);
+  const [showRanksModal, setShowRanksModal] = useState(false);
+  const [avatarIndex, setAvatarIndex] = useState(0);
+  const [copied, setCopied] = useState(false);
+
+  // Load avatar from localStorage
+  useEffect(() => {
+    if (principalId) {
+      setAvatarIndex(loadAvatar(principalId));
+    }
+  }, [principalId]);
+
+  const handleAvatarSelect = (idx: number) => {
+    setAvatarIndex(idx);
+    if (principalId) {
+      saveAvatar(principalId, idx);
+    }
+  };
+
+  const handleCopyId = async () => {
+    if (!principalId) return;
+    try {
+      await navigator.clipboard.writeText(principalId);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // ignore
+    }
+  };
 
   useEffect(() => {
     const timer = setTimeout(() => setAnimXp(xpPct), 300);
@@ -299,9 +332,17 @@ export function ProfileView({ profile }: { profile: PlayerProfile }) {
 
   return (
     <div
-      data-ocid="dashboard.profile.button"
+      data-ocid="dashboard.profile.panel"
       style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}
     >
+      {/* Ranks modal */}
+      {showRanksModal && (
+        <RanksModal
+          onClose={() => setShowRanksModal(false)}
+          currentLevel={level}
+        />
+      )}
+
       {/* Top row */}
       <div
         style={{
@@ -325,21 +366,11 @@ export function ProfileView({ profile }: { profile: PlayerProfile }) {
         >
           <div
             style={{
-              width: "72px",
-              height: "72px",
-              borderRadius: "50%",
-              background:
-                "linear-gradient(135deg, oklch(0.62 0.25 22 / 0.3) 0%, oklch(0.62 0.22 295 / 0.3) 100%)",
-              border: "2px solid oklch(0.62 0.25 22 / 0.6)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: "2rem",
-              flexShrink: 0,
               animation: "float 4s ease-in-out infinite",
+              flexShrink: 0,
             }}
           >
-            {getGenderAvatar(profile.gender)}
+            <AvatarCircle avatarIndex={avatarIndex} size={72} />
           </div>
           <div>
             <div
@@ -367,20 +398,117 @@ export function ProfileView({ profile }: { profile: PlayerProfile }) {
                 color: "oklch(0.98 0 0)",
                 letterSpacing: "0.08em",
                 boxShadow: "0 0 8px oklch(0.62 0.25 22 / 0.4)",
+                marginBottom: "0.35rem",
               }}
             >
               🏆 LEVEL {level}
             </div>
+            {/* Class badge */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.4rem",
+                marginBottom: "0.3rem",
+              }}
+            >
+              <span
+                style={{
+                  padding: "0.15rem 0.5rem",
+                  background: classInfo.color.replace(")", " / 0.15)"),
+                  border: `1px solid ${classInfo.color.replace(")", " / 0.4)")}`,
+                  borderRadius: "100px",
+                  fontFamily: '"Sora", sans-serif',
+                  fontSize: "0.62rem",
+                  fontWeight: 700,
+                  letterSpacing: "0.1em",
+                  color: classInfo.color,
+                }}
+              >
+                {classInfo.icon} {classInfo.name}
+              </span>
+            </div>
+            {/* Weight / Height */}
+            {(profile.weight || profile.height) && (
+              <div
+                style={{
+                  fontFamily: '"Sora", sans-serif',
+                  fontSize: "0.65rem",
+                  color: "oklch(0.5 0.03 260)",
+                  letterSpacing: "0.04em",
+                }}
+              >
+                {profile.weight &&
+                  profile.weight !== "0" &&
+                  `⚖️ ${profile.weight} kg`}
+                {profile.weight &&
+                  profile.weight !== "0" &&
+                  profile.height &&
+                  profile.height !== "0" &&
+                  " | "}
+                {profile.height &&
+                  profile.height !== "0" &&
+                  `📏 ${profile.height} cm`}
+              </div>
+            )}
             {profile.goal && (
               <div
                 style={{
-                  marginTop: "0.35rem",
+                  marginTop: "0.25rem",
                   fontFamily: '"Sora", sans-serif',
-                  fontSize: "0.68rem",
+                  fontSize: "0.65rem",
                   color: "oklch(0.55 0.04 260)",
                 }}
               >
                 Goal: {profile.goal}
+              </div>
+            )}
+            {/* Principal ID */}
+            {principalId && (
+              <div
+                style={{
+                  marginTop: "0.5rem",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.4rem",
+                }}
+              >
+                <code
+                  style={{
+                    fontFamily: '"Geist Mono", monospace',
+                    fontSize: "0.58rem",
+                    color: "oklch(0.4 0.03 260)",
+                    letterSpacing: "0.02em",
+                    maxWidth: "120px",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                    display: "block",
+                  }}
+                  title={principalId}
+                >
+                  {principalId.slice(0, 10)}...
+                </code>
+                <button
+                  type="button"
+                  onClick={handleCopyId}
+                  title="Copy Player ID"
+                  style={{
+                    padding: "0.2rem",
+                    background: "transparent",
+                    border: "none",
+                    cursor: "pointer",
+                    color: copied
+                      ? "oklch(0.62 0.22 295)"
+                      : "oklch(0.35 0.03 260)",
+                    display: "flex",
+                    alignItems: "center",
+                    flexShrink: 0,
+                    transition: "color 0.2s ease",
+                  }}
+                >
+                  {copied ? <Check size={11} /> : <Copy size={11} />}
+                </button>
               </div>
             )}
           </div>
@@ -436,6 +564,28 @@ export function ProfileView({ profile }: { profile: PlayerProfile }) {
           >
             {rankInfo.title}
           </div>
+          {/* View All Ranks button */}
+          <button
+            type="button"
+            data-ocid="ranks.open_modal_button"
+            onClick={() => setShowRanksModal(true)}
+            style={{
+              marginTop: "0.35rem",
+              padding: "0.3rem 0.7rem",
+              background: rankInfo.color.replace(")", " / 0.1)"),
+              border: `1px solid ${rankInfo.color.replace(")", " / 0.35)")}`,
+              borderRadius: "100px",
+              fontFamily: '"Sora", sans-serif',
+              fontSize: "0.58rem",
+              fontWeight: 700,
+              letterSpacing: "0.1em",
+              color: rankInfo.color,
+              cursor: "pointer",
+              transition: "all 0.2s ease",
+            }}
+          >
+            VIEW ALL RANKS
+          </button>
         </div>
 
         {/* XP stats */}
@@ -545,6 +695,23 @@ export function ProfileView({ profile }: { profile: PlayerProfile }) {
           </div>
         </div>
       </div>
+
+      {/* Avatar Selector */}
+      {principalId && (
+        <div
+          style={{
+            padding: "1.25rem",
+            background: "oklch(0.09 0.015 260 / 0.8)",
+            border: "1px solid oklch(0.25 0.04 260 / 0.5)",
+            borderRadius: "10px",
+          }}
+        >
+          <AvatarSelector
+            selectedIndex={avatarIndex}
+            onSelect={handleAvatarSelect}
+          />
+        </div>
+      )}
 
       {/* Stats Grid */}
       <div>
@@ -751,6 +918,8 @@ export function PlayerDashboardSection({
   onLoginClick,
 }: PlayerDashboardSectionProps) {
   const { data: profile, isLoading } = usePlayerProfile();
+  const { identity } = useInternetIdentity();
+  const principalId = identity?.getPrincipal().toString();
 
   return (
     <section
@@ -959,7 +1128,7 @@ export function PlayerDashboardSection({
             className="glass-card"
             style={{ padding: "2rem", borderRadius: "12px" }}
           >
-            <ProfileView profile={profile} />
+            <ProfileView profile={profile} principalId={principalId} />
           </div>
         )}
       </div>

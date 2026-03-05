@@ -1,18 +1,23 @@
 import { useAuth } from "@/components/auth/AuthProvider";
 import { usePlayerProfile } from "@/hooks/useBackend";
-import { Menu, X } from "lucide-react";
+import { Menu, Settings, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getRankInfo } from "./PlayerDashboard";
 
 interface NavbarProps {
   onLoginClick: () => void;
   onSignupClick: () => void;
+  onAccountSettings?: () => void;
   activeSection?: string;
   onNavClick?: (section: string) => void;
 }
 
-export function Navbar({ onLoginClick, onSignupClick }: NavbarProps) {
-  const { isLoggedIn, logout } = useAuth();
+export function Navbar({
+  onLoginClick,
+  onSignupClick,
+  onAccountSettings,
+}: NavbarProps) {
+  const { isLoggedIn, logout, identity } = useAuth();
   const { data: profile } = usePlayerProfile();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -58,6 +63,8 @@ export function Navbar({ onLoginClick, onSignupClick }: NavbarProps) {
   ];
 
   const rankInfo = profile ? getRankInfo(Number(profile.level)) : null;
+  const principalShort =
+    identity?.getPrincipal().toString().slice(0, 6) ?? null;
 
   return (
     <header
@@ -187,7 +194,53 @@ export function Navbar({ onLoginClick, onSignupClick }: NavbarProps) {
                   >
                     LVL {Number(profile.level)} · {profile.username}
                   </span>
+                  {principalShort && (
+                    <span
+                      style={{
+                        fontFamily: '"Geist Mono", monospace',
+                        fontSize: "0.58rem",
+                        color: "oklch(0.45 0.03 260)",
+                        letterSpacing: "0.03em",
+                      }}
+                    >
+                      [{principalShort}...]
+                    </span>
+                  )}
                 </div>
+              )}
+              {/* Account Settings button */}
+              {onAccountSettings && (
+                <button
+                  type="button"
+                  data-ocid="navbar.account_settings.button"
+                  onClick={onAccountSettings}
+                  title="Account Settings"
+                  style={{
+                    padding: "0.45rem 0.55rem",
+                    background: "transparent",
+                    border: "1px solid oklch(0.62 0.22 295 / 0.4)",
+                    borderRadius: "4px",
+                    color: "oklch(0.62 0.22 295)",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    transition: "all 0.2s ease",
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLElement).style.background =
+                      "oklch(0.62 0.22 295 / 0.1)";
+                    (e.currentTarget as HTMLElement).style.boxShadow =
+                      "0 0 8px oklch(0.62 0.22 295 / 0.4)";
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLElement).style.background =
+                      "transparent";
+                    (e.currentTarget as HTMLElement).style.boxShadow = "none";
+                  }}
+                >
+                  <Settings size={15} />
+                </button>
               )}
               <button
                 type="button"
@@ -350,28 +403,58 @@ export function Navbar({ onLoginClick, onSignupClick }: NavbarProps) {
             }}
           >
             {isLoggedIn ? (
-              <button
-                type="button"
-                data-ocid="nav.logout.button"
-                onClick={() => {
-                  logout();
-                  setMenuOpen(false);
-                }}
-                style={{
-                  fontFamily: '"Sora", sans-serif',
-                  fontWeight: 700,
-                  fontSize: "0.72rem",
-                  letterSpacing: "0.1em",
-                  padding: "0.5rem 1rem",
-                  background: "transparent",
-                  border: "1px solid oklch(0.62 0.25 22 / 0.5)",
-                  borderRadius: "4px",
-                  color: "oklch(0.62 0.25 22)",
-                  cursor: "pointer",
-                }}
-              >
-                Logout
-              </button>
+              <>
+                {onAccountSettings && (
+                  <button
+                    type="button"
+                    data-ocid="navbar.account_settings.button"
+                    onClick={() => {
+                      onAccountSettings();
+                      setMenuOpen(false);
+                    }}
+                    style={{
+                      fontFamily: '"Sora", sans-serif',
+                      fontWeight: 700,
+                      fontSize: "0.72rem",
+                      letterSpacing: "0.1em",
+                      padding: "0.5rem 1rem",
+                      background: "transparent",
+                      border: "1px solid oklch(0.62 0.22 295 / 0.5)",
+                      borderRadius: "4px",
+                      color: "oklch(0.62 0.22 295)",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.4rem",
+                    }}
+                  >
+                    <Settings size={13} />
+                    ACCOUNT
+                  </button>
+                )}
+                <button
+                  type="button"
+                  data-ocid="nav.logout.button"
+                  onClick={() => {
+                    logout();
+                    setMenuOpen(false);
+                  }}
+                  style={{
+                    fontFamily: '"Sora", sans-serif',
+                    fontWeight: 700,
+                    fontSize: "0.72rem",
+                    letterSpacing: "0.1em",
+                    padding: "0.5rem 1rem",
+                    background: "transparent",
+                    border: "1px solid oklch(0.62 0.25 22 / 0.5)",
+                    borderRadius: "4px",
+                    color: "oklch(0.62 0.25 22)",
+                    cursor: "pointer",
+                  }}
+                >
+                  Logout
+                </button>
+              </>
             ) : (
               <>
                 <button
