@@ -806,7 +806,7 @@ function TrainerPanel({
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "260px 1fr",
+            gridTemplateColumns: "minmax(0, 260px) 1fr",
             minHeight: "500px",
           }}
           className="grid-cols-1 md:grid-cols-2"
@@ -1610,7 +1610,7 @@ export function TrainerHub({
       id="trainers"
       data-ocid="trainers.section"
       style={{
-        padding: "100px 2rem 80px",
+        padding: "100px clamp(1rem, 4vw, 2rem) 80px",
         background: "oklch(0.07 0.01 250)",
         position: "relative",
         overflow: "hidden",
@@ -1751,10 +1751,9 @@ export function TrainerHub({
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
+            gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
             gap: "1.5rem",
           }}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
         >
           {TRAINERS.map((trainer) => (
             <TrainerCard

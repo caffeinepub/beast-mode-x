@@ -206,7 +206,7 @@ export function HeroSection({
           position: "relative",
           zIndex: 10,
           textAlign: "center",
-          padding: "2rem",
+          padding: "clamp(4rem, 10vw, 8rem) clamp(1rem, 4vw, 3rem)",
           maxWidth: "900px",
           width: "100%",
         }}
@@ -256,7 +256,7 @@ export function HeroSection({
           style={{
             fontFamily: '"Orbitron", monospace',
             fontWeight: 900,
-            fontSize: "clamp(3rem, 12vw, 8rem)",
+            fontSize: "clamp(2rem, 8vw, 5rem)",
             letterSpacing: "0.06em",
             lineHeight: 1,
             margin: "0 0 1rem 0",
@@ -281,7 +281,7 @@ export function HeroSection({
         <p
           style={{
             fontFamily: '"Sora", sans-serif',
-            fontSize: "clamp(1rem, 3vw, 1.4rem)",
+            fontSize: "clamp(0.85rem, 3vw, 1.2rem)",
             fontWeight: 300,
             letterSpacing: "0.25em",
             textTransform: "uppercase",
@@ -305,6 +305,7 @@ export function HeroSection({
             opacity: titleVisible ? 1 : 0,
             transform: titleVisible ? "translateY(0)" : "translateY(20px)",
             transition: "all 0.7s ease 0.5s",
+            padding: "0 0.5rem",
           }}
         >
           <button

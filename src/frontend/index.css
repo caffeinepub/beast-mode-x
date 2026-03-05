@@ -2,6 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Global mobile overflow fix ─── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+img, video, canvas {
+  max-width: 100%;
+}
+
 /* ─── Font stack: system + imported ─── */
 /* Orbitron-like gaming display with system monospace fallback */
 /* Sora-like body text with system UI fallback */

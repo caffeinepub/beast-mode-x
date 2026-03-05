@@ -218,7 +218,7 @@ export function SkillTreeSection() {
       id="skills"
       data-ocid="skills.section"
       style={{
-        padding: "100px 2rem 80px",
+        padding: "100px clamp(1rem, 4vw, 2rem) 80px",
         background: "oklch(0.07 0.01 250)",
         position: "relative",
         overflow: "hidden",
@@ -352,7 +352,7 @@ export function SkillTreeSection() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(5, 1fr)",
+            gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
             gap: "1.25rem",
             overflowX: "auto",
           }}

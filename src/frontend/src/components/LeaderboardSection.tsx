@@ -512,7 +512,7 @@ export function LeaderboardSection() {
         id="leaderboard"
         data-ocid="leaderboard.section"
         style={{
-          padding: "100px 2rem 80px",
+          padding: "100px clamp(1rem, 4vw, 2rem) 80px",
           background: "oklch(0.06 0.01 255)",
           position: "relative",
           overflow: "hidden",

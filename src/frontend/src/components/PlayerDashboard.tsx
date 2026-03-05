@@ -819,10 +819,9 @@ export function ProfileView({ profile, principalId }: ProfileViewProps) {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
+            gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))",
             gap: "0.6rem",
           }}
-          className="grid grid-cols-2 sm:grid-cols-3"
         >
           {stats.map((s) => (
             <StatBar
@@ -854,10 +853,9 @@ export function ProfileView({ profile, principalId }: ProfileViewProps) {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
+            gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))",
             gap: "0.6rem",
           }}
-          className="grid grid-cols-2 sm:grid-cols-3"
         >
           {categoryBars.map((cat) => {
             const pct = (cat.value / Math.max(maxCategoryXP, 1)) * 100;
@@ -942,7 +940,7 @@ export function ProfileView({ profile, principalId }: ProfileViewProps) {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(6, 1fr)",
+            gridTemplateColumns: "repeat(auto-fit, minmax(72px, 1fr))",
             gap: "0.6rem",
           }}
           className="grid grid-cols-4 sm:grid-cols-6"
@@ -1015,7 +1013,7 @@ export function PlayerDashboardSection({
       data-ocid="dashboard.section"
       style={{
         minHeight: "100vh",
-        padding: "100px 2rem 80px",
+        padding: "100px clamp(1rem, 4vw, 2rem) 80px",
         background: "oklch(0.06 0.01 255)",
         position: "relative",
       }}

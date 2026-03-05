@@ -8,6 +8,8 @@ interface NavbarProps {
   onLoginClick: () => void;
   onSignupClick: () => void;
   onAccountSettings?: () => void;
+  onDungeonClick?: () => void;
+  onCharacterClick?: () => void;
   activeSection?: string;
   onNavClick?: (section: string) => void;
 }
@@ -16,6 +18,8 @@ export function Navbar({
   onLoginClick,
   onSignupClick,
   onAccountSettings,
+  onDungeonClick,
+  onCharacterClick,
 }: NavbarProps) {
   const { isLoggedIn, logout, identity } = useAuth();
   const { data: profile } = usePlayerProfile();
@@ -161,6 +165,94 @@ export function Navbar({
               {link.label}
             </a>
           ))}
+          {/* DUNGEON button */}
+          {onDungeonClick && (
+            <button
+              type="button"
+              data-ocid="nav.dungeon.link"
+              onClick={onDungeonClick}
+              style={{
+                fontFamily: '"Sora", sans-serif',
+                fontSize: "0.78rem",
+                fontWeight: 700,
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+                padding: "0.4rem 0.85rem",
+                borderRadius: "4px",
+                background: "oklch(0.25 0.15 22 / 0.3)",
+                border: "1px solid oklch(0.62 0.25 22 / 0.5)",
+                color: "oklch(0.75 0.25 22)",
+                cursor: "pointer",
+                transition: "all 0.2s ease",
+                boxShadow: "0 0 8px oklch(0.62 0.25 22 / 0.2)",
+                touchAction: "manipulation",
+                WebkitTapHighlightColor: "transparent",
+                minHeight: "36px",
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLElement).style.background =
+                  "oklch(0.62 0.25 22 / 0.2)";
+                (e.currentTarget as HTMLElement).style.boxShadow =
+                  "0 0 16px oklch(0.62 0.25 22 / 0.5)";
+                (e.currentTarget as HTMLElement).style.color =
+                  "oklch(0.9 0.25 22)";
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLElement).style.background =
+                  "oklch(0.25 0.15 22 / 0.3)";
+                (e.currentTarget as HTMLElement).style.boxShadow =
+                  "0 0 8px oklch(0.62 0.25 22 / 0.2)";
+                (e.currentTarget as HTMLElement).style.color =
+                  "oklch(0.75 0.25 22)";
+              }}
+            >
+              ⚔️ DUNGEON
+            </button>
+          )}
+          {/* CHARACTER button */}
+          {onCharacterClick && (
+            <button
+              type="button"
+              data-ocid="nav.character.link"
+              onClick={onCharacterClick}
+              style={{
+                fontFamily: '"Sora", sans-serif',
+                fontSize: "0.78rem",
+                fontWeight: 700,
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+                padding: "0.4rem 0.85rem",
+                borderRadius: "4px",
+                background: "oklch(0.15 0.1 220 / 0.3)",
+                border: "1px solid oklch(0.55 0.2 220 / 0.5)",
+                color: "oklch(0.7 0.2 220)",
+                cursor: "pointer",
+                transition: "all 0.2s ease",
+                boxShadow: "0 0 8px oklch(0.55 0.2 220 / 0.2)",
+                touchAction: "manipulation",
+                WebkitTapHighlightColor: "transparent",
+                minHeight: "36px",
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLElement).style.background =
+                  "oklch(0.55 0.2 220 / 0.2)";
+                (e.currentTarget as HTMLElement).style.boxShadow =
+                  "0 0 16px oklch(0.55 0.2 220 / 0.5)";
+                (e.currentTarget as HTMLElement).style.color =
+                  "oklch(0.9 0.2 220)";
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLElement).style.background =
+                  "oklch(0.15 0.1 220 / 0.3)";
+                (e.currentTarget as HTMLElement).style.boxShadow =
+                  "0 0 8px oklch(0.55 0.2 220 / 0.2)";
+                (e.currentTarget as HTMLElement).style.color =
+                  "oklch(0.7 0.2 220)";
+              }}
+            >
+              🎨 CHARACTER
+            </button>
+          )}
         </div>
 
         {/* Auth buttons */}
@@ -420,6 +512,66 @@ export function Navbar({
               {link.label}
             </a>
           ))}
+          {/* Dungeon link mobile */}
+          {onDungeonClick && (
+            <button
+              type="button"
+              data-ocid="nav.dungeon.link"
+              onClick={() => {
+                onDungeonClick();
+                setMenuOpen(false);
+              }}
+              style={{
+                fontFamily: '"Sora", sans-serif',
+                fontSize: "0.88rem",
+                fontWeight: 700,
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+                textDecoration: "none",
+                color: "oklch(0.75 0.25 22)",
+                padding: "0.6rem 0",
+                borderBottom: "1px solid oklch(0.2 0.02 260 / 0.4)",
+                background: "transparent",
+                border: "none",
+                cursor: "pointer",
+                textAlign: "left",
+                touchAction: "manipulation",
+                WebkitTapHighlightColor: "transparent",
+              }}
+            >
+              ⚔️ DUNGEON FIGHTER
+            </button>
+          )}
+          {/* Character Creator mobile */}
+          {onCharacterClick && (
+            <button
+              type="button"
+              data-ocid="nav.character.link"
+              onClick={() => {
+                onCharacterClick();
+                setMenuOpen(false);
+              }}
+              style={{
+                fontFamily: '"Sora", sans-serif',
+                fontSize: "0.88rem",
+                fontWeight: 700,
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+                textDecoration: "none",
+                color: "oklch(0.7 0.2 220)",
+                padding: "0.6rem 0",
+                borderBottom: "1px solid oklch(0.2 0.02 260 / 0.4)",
+                background: "transparent",
+                border: "none",
+                cursor: "pointer",
+                textAlign: "left",
+                touchAction: "manipulation",
+                WebkitTapHighlightColor: "transparent",
+              }}
+            >
+              🎨 CHARACTER CREATOR
+            </button>
+          )}
           <div
             style={{
               display: "flex",

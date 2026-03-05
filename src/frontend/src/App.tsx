@@ -25,6 +25,8 @@ import { TrailerModal } from "@/components/TrailerModal";
 import { TrainerHub } from "@/components/TrainerHub";
 import { WeeklyGoalTracker } from "@/components/WeeklyGoalTracker";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { CharacterCreator } from "@/components/game/CharacterCreator";
+import { PokemonBattle } from "@/components/game/PokemonBattle";
 import { Toaster } from "@/components/ui/sonner";
 import { useActor } from "@/hooks/useActor";
 import { usePlayerProfile } from "@/hooks/useBackend";
@@ -33,7 +35,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
-type AppState = "loading" | "app";
+type AppState = "loading" | "app" | "dungeon";
 
 const PENALTY_CHECK_KEY = "bmx-last-penalty-check";
 
@@ -46,6 +48,7 @@ function AppContent() {
   const [prevLevel, setPrevLevel] = useState<number | null>(null);
   const [levelUpFlash, setLevelUpFlash] = useState(false);
   const [trailerOpen, setTrailerOpen] = useState(false);
+  const [characterCreatorOpen, setCharacterCreatorOpen] = useState(false);
 
   const { isLoggedIn } = useAuth();
   const { actor } = useActor();
@@ -220,6 +223,14 @@ function AppContent() {
         <OnboardingFlow onComplete={handleOnboardingComplete} />
       )}
 
+      {/* Dungeon / Fighting Game (fullscreen) */}
+      {appState === "dungeon" && (
+        <PokemonBattle
+          onBack={() => setAppState("app")}
+          playerLevel={profile ? Number(profile.level) : 1}
+        />
+      )}
+
       {/* Main app */}
       <div
         style={{
@@ -227,6 +238,7 @@ function AppContent() {
           background: "oklch(0.06 0.01 255)",
           opacity: appState === "loading" ? 0 : 1,
           transition: "opacity 0.5s ease 0.1s",
+          display: appState === "dungeon" ? "none" : "block",
         }}
       >
         <Navbar
@@ -235,6 +247,8 @@ function AppContent() {
           onAccountSettings={
             isLoggedIn ? () => setAccountSettingsOpen(true) : undefined
           }
+          onDungeonClick={() => setAppState("dungeon")}
+          onCharacterClick={() => setCharacterCreatorOpen(true)}
         />
 
         <main>
@@ -297,6 +311,12 @@ function AppContent() {
 
       {/* Trailer Modal */}
       <TrailerModal open={trailerOpen} onClose={() => setTrailerOpen(false)} />
+
+      {/* Character Creator */}
+      <CharacterCreator
+        open={characterCreatorOpen}
+        onClose={() => setCharacterCreatorOpen(false)}
+      />
 
       {/* Account Settings Modal */}
       {isLoggedIn && (
