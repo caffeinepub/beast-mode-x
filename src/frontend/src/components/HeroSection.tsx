@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 
 interface HeroSectionProps {
   onStartClick: () => void;
+  onTrailerClick?: () => void;
 }
 
 interface Particle {
@@ -14,7 +15,10 @@ interface Particle {
   color: string;
 }
 
-export function HeroSection({ onStartClick }: HeroSectionProps) {
+export function HeroSection({
+  onStartClick,
+  onTrailerClick,
+}: HeroSectionProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const particlesRef = useRef<Particle[]>([]);
   const animFrameRef = useRef<number>(0);
@@ -270,7 +274,7 @@ export function HeroSection({ onStartClick }: HeroSectionProps) {
             transition: "all 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.1s",
           }}
         >
-          BEAST MODE X
+          BEAST MODE LEVEL X
         </h1>
 
         {/* Subtitle */}
@@ -321,11 +325,15 @@ export function HeroSection({ onStartClick }: HeroSectionProps) {
             type="button"
             data-ocid="hero.trailer.secondary_button"
             className="btn-neon-ghost"
+            onClick={onTrailerClick}
             style={{
               padding: "0.9rem 2rem",
               fontSize: "0.85rem",
               borderRadius: "4px",
               cursor: "pointer",
+              touchAction: "manipulation",
+              WebkitTapHighlightColor: "transparent",
+              minHeight: "44px",
             }}
           >
             ◉ WATCH TRAILER

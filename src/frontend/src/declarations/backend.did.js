@@ -21,6 +21,11 @@ export const CategoryXP = IDL.Record({
   'fitness' : IDL.Nat,
   'intelligence' : IDL.Nat,
 });
+export const ActiveChallenge = IDL.Record({
+  'day' : IDL.Nat,
+  'challengeId' : IDL.Text,
+  'startDate' : IDL.Text,
+});
 export const PlayerStats = IDL.Record({
   'focus' : IDL.Nat,
   'aura' : IDL.Nat,
@@ -34,15 +39,18 @@ export const PlayerProfile = IDL.Record({
   'age' : IDL.Nat,
   'categoryXP' : CategoryXP,
   'weight' : IDL.Text,
+  'completedHabits' : IDL.Vec(IDL.Text),
   'height' : IDL.Text,
   'fitnessLevel' : IDL.Text,
   'username' : IDL.Text,
   'goal' : IDL.Text,
   'martialArtsLevel' : IDL.Nat,
   'completedMissions' : IDL.Vec(IDL.Text),
+  'activeChallenge' : IDL.Opt(ActiveChallenge),
   'level' : IDL.Nat,
   'stats' : PlayerStats,
   'achievements' : IDL.Vec(IDL.Nat),
+  'weeklyWorkouts' : IDL.Vec(IDL.Text),
   'gender' : IDL.Text,
   'skillPoints' : IDL.Nat,
   'martialArtsXP' : IDL.Nat,
@@ -51,12 +59,16 @@ export const PlayerProfile = IDL.Record({
 
 export const idlService = IDL.Service({
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
-  'applyPenalty' : IDL.Func([IDL.Principal, IDL.Nat], [], []),
+  'advanceChallengeDay' : IDL.Func([], [], []),
+  'applySelfPenalty' : IDL.Func([IDL.Nat], [], []),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
   'awardCameraXP' : IDL.Func([IDL.Nat, IDL.Text], [], []),
+  'completeHabit' : IDL.Func([IDL.Text, IDL.Text], [], []),
   'completeMission' : IDL.Func([IDL.Text, IDL.Text, IDL.Nat], [], []),
+  'completeWorkout' : IDL.Func([IDL.Text, IDL.Nat, IDL.Text], [], []),
   'deletePlayer' : IDL.Func([], [], []),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
+  'getHabitCompletions' : IDL.Func([], [IDL.Vec(IDL.Text)], ['query']),
   'getLeaderboard' : IDL.Func([], [IDL.Vec(PlayerProfile)], ['query']),
   'getMissionCompletions' : IDL.Func([], [IDL.Vec(IDL.Text)], ['query']),
   'getPlayerProfile' : IDL.Func([], [IDL.Opt(PlayerProfile)], ['query']),
@@ -81,9 +93,11 @@ export const idlService = IDL.Service({
       [],
     ),
   'resetPlayerProgress' : IDL.Func([], [], []),
+  'startChallenge' : IDL.Func([IDL.Text, IDL.Text], [], []),
   'unlockAchievement' : IDL.Func([IDL.Nat], [], []),
   'updateMartialArtsXP' : IDL.Func([IDL.Nat], [], []),
   'updateStats' : IDL.Func([PlayerStats], [], []),
+  'xpToLevel' : IDL.Func([IDL.Nat], [IDL.Nat], ['query']),
 });
 
 export const idlInitArgs = [];
@@ -102,6 +116,11 @@ export const idlFactory = ({ IDL }) => {
     'fitness' : IDL.Nat,
     'intelligence' : IDL.Nat,
   });
+  const ActiveChallenge = IDL.Record({
+    'day' : IDL.Nat,
+    'challengeId' : IDL.Text,
+    'startDate' : IDL.Text,
+  });
   const PlayerStats = IDL.Record({
     'focus' : IDL.Nat,
     'aura' : IDL.Nat,
@@ -115,15 +134,18 @@ export const idlFactory = ({ IDL }) => {
     'age' : IDL.Nat,
     'categoryXP' : CategoryXP,
     'weight' : IDL.Text,
+    'completedHabits' : IDL.Vec(IDL.Text),
     'height' : IDL.Text,
     'fitnessLevel' : IDL.Text,
     'username' : IDL.Text,
     'goal' : IDL.Text,
     'martialArtsLevel' : IDL.Nat,
     'completedMissions' : IDL.Vec(IDL.Text),
+    'activeChallenge' : IDL.Opt(ActiveChallenge),
     'level' : IDL.Nat,
     'stats' : PlayerStats,
     'achievements' : IDL.Vec(IDL.Nat),
+    'weeklyWorkouts' : IDL.Vec(IDL.Text),
     'gender' : IDL.Text,
     'skillPoints' : IDL.Nat,
     'martialArtsXP' : IDL.Nat,
@@ -132,12 +154,16 @@ export const idlFactory = ({ IDL }) => {
   
   return IDL.Service({
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
-    'applyPenalty' : IDL.Func([IDL.Principal, IDL.Nat], [], []),
+    'advanceChallengeDay' : IDL.Func([], [], []),
+    'applySelfPenalty' : IDL.Func([IDL.Nat], [], []),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
     'awardCameraXP' : IDL.Func([IDL.Nat, IDL.Text], [], []),
+    'completeHabit' : IDL.Func([IDL.Text, IDL.Text], [], []),
     'completeMission' : IDL.Func([IDL.Text, IDL.Text, IDL.Nat], [], []),
+    'completeWorkout' : IDL.Func([IDL.Text, IDL.Nat, IDL.Text], [], []),
     'deletePlayer' : IDL.Func([], [], []),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
+    'getHabitCompletions' : IDL.Func([], [IDL.Vec(IDL.Text)], ['query']),
     'getLeaderboard' : IDL.Func([], [IDL.Vec(PlayerProfile)], ['query']),
     'getMissionCompletions' : IDL.Func([], [IDL.Vec(IDL.Text)], ['query']),
     'getPlayerProfile' : IDL.Func([], [IDL.Opt(PlayerProfile)], ['query']),
@@ -162,9 +188,11 @@ export const idlFactory = ({ IDL }) => {
         [],
       ),
     'resetPlayerProgress' : IDL.Func([], [], []),
+    'startChallenge' : IDL.Func([IDL.Text, IDL.Text], [], []),
     'unlockAchievement' : IDL.Func([IDL.Nat], [], []),
     'updateMartialArtsXP' : IDL.Func([IDL.Nat], [], []),
     'updateStats' : IDL.Func([PlayerStats], [], []),
+    'xpToLevel' : IDL.Func([IDL.Nat], [IDL.Nat], ['query']),
   });
 };
 

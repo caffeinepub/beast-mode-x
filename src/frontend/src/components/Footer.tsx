@@ -78,7 +78,7 @@ export function Footer() {
                 marginBottom: "0.5rem",
               }}
             >
-              BEAST MODE X
+              BEAST MODE LEVEL X
             </div>
             <p
               style={{
@@ -219,7 +219,7 @@ export function Footer() {
               margin: 0,
             }}
           >
-            © {currentYear} BEAST MODE X. All Rights Reserved.
+            © {currentYear} BEAST MODE LEVEL X. All Rights Reserved.
           </p>
 
           <div style={{ display: "flex", gap: "1.5rem" }}>

@@ -6,11 +6,57 @@ import {
   CameraOff,
   Dumbbell,
   FlipHorizontal,
+  Plus,
   X,
   Zap,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+
+// ─── TypeScript global ──────────────────────────────────────────────────────
+declare global {
+  interface Window {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    Pose: any;
+  }
+}
+
+// ─── MediaPipe landmark names ───────────────────────────────────────────────
+const MEDIAPIPE_LANDMARK_NAMES = [
+  "nose",
+  "left_eye_inner",
+  "left_eye",
+  "left_eye_outer",
+  "right_eye_inner",
+  "right_eye",
+  "right_eye_outer",
+  "left_ear",
+  "right_ear",
+  "mouth_left",
+  "mouth_right",
+  "left_shoulder",
+  "right_shoulder",
+  "left_elbow",
+  "right_elbow",
+  "left_wrist",
+  "right_wrist",
+  "left_pinky",
+  "right_pinky",
+  "left_index",
+  "right_index",
+  "left_thumb",
+  "right_thumb",
+  "left_hip",
+  "right_hip",
+  "left_knee",
+  "right_knee",
+  "left_ankle",
+  "right_ankle",
+  "left_heel",
+  "right_heel",
+  "left_foot_index",
+  "right_foot_index",
+];
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 interface Keypoint {
@@ -590,7 +636,9 @@ export function CameraTracker() {
 
   const [cameraActive, setCameraActive] = useState(false);
   const [facingMode, setFacingMode] = useState<"user" | "environment">("user");
+  const facingModeRef = useRef<"user" | "environment">("user");
   const [modelLoading, setModelLoading] = useState(false);
+  const [modelAvailable, setModelAvailable] = useState<boolean | null>(null); // null = unknown
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [currentExercise, setCurrentExercise] =
     useState<ExerciseType>("detecting");
@@ -602,20 +650,84 @@ export function CameraTracker() {
   const [sessionStats, setSessionStats] = useState<SessionStats | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval>>(undefined);
 
-  // Load model dynamically
+  // Load MediaPipe Pose model via CDN script injection
   const loadModel = useCallback(async () => {
     setModelLoading(true);
     try {
-      // Use tfjs + movenet via dynamic import (CDN-free approach using bundled)
-      // Since TF packages aren't in package.json, we use a lightweight pose estimation
-      // approach based on the browser's built-in ML APIs where available,
-      // falling back to a keypoint tracker using canvas pixel analysis
+      // Load MediaPipe Pose via script tag injection if not already loaded
+      if (!window.Pose && !document.querySelector("script[data-mediapipe]")) {
+        await new Promise<void>((resolve, reject) => {
+          const script = document.createElement("script");
+          script.src =
+            "https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5.1675469404/pose.js";
+          script.setAttribute("data-mediapipe", "true");
+          script.onload = () => resolve();
+          script.onerror = () => reject(new Error("Failed to load MediaPipe"));
+          document.head.appendChild(script);
+        });
+      }
 
-      // Check if browser supports MediaPipe Tasks Vision (Chrome 88+)
-      // We'll use a simple skeleton estimator instead
+      // Wait for Pose constructor to be available
+      await new Promise<void>((resolve) => {
+        const check = () => {
+          if (window.Pose) resolve();
+          else setTimeout(check, 100);
+        };
+        check();
+      });
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment
+      const pose = new window.Pose({
+        locateFile: (file: string) =>
+          `https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5.1675469404/${file}`,
+      });
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+      pose.setOptions({
+        modelComplexity: 1,
+        smoothLandmarks: true,
+        enableSegmentation: false,
+        minDetectionConfidence: 0.5,
+        minTrackingConfidence: 0.5,
+      });
+
+      // Create a wrapper matching our estimatePoses interface
+      detectorRef.current = {
+        estimatePoses: (video: HTMLVideoElement): Promise<Pose[]> => {
+          return new Promise((resolve) => {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+            pose.onResults(
+              (results: {
+                poseLandmarks?: { x: number; y: number; visibility: number }[];
+              }) => {
+                if (results.poseLandmarks) {
+                  const keypoints = results.poseLandmarks.map(
+                    (lm, idx: number) => ({
+                      x: lm.x,
+                      y: lm.y,
+                      score: lm.visibility,
+                      name: MEDIAPIPE_LANDMARK_NAMES[idx] ?? `landmark_${idx}`,
+                    }),
+                  );
+                  resolve([{ keypoints, score: 1 }]);
+                } else {
+                  resolve([]);
+                }
+              },
+            );
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+            pose.send({ image: video }).catch(() => resolve([]));
+          });
+        },
+      };
+
+      setModelAvailable(true);
       setModelLoading(false);
-    } catch {
-      setCameraError("Failed to load AI model. Restart and try again.");
+    } catch (err) {
+      console.warn("MediaPipe failed to load, using manual mode:", err);
+      // Fall back to manual rep counting — users tap buttons to count
+      detectorRef.current = null;
+      setModelAvailable(false);
       setModelLoading(false);
     }
   }, []);
@@ -636,6 +748,11 @@ export function CameraTracker() {
     setCameraActive(false);
   }, []);
 
+  // Sync facingModeRef with state
+  useEffect(() => {
+    facingModeRef.current = facingMode;
+  }, [facingMode]);
+
   // Pose estimation loop using canvas + motion detection heuristics
   const runDetectionLoop = useCallback(() => {
     const video = videoRef.current;
@@ -651,9 +768,12 @@ export function CameraTracker() {
     canvas.width = video.videoWidth || 640;
     canvas.height = video.videoHeight || 480;
 
+    // Use ref to get current facing mode (avoids stale closure)
+    const currentFacingMode = facingModeRef.current;
+
     // Draw video frame (mirrored for selfie cam)
     ctx.save();
-    if (facingMode === "user") {
+    if (currentFacingMode === "user") {
       ctx.translate(canvas.width, 0);
       ctx.scale(-1, 1);
     }
@@ -668,7 +788,7 @@ export function CameraTracker() {
           if (poses.length > 0) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.save();
-            if (facingMode === "user") {
+            if (currentFacingMode === "user") {
               ctx.translate(canvas.width, 0);
               ctx.scale(-1, 1);
             }
@@ -720,14 +840,14 @@ export function CameraTracker() {
     }
 
     animFrameRef.current = requestAnimationFrame(runDetectionLoop);
-  }, [facingMode]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps -- uses refs only, no stale closures
 
   const startCamera = useCallback(async () => {
     setCameraError(null);
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
-          facingMode,
+          facingMode: facingModeRef.current,
           width: { ideal: 640 },
           height: { ideal: 480 },
         },
@@ -781,7 +901,27 @@ export function CameraTracker() {
         setCameraError(`Camera error: ${msg}`);
       }
     }
-  }, [facingMode, loadModel, runDetectionLoop]);
+  }, [loadModel, runDetectionLoop]);
+
+  const handleManualRep = useCallback(
+    (type: "pushup" | "squat" | "situp" | "jumpingjack") => {
+      const stats = sessionStatsRef.current;
+      if (type === "pushup") stats.pushups += 1;
+      else if (type === "squat") stats.squats += 1;
+      else if (type === "situp") stats.situps += 1;
+      else if (type === "jumpingjack") stats.jumpingjacks += 1;
+      exerciseStateRef.current.reps += 1;
+      const newReps =
+        stats.pushups + stats.squats + stats.situps + stats.jumpingjacks;
+      const newXp = calculateXP(stats);
+      const newCalories = Math.round(newReps * 0.4);
+      setTotalReps(newReps);
+      setXpEarned(newXp);
+      setCalories(newCalories);
+      setCurrentExercise(type);
+    },
+    [],
+  );
 
   const handleEndSession = async () => {
     const duration = Math.floor((Date.now() - startTimeRef.current) / 1000);
@@ -808,7 +948,8 @@ export function CameraTracker() {
   };
 
   const handleToggleCamera = useCallback(() => {
-    const newMode = facingMode === "user" ? "environment" : "user";
+    const newMode = facingModeRef.current === "user" ? "environment" : "user";
+    facingModeRef.current = newMode;
     setFacingMode(newMode);
     if (cameraActive) {
       stopCamera();
@@ -816,7 +957,7 @@ export function CameraTracker() {
         startCamera();
       }, 300);
     }
-  }, [facingMode, cameraActive, stopCamera, startCamera]);
+  }, [cameraActive, stopCamera, startCamera]);
 
   useEffect(() => {
     return () => {
@@ -824,13 +965,7 @@ export function CameraTracker() {
     };
   }, [stopCamera]);
 
-  // Re-run loop when cameraActive changes
-  useEffect(() => {
-    if (cameraActive && animFrameRef.current) {
-      cancelAnimationFrame(animFrameRef.current);
-      animFrameRef.current = requestAnimationFrame(runDetectionLoop);
-    }
-  }, [cameraActive, runDetectionLoop]);
+  // Note: detection loop is started directly in startCamera, no need for effect here
 
   const formatTime = (s: number) => {
     const m = Math.floor(s / 60);
@@ -1264,6 +1399,110 @@ export function CameraTracker() {
                       }}
                     />
                   ))}
+                </div>
+              )}
+
+              {/* Manual rep counting fallback — shown when AI detection unavailable */}
+              {cameraActive && modelAvailable === false && (
+                <div
+                  style={{
+                    marginTop: "0.85rem",
+                    padding: "0.85rem 1rem",
+                    background: "oklch(0.09 0.015 260 / 0.9)",
+                    border: "1px solid oklch(0.62 0.22 295 / 0.4)",
+                    borderRadius: "10px",
+                  }}
+                >
+                  <div
+                    style={{
+                      fontFamily: '"Sora", sans-serif',
+                      fontSize: "0.6rem",
+                      fontWeight: 700,
+                      letterSpacing: "0.18em",
+                      color: "oklch(0.62 0.22 295)",
+                      marginBottom: "0.65rem",
+                      textAlign: "center",
+                    }}
+                  >
+                    ◆ MANUAL REP COUNTER (AI unavailable)
+                  </div>
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "1fr 1fr",
+                      gap: "0.5rem",
+                    }}
+                  >
+                    {(
+                      [
+                        {
+                          type: "pushup" as const,
+                          label: "Push-up",
+                          icon: "💪",
+                          color: "oklch(0.62 0.25 22)",
+                        },
+                        {
+                          type: "squat" as const,
+                          label: "Squat",
+                          icon: "🦵",
+                          color: "oklch(0.62 0.22 295)",
+                        },
+                        {
+                          type: "situp" as const,
+                          label: "Sit-up",
+                          icon: "🧘",
+                          color: "oklch(0.82 0.18 85)",
+                        },
+                        {
+                          type: "jumpingjack" as const,
+                          label: "Jump Jack",
+                          icon: "⭐",
+                          color: "oklch(0.65 0.2 140)",
+                        },
+                      ] as const
+                    ).map((ex) => (
+                      <button
+                        key={ex.type}
+                        type="button"
+                        data-ocid={`cam_tracker.${ex.type}.button`}
+                        onClick={() => handleManualRep(ex.type)}
+                        style={{
+                          padding: "0.55rem 0.5rem",
+                          background: `${ex.color.replace(")", " / 0.1)")}`,
+                          border: `1px solid ${ex.color.replace(")", " / 0.45)")}`,
+                          borderRadius: "6px",
+                          fontFamily: '"Sora", sans-serif',
+                          fontSize: "0.65rem",
+                          fontWeight: 700,
+                          letterSpacing: "0.06em",
+                          color: ex.color,
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: "0.35rem",
+                          transition: "all 0.15s ease",
+                          textTransform: "uppercase",
+                          boxShadow: `0 0 6px ${ex.color.replace(")", " / 0.15)")}`,
+                        }}
+                        onMouseEnter={(e) => {
+                          (e.currentTarget as HTMLElement).style.background =
+                            ex.color.replace(")", " / 0.2)");
+                          (e.currentTarget as HTMLElement).style.boxShadow =
+                            `0 0 12px ${ex.color.replace(")", " / 0.4)")}`;
+                        }}
+                        onMouseLeave={(e) => {
+                          (e.currentTarget as HTMLElement).style.background =
+                            ex.color.replace(")", " / 0.1)");
+                          (e.currentTarget as HTMLElement).style.boxShadow =
+                            `0 0 6px ${ex.color.replace(")", " / 0.15)")}`;
+                        }}
+                      >
+                        <Plus size={11} />
+                        {ex.icon} {ex.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               )}
 

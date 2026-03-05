@@ -1,6 +1,9 @@
 import { AccountSettingsModal } from "@/components/AccountSettingsModal";
 import { AuthModals } from "@/components/AuthModals";
+import { BodyFocusSection } from "@/components/BodyFocusSection";
+import { BodyStatsTracker } from "@/components/BodyStatsTracker";
 import { CameraTracker } from "@/components/CameraTracker";
+import { ChallengeSection } from "@/components/ChallengeSection";
 import { FeaturesSection } from "@/components/FeaturesSection";
 import { Footer } from "@/components/Footer";
 import { HabitTrackerSection } from "@/components/HabitTrackerSection";
@@ -8,13 +11,19 @@ import { HeroSection } from "@/components/HeroSection";
 import { LeaderboardSection } from "@/components/LeaderboardSection";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { MartialArtsSection } from "@/components/MartialArtsSection";
+import { MentalHealthCheckin } from "@/components/MentalHealthCheckin";
 import { MusicToggle } from "@/components/MusicToggle";
 import { Navbar } from "@/components/Navbar";
+import { NutritionLogger } from "@/components/NutritionLogger";
 import { OnboardingFlow } from "@/components/OnboardingFlow";
 import { PlayerDashboardSection } from "@/components/PlayerDashboard";
+import { ProgressPhotosSection } from "@/components/ProgressPhotosSection";
 import { QuotesSection } from "@/components/QuotesSection";
 import { SkillTreeSection } from "@/components/SkillTreeSection";
+import { SleepTracker } from "@/components/SleepTracker";
+import { TrailerModal } from "@/components/TrailerModal";
 import { TrainerHub } from "@/components/TrainerHub";
+import { WeeklyGoalTracker } from "@/components/WeeklyGoalTracker";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { Toaster } from "@/components/ui/sonner";
 import { useActor } from "@/hooks/useActor";
@@ -36,8 +45,9 @@ function AppContent() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [prevLevel, setPrevLevel] = useState<number | null>(null);
   const [levelUpFlash, setLevelUpFlash] = useState(false);
+  const [trailerOpen, setTrailerOpen] = useState(false);
 
-  const { isLoggedIn, identity } = useAuth();
+  const { isLoggedIn } = useAuth();
   const { actor } = useActor();
   const { data: profile, isLoading: profileLoading } = usePlayerProfile();
   const queryClient = useQueryClient();
@@ -82,16 +92,8 @@ function AppContent() {
     ).length;
 
     if (yesterdayCount < 2 && lastCheck !== today) {
-      // Apply penalty - pass caller's principal as first argument
-      // identity.getPrincipal() is structurally compatible with the Principal type expected
-      const callerPrincipal = identity?.getPrincipal();
-      if (!callerPrincipal) return;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const principal = callerPrincipal as unknown as Parameters<
-        typeof actor.applyPenalty
-      >[0];
       actor
-        .applyPenalty(principal, BigInt(50))
+        .applySelfPenalty(BigInt(50))
         .then(() => {
           void queryClient.invalidateQueries({ queryKey: ["playerProfile"] });
           toast.error(
@@ -236,7 +238,10 @@ function AppContent() {
         />
 
         <main>
-          <HeroSection onStartClick={handleStartJourney} />
+          <HeroSection
+            onStartClick={handleStartJourney}
+            onTrailerClick={() => setTrailerOpen(true)}
+          />
 
           <TrainerHub
             completedMissions={completedMissions}
@@ -244,6 +249,10 @@ function AppContent() {
             onLoginClick={() => setLoginModalOpen(true)}
             playerLevel={profile ? Number(profile.level) : 1}
           />
+
+          <ChallengeSection />
+
+          <BodyFocusSection />
 
           <MartialArtsSection
             profile={profile}
@@ -258,11 +267,23 @@ function AppContent() {
             onLoginClick={() => setLoginModalOpen(true)}
           />
 
+          <WeeklyGoalTracker />
+
           <HabitTrackerSection />
 
           <SkillTreeSection />
 
           <QuotesSection />
+
+          <SleepTracker />
+
+          <NutritionLogger />
+
+          <MentalHealthCheckin />
+
+          <BodyStatsTracker />
+
+          <ProgressPhotosSection />
 
           <FeaturesSection />
 
@@ -273,6 +294,9 @@ function AppContent() {
 
         <MusicToggle />
       </div>
+
+      {/* Trailer Modal */}
+      <TrailerModal open={trailerOpen} onClose={() => setTrailerOpen(false)} />
 
       {/* Account Settings Modal */}
       {isLoggedIn && (

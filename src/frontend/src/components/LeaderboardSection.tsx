@@ -40,6 +40,8 @@ const SAMPLE_LEADERS: PlayerProfile[] = [
     martialArtsXP: 3200n,
     martialArtsLevel: 8n,
     completedMissions: [],
+    completedHabits: [],
+    weeklyWorkouts: [],
     achievements: [1n, 2n, 3n, 11n],
     stats: {
       strength: 85n,
@@ -73,6 +75,8 @@ const SAMPLE_LEADERS: PlayerProfile[] = [
     martialArtsXP: 2600n,
     martialArtsLevel: 7n,
     completedMissions: [],
+    completedHabits: [],
+    weeklyWorkouts: [],
     achievements: [1n, 2n, 3n],
     stats: {
       strength: 79n,
@@ -106,6 +110,8 @@ const SAMPLE_LEADERS: PlayerProfile[] = [
     martialArtsXP: 2200n,
     martialArtsLevel: 6n,
     completedMissions: [],
+    completedHabits: [],
+    weeklyWorkouts: [],
     achievements: [1n, 2n],
     stats: {
       strength: 72n,
@@ -139,6 +145,8 @@ const SAMPLE_LEADERS: PlayerProfile[] = [
     martialArtsXP: 1800n,
     martialArtsLevel: 5n,
     completedMissions: [],
+    completedHabits: [],
+    weeklyWorkouts: [],
     achievements: [1n, 2n],
     stats: {
       strength: 88n,
@@ -172,6 +180,8 @@ const SAMPLE_LEADERS: PlayerProfile[] = [
     martialArtsXP: 1500n,
     martialArtsLevel: 5n,
     completedMissions: [],
+    completedHabits: [],
+    weeklyWorkouts: [],
     achievements: [1n],
     stats: {
       strength: 65n,
@@ -205,6 +215,8 @@ const SAMPLE_LEADERS: PlayerProfile[] = [
     martialArtsXP: 1200n,
     martialArtsLevel: 4n,
     completedMissions: [],
+    completedHabits: [],
+    weeklyWorkouts: [],
     achievements: [1n],
     stats: {
       strength: 90n,
@@ -238,6 +250,8 @@ const SAMPLE_LEADERS: PlayerProfile[] = [
     martialArtsXP: 900n,
     martialArtsLevel: 4n,
     completedMissions: [],
+    completedHabits: [],
+    weeklyWorkouts: [],
     achievements: [1n],
     stats: {
       strength: 70n,
@@ -271,6 +285,8 @@ const SAMPLE_LEADERS: PlayerProfile[] = [
     martialArtsXP: 750n,
     martialArtsLevel: 3n,
     completedMissions: [],
+    completedHabits: [],
+    weeklyWorkouts: [],
     achievements: [],
     stats: {
       strength: 68n,
@@ -304,6 +320,8 @@ const SAMPLE_LEADERS: PlayerProfile[] = [
     martialArtsXP: 650n,
     martialArtsLevel: 3n,
     completedMissions: [],
+    completedHabits: [],
+    weeklyWorkouts: [],
     achievements: [],
     stats: {
       strength: 62n,
@@ -337,6 +355,8 @@ const SAMPLE_LEADERS: PlayerProfile[] = [
     martialArtsXP: 500n,
     martialArtsLevel: 2n,
     completedMissions: [],
+    completedHabits: [],
+    weeklyWorkouts: [],
     achievements: [],
     stats: {
       strength: 58n,

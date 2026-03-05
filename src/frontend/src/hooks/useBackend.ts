@@ -153,6 +153,100 @@ export function useUpdateStats() {
   });
 }
 
+// ─── Query: Get habit completions ───
+export function useHabitCompletions() {
+  const { actor, isFetching } = useActor();
+  return useQuery<string[]>({
+    queryKey: ["habitCompletions"],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.getHabitCompletions();
+    },
+    enabled: !!actor && !isFetching,
+  });
+}
+
+// ─── Mutation: Complete habit ───
+export function useCompleteHabit() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      habitId,
+      date,
+    }: {
+      habitId: string;
+      date: string;
+    }) => {
+      if (!actor) throw new Error("Not connected");
+      return actor.completeHabit(habitId, date);
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["habitCompletions"] });
+      void queryClient.invalidateQueries({ queryKey: ["playerProfile"] });
+    },
+  });
+}
+
+// ─── Mutation: Complete workout ───
+export function useCompleteWorkout() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      workoutId,
+      xpReward,
+      category,
+    }: {
+      workoutId: string;
+      xpReward: bigint;
+      category: string;
+    }) => {
+      if (!actor) throw new Error("Not connected");
+      return actor.completeWorkout(workoutId, xpReward, category);
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["playerProfile"] });
+    },
+  });
+}
+
+// ─── Mutation: Start challenge ───
+export function useStartChallenge() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      challengeId,
+      startDate,
+    }: {
+      challengeId: string;
+      startDate: string;
+    }) => {
+      if (!actor) throw new Error("Not connected");
+      return actor.startChallenge(challengeId, startDate);
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["playerProfile"] });
+    },
+  });
+}
+
+// ─── Mutation: Advance challenge day ───
+export function useAdvanceChallengeDay() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      if (!actor) throw new Error("Not connected");
+      return actor.advanceChallengeDay();
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["playerProfile"] });
+    },
+  });
+}
+
 // ─── Combined hook for easy access ───
 export function useBackend() {
   const { actor, isFetching } = useActor();

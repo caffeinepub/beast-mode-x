@@ -114,14 +114,14 @@ export function LoadingScreen({ onComplete }: LoadingScreenProps) {
             pointerEvents: "none",
           }}
         >
-          BEAST MODE X
+          BEAST MODE LEVEL X
         </div>
 
         <h1
           style={{
             fontFamily: '"Orbitron", monospace',
             fontWeight: 900,
-            fontSize: "clamp(2rem, 8vw, 5rem)",
+            fontSize: "clamp(1.5rem, 6vw, 4rem)",
             letterSpacing: "0.12em",
             background:
               "linear-gradient(135deg, oklch(0.7 0.28 22) 0%, oklch(0.65 0.25 22) 30%, oklch(0.62 0.24 340) 60%, oklch(0.62 0.22 295) 100%)",
@@ -132,7 +132,7 @@ export function LoadingScreen({ onComplete }: LoadingScreenProps) {
             margin: 0,
           }}
         >
-          BEAST MODE X
+          BEAST MODE LEVEL X
         </h1>
 
         <p

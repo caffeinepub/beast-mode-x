@@ -116,7 +116,7 @@ export function Navbar({
             flexShrink: 0,
           }}
         >
-          BEAST MODE X
+          BEAST MODE LEVEL X
         </a>
 
         {/* Desktop nav links */}
@@ -182,7 +182,16 @@ export function Navbar({
                     borderRadius: "6px",
                   }}
                 >
-                  <span style={{ fontSize: "0.9rem" }}>{rankInfo.badge}</span>
+                  <img
+                    src={rankInfo.badgeImage}
+                    alt={rankInfo.title}
+                    style={{
+                      width: "22px",
+                      height: "22px",
+                      objectFit: "contain",
+                      filter: `drop-shadow(0 0 4px ${rankInfo.color.replace(")", " / 0.7)")})`,
+                    }}
+                  />
                   <span
                     style={{
                       fontFamily: '"Sora", sans-serif',
@@ -226,6 +235,10 @@ export function Navbar({
                     alignItems: "center",
                     justifyContent: "center",
                     transition: "all 0.2s ease",
+                    touchAction: "manipulation",
+                    WebkitTapHighlightColor: "transparent",
+                    minHeight: "44px",
+                    minWidth: "44px",
                   }}
                   onMouseEnter={(e) => {
                     (e.currentTarget as HTMLElement).style.background =
@@ -259,6 +272,9 @@ export function Navbar({
                   color: "oklch(0.62 0.25 22)",
                   cursor: "pointer",
                   transition: "all 0.2s ease",
+                  touchAction: "manipulation",
+                  WebkitTapHighlightColor: "transparent",
+                  minHeight: "44px",
                 }}
                 onMouseEnter={(e) => {
                   (e.target as HTMLElement).style.background =
@@ -290,6 +306,9 @@ export function Navbar({
                   color: "oklch(0.62 0.22 295)",
                   cursor: "pointer",
                   transition: "all 0.2s ease",
+                  touchAction: "manipulation",
+                  WebkitTapHighlightColor: "transparent",
+                  minHeight: "44px",
                 }}
                 onMouseEnter={(e) => {
                   (e.target as HTMLElement).style.background =
@@ -303,7 +322,7 @@ export function Navbar({
               </button>
               <button
                 type="button"
-                data-ocid="nav.login.button"
+                data-ocid="nav.signup.button"
                 onClick={onSignupClick}
                 style={{
                   fontFamily: '"Sora", sans-serif',
@@ -320,6 +339,9 @@ export function Navbar({
                   cursor: "pointer",
                   boxShadow: "0 0 8px oklch(0.62 0.25 22 / 0.4)",
                   transition: "all 0.2s ease",
+                  touchAction: "manipulation",
+                  WebkitTapHighlightColor: "transparent",
+                  minHeight: "44px",
                 }}
                 onMouseEnter={(e) => {
                   (e.target as HTMLElement).style.boxShadow =
@@ -348,12 +370,16 @@ export function Navbar({
             background: "transparent",
             border: "1px solid oklch(0.62 0.25 22 / 0.4)",
             borderRadius: "4px",
-            padding: "0.4rem 0.5rem",
+            padding: "0.5rem 0.65rem",
             color: "oklch(0.62 0.25 22)",
             cursor: "pointer",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
+            touchAction: "manipulation",
+            WebkitTapHighlightColor: "transparent",
+            minHeight: "44px",
+            minWidth: "44px",
           }}
         >
           {menuOpen ? <X size={18} /> : <Menu size={18} />}
@@ -475,13 +501,16 @@ export function Navbar({
                     borderRadius: "4px",
                     color: "oklch(0.62 0.22 295)",
                     cursor: "pointer",
+                    touchAction: "manipulation",
+                    WebkitTapHighlightColor: "transparent",
+                    minHeight: "44px",
                   }}
                 >
                   Login
                 </button>
                 <button
                   type="button"
-                  data-ocid="nav.login.button"
+                  data-ocid="nav.signup.button"
                   onClick={() => {
                     onSignupClick();
                     setMenuOpen(false);
@@ -498,6 +527,9 @@ export function Navbar({
                     borderRadius: "4px",
                     color: "oklch(0.98 0 0)",
                     cursor: "pointer",
+                    touchAction: "manipulation",
+                    WebkitTapHighlightColor: "transparent",
+                    minHeight: "44px",
                   }}
                 >
                   Sign Up

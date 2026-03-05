@@ -97,6 +97,11 @@ export interface CategoryXP {
     fitness: bigint;
     intelligence: bigint;
 }
+export interface ActiveChallenge {
+    day: bigint;
+    challengeId: string;
+    startDate: string;
+}
 export interface PlayerStats {
     focus: bigint;
     aura: bigint;
@@ -110,15 +115,18 @@ export interface PlayerProfile {
     age: bigint;
     categoryXP: CategoryXP;
     weight: string;
+    completedHabits: Array<string>;
     height: string;
     fitnessLevel: string;
     username: string;
     goal: string;
     martialArtsLevel: bigint;
     completedMissions: Array<string>;
+    activeChallenge?: ActiveChallenge;
     level: bigint;
     stats: PlayerStats;
     achievements: Array<bigint>;
+    weeklyWorkouts: Array<string>;
     gender: string;
     skillPoints: bigint;
     martialArtsXP: bigint;
@@ -131,12 +139,16 @@ export enum UserRole {
 }
 export interface backendInterface {
     _initializeAccessControlWithSecret(userSecret: string): Promise<void>;
-    applyPenalty(player: Principal, xpLoss: bigint): Promise<void>;
+    advanceChallengeDay(): Promise<void>;
+    applySelfPenalty(xpLoss: bigint): Promise<void>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
     awardCameraXP(xpAmount: bigint, category: string): Promise<void>;
+    completeHabit(habitId: string, date: string): Promise<void>;
     completeMission(missionId: string, category: string, xpReward: bigint): Promise<void>;
+    completeWorkout(workoutId: string, xpReward: bigint, category: string): Promise<void>;
     deletePlayer(): Promise<void>;
     getCallerUserRole(): Promise<UserRole>;
+    getHabitCompletions(): Promise<Array<string>>;
     getLeaderboard(): Promise<Array<PlayerProfile>>;
     getMissionCompletions(): Promise<Array<string>>;
     getPlayerProfile(): Promise<PlayerProfile | null>;
@@ -144,11 +156,13 @@ export interface backendInterface {
     isCallerAdmin(): Promise<boolean>;
     registerPlayer(username: string, age: bigint, gender: string, goal: string, fitnessLevel: string, bodyType: string, weight: string, height: string): Promise<void>;
     resetPlayerProgress(): Promise<void>;
+    startChallenge(challengeId: string, startDate: string): Promise<void>;
     unlockAchievement(badgeId: bigint): Promise<void>;
     updateMartialArtsXP(xpToAdd: bigint): Promise<void>;
     updateStats(newStats: PlayerStats): Promise<void>;
+    xpToLevel(xp: bigint): Promise<bigint>;
 }
-import type { PlayerProfile as _PlayerProfile, UserRole as _UserRole } from "./declarations/backend.did.d.ts";
+import type { ActiveChallenge as _ActiveChallenge, CategoryXP as _CategoryXP, PlayerProfile as _PlayerProfile, PlayerStats as _PlayerStats, UserRole as _UserRole } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
     constructor(private actor: ActorSubclass<_SERVICE>, private _uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, private _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, private processError?: (error: unknown) => never){}
     async _initializeAccessControlWithSecret(arg0: string): Promise<void> {
@@ -165,17 +179,31 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async applyPenalty(arg0: Principal, arg1: bigint): Promise<void> {
+    async advanceChallengeDay(): Promise<void> {
         if (this.processError) {
             try {
-                const result = await this.actor.applyPenalty(arg0, arg1);
+                const result = await this.actor.advanceChallengeDay();
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.applyPenalty(arg0, arg1);
+            const result = await this.actor.advanceChallengeDay();
+            return result;
+        }
+    }
+    async applySelfPenalty(arg0: bigint): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.applySelfPenalty(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.applySelfPenalty(arg0);
             return result;
         }
     }
@@ -207,6 +235,20 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async completeHabit(arg0: string, arg1: string): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.completeHabit(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.completeHabit(arg0, arg1);
+            return result;
+        }
+    }
     async completeMission(arg0: string, arg1: string, arg2: bigint): Promise<void> {
         if (this.processError) {
             try {
@@ -218,6 +260,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.completeMission(arg0, arg1, arg2);
+            return result;
+        }
+    }
+    async completeWorkout(arg0: string, arg1: bigint, arg2: string): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.completeWorkout(arg0, arg1, arg2);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.completeWorkout(arg0, arg1, arg2);
             return result;
         }
     }
@@ -249,18 +305,32 @@ export class Backend implements backendInterface {
             return from_candid_UserRole_n3(this._uploadFile, this._downloadFile, result);
         }
     }
-    async getLeaderboard(): Promise<Array<PlayerProfile>> {
+    async getHabitCompletions(): Promise<Array<string>> {
         if (this.processError) {
             try {
-                const result = await this.actor.getLeaderboard();
+                const result = await this.actor.getHabitCompletions();
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.getLeaderboard();
+            const result = await this.actor.getHabitCompletions();
             return result;
+        }
+    }
+    async getLeaderboard(): Promise<Array<PlayerProfile>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getLeaderboard();
+                return from_candid_vec_n5(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getLeaderboard();
+            return from_candid_vec_n5(this._uploadFile, this._downloadFile, result);
         }
     }
     async getMissionCompletions(): Promise<Array<string>> {
@@ -281,28 +351,28 @@ export class Backend implements backendInterface {
         if (this.processError) {
             try {
                 const result = await this.actor.getPlayerProfile();
-                return from_candid_opt_n5(this._uploadFile, this._downloadFile, result);
+                return from_candid_opt_n9(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getPlayerProfile();
-            return from_candid_opt_n5(this._uploadFile, this._downloadFile, result);
+            return from_candid_opt_n9(this._uploadFile, this._downloadFile, result);
         }
     }
     async getPublicProfile(arg0: Principal): Promise<PlayerProfile | null> {
         if (this.processError) {
             try {
                 const result = await this.actor.getPublicProfile(arg0);
-                return from_candid_opt_n5(this._uploadFile, this._downloadFile, result);
+                return from_candid_opt_n9(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getPublicProfile(arg0);
-            return from_candid_opt_n5(this._uploadFile, this._downloadFile, result);
+            return from_candid_opt_n9(this._uploadFile, this._downloadFile, result);
         }
     }
     async isCallerAdmin(): Promise<boolean> {
@@ -344,6 +414,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.resetPlayerProgress();
+            return result;
+        }
+    }
+    async startChallenge(arg0: string, arg1: string): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.startChallenge(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.startChallenge(arg0, arg1);
             return result;
         }
     }
@@ -389,12 +473,98 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async xpToLevel(arg0: bigint): Promise<bigint> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.xpToLevel(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.xpToLevel(arg0);
+            return result;
+        }
+    }
+}
+function from_candid_PlayerProfile_n6(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _PlayerProfile): PlayerProfile {
+    return from_candid_record_n7(_uploadFile, _downloadFile, value);
 }
 function from_candid_UserRole_n3(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _UserRole): UserRole {
     return from_candid_variant_n4(_uploadFile, _downloadFile, value);
 }
-function from_candid_opt_n5(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_PlayerProfile]): PlayerProfile | null {
+function from_candid_opt_n8(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_ActiveChallenge]): ActiveChallenge | null {
     return value.length === 0 ? null : value[0];
+}
+function from_candid_opt_n9(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_PlayerProfile]): PlayerProfile | null {
+    return value.length === 0 ? null : from_candid_PlayerProfile_n6(_uploadFile, _downloadFile, value[0]);
+}
+function from_candid_record_n7(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    xp: bigint;
+    age: bigint;
+    categoryXP: _CategoryXP;
+    weight: string;
+    completedHabits: Array<string>;
+    height: string;
+    fitnessLevel: string;
+    username: string;
+    goal: string;
+    martialArtsLevel: bigint;
+    completedMissions: Array<string>;
+    activeChallenge: [] | [_ActiveChallenge];
+    level: bigint;
+    stats: _PlayerStats;
+    achievements: Array<bigint>;
+    weeklyWorkouts: Array<string>;
+    gender: string;
+    skillPoints: bigint;
+    martialArtsXP: bigint;
+    bodyType: string;
+}): {
+    xp: bigint;
+    age: bigint;
+    categoryXP: CategoryXP;
+    weight: string;
+    completedHabits: Array<string>;
+    height: string;
+    fitnessLevel: string;
+    username: string;
+    goal: string;
+    martialArtsLevel: bigint;
+    completedMissions: Array<string>;
+    activeChallenge?: ActiveChallenge;
+    level: bigint;
+    stats: PlayerStats;
+    achievements: Array<bigint>;
+    weeklyWorkouts: Array<string>;
+    gender: string;
+    skillPoints: bigint;
+    martialArtsXP: bigint;
+    bodyType: string;
+} {
+    return {
+        xp: value.xp,
+        age: value.age,
+        categoryXP: value.categoryXP,
+        weight: value.weight,
+        completedHabits: value.completedHabits,
+        height: value.height,
+        fitnessLevel: value.fitnessLevel,
+        username: value.username,
+        goal: value.goal,
+        martialArtsLevel: value.martialArtsLevel,
+        completedMissions: value.completedMissions,
+        activeChallenge: record_opt_to_undefined(from_candid_opt_n8(_uploadFile, _downloadFile, value.activeChallenge)),
+        level: value.level,
+        stats: value.stats,
+        achievements: value.achievements,
+        weeklyWorkouts: value.weeklyWorkouts,
+        gender: value.gender,
+        skillPoints: value.skillPoints,
+        martialArtsXP: value.martialArtsXP,
+        bodyType: value.bodyType
+    };
 }
 function from_candid_variant_n4(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     admin: null;
@@ -404,6 +574,9 @@ function from_candid_variant_n4(_uploadFile: (file: ExternalBlob) => Promise<Uin
     guest: null;
 }): UserRole {
     return "admin" in value ? UserRole.admin : "user" in value ? UserRole.user : "guest" in value ? UserRole.guest : value;
+}
+function from_candid_vec_n5(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_PlayerProfile>): Array<PlayerProfile> {
+    return value.map((x)=>from_candid_PlayerProfile_n6(_uploadFile, _downloadFile, x));
 }
 function to_candid_UserRole_n1(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: UserRole): _UserRole {
     return to_candid_variant_n2(_uploadFile, _downloadFile, value);

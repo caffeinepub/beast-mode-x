@@ -12,86 +12,88 @@ interface RankInfo {
   color: string;
   glow: string;
   badge: string;
+  badgeImage: string;
 }
 
 export function getRankInfo(level: number): RankInfo {
-  if (level >= 151) {
-    return {
-      title: "BEAST MODE",
-      color: "oklch(0.62 0.25 22)",
-      glow: "0 0 16px oklch(0.62 0.25 22 / 0.8), 0 0 40px oklch(0.62 0.22 295 / 0.4)",
-      badge: "🌟",
-    };
-  }
   if (level >= 101) {
     return {
-      title: "AWAKENED ONE",
-      color: "oklch(0.78 0.18 280)",
-      glow: "0 0 16px oklch(0.78 0.18 280 / 0.8)",
-      badge: "🌈",
+      title: "BEAST MODE X",
+      color: "oklch(0.62 0.25 22)",
+      glow: "0 0 20px oklch(0.62 0.25 22 / 0.9), 0 0 50px oklch(0.62 0.22 295 / 0.5)",
+      badge: "🌟",
+      badgeImage: "/assets/generated/rank-badge-beast-mode.dim_300x300.png",
     };
   }
   if (level >= 76) {
     return {
-      title: "DRAGON FIST",
-      color: "oklch(0.65 0.22 20)",
-      glow: "0 0 16px oklch(0.65 0.22 20 / 0.8)",
-      badge: "🐉",
+      title: "SHADOW MONARCH",
+      color: "oklch(0.72 0.22 295)",
+      glow: "0 0 20px oklch(0.72 0.22 295 / 0.9), 0 0 40px oklch(0.55 0.18 295 / 0.5)",
+      badge: "👑",
+      badgeImage: "/assets/generated/rank-badge-shadow-monarch.dim_300x300.png",
     };
   }
   if (level >= 51) {
     return {
-      title: "SHADOW MONARCH",
-      color: "oklch(0.55 0.18 295)",
-      glow: "0 0 16px oklch(0.55 0.18 295 / 0.8)",
-      badge: "👑",
+      title: "NATIONAL LEVEL",
+      color: "oklch(0.72 0.28 22)",
+      glow: "0 0 18px oklch(0.72 0.28 22 / 0.8), 0 0 36px oklch(0.82 0.18 85 / 0.4)",
+      badge: "🐉",
+      badgeImage: "/assets/generated/rank-badge-national.dim_300x300.png",
     };
   }
   if (level >= 31) {
     return {
-      title: "S-RANK HUNTER",
-      color: "oklch(0.82 0.18 85)",
-      glow: "0 0 16px oklch(0.82 0.18 85 / 0.8)",
+      title: "S-RANK",
+      color: "oklch(0.88 0.2 85)",
+      glow: "0 0 16px oklch(0.88 0.2 85 / 0.8)",
       badge: "⭐",
+      badgeImage: "/assets/generated/rank-badge-s-rank.dim_300x300.png",
     };
   }
   if (level >= 21) {
     return {
-      title: "A-RANK HUNTER",
-      color: "oklch(0.62 0.22 295)",
-      glow: "0 0 16px oklch(0.62 0.22 295 / 0.8)",
+      title: "A-RANK",
+      color: "oklch(0.72 0.26 295)",
+      glow: "0 0 16px oklch(0.72 0.26 295 / 0.8)",
       badge: "💎",
+      badgeImage: "/assets/generated/rank-badge-a-rank.dim_300x300.png",
     };
   }
   if (level >= 11) {
     return {
-      title: "B-RANK HUNTER",
-      color: "oklch(0.62 0.22 240)",
-      glow: "0 0 16px oklch(0.62 0.22 240 / 0.6)",
+      title: "B-RANK",
+      color: "oklch(0.65 0.24 240)",
+      glow: "0 0 14px oklch(0.65 0.24 240 / 0.7)",
       badge: "🔷",
+      badgeImage: "/assets/generated/rank-badge-b-rank.dim_300x300.png",
     };
   }
   if (level >= 6) {
     return {
-      title: "C-RANK HUNTER",
-      color: "oklch(0.65 0.18 140)",
-      glow: "0 0 16px oklch(0.65 0.18 140 / 0.6)",
+      title: "C-RANK",
+      color: "oklch(0.68 0.2 140)",
+      glow: "0 0 14px oklch(0.68 0.2 140 / 0.6)",
       badge: "🟢",
+      badgeImage: "/assets/generated/rank-badge-c-rank.dim_300x300.png",
     };
   }
   if (level >= 3) {
     return {
-      title: "D-RANK HUNTER",
-      color: "oklch(0.65 0.12 50)",
-      glow: "0 0 12px oklch(0.65 0.12 50 / 0.5)",
+      title: "D-RANK",
+      color: "oklch(0.7 0.15 50)",
+      glow: "0 0 12px oklch(0.7 0.15 50 / 0.6)",
       badge: "🟤",
+      badgeImage: "/assets/generated/rank-badge-d-rank.dim_300x300.png",
     };
   }
   return {
-    title: "UNAWAKENED",
-    color: "oklch(0.6 0.04 260)",
-    glow: "0 0 8px oklch(0.6 0.04 260 / 0.3)",
+    title: "E-RANK",
+    color: "oklch(0.6 0.05 260)",
+    glow: "0 0 8px oklch(0.6 0.05 260 / 0.4)",
     badge: "⬜",
+    badgeImage: "/assets/generated/rank-badge-e-rank.dim_300x300.png",
   };
 }
 
@@ -256,6 +258,32 @@ export function ProfileView({ profile, principalId }: ProfileViewProps) {
 
   const unlockedAchievements = profile.achievements.map((a) => Number(a));
 
+  // Calculate streak from completedMissions
+  const streak = (() => {
+    const completedSet = new Set(
+      profile.completedMissions
+        .map((m) => {
+          // mission id format: trainerid-tier-YYYY-MM-DD-missionname
+          const dateMatch = m.match(/(\d{4}-\d{2}-\d{2})/);
+          return dateMatch ? dateMatch[1] : "";
+        })
+        .filter(Boolean),
+    );
+    let count = 0;
+    const today = new Date();
+    for (let i = 0; i < 365; i++) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      const ds = d.toISOString().split("T")[0] ?? "";
+      if (completedSet.has(ds)) {
+        count++;
+      } else if (i > 0) {
+        break;
+      }
+    }
+    return count;
+  })();
+
   const stats = [
     {
       label: "STR",
@@ -414,15 +442,17 @@ export function ProfileView({ profile, principalId }: ProfileViewProps) {
             >
               <span
                 style={{
-                  padding: "0.15rem 0.5rem",
-                  background: classInfo.color.replace(")", " / 0.15)"),
-                  border: `1px solid ${classInfo.color.replace(")", " / 0.4)")}`,
-                  borderRadius: "100px",
+                  padding: "0.22rem 0.65rem",
+                  background: classInfo.color.replace(")", " / 0.12)"),
+                  border: `2px solid ${classInfo.borderColor}`,
+                  borderRadius: "6px",
                   fontFamily: '"Sora", sans-serif',
-                  fontSize: "0.62rem",
-                  fontWeight: 700,
-                  letterSpacing: "0.1em",
+                  fontSize: "0.7rem",
+                  fontWeight: 800,
+                  letterSpacing: "0.12em",
                   color: classInfo.color,
+                  boxShadow: classInfo.glowColor,
+                  textShadow: `0 0 8px ${classInfo.color.replace(")", " / 0.7)")}`,
                 }}
               >
                 {classInfo.icon} {classInfo.name}
@@ -463,6 +493,37 @@ export function ProfileView({ profile, principalId }: ProfileViewProps) {
                 Goal: {profile.goal}
               </div>
             )}
+            {/* Streak */}
+            <div
+              style={{
+                marginTop: "0.4rem",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.35rem",
+                padding: "0.2rem 0.6rem",
+                background: "oklch(0.62 0.25 22 / 0.1)",
+                border: "1px solid oklch(0.62 0.25 22 / 0.35)",
+                borderRadius: "100px",
+                boxShadow:
+                  streak > 0 ? "0 0 8px oklch(0.62 0.25 22 / 0.3)" : "none",
+              }}
+            >
+              <span style={{ fontSize: "0.75rem" }}>🔥</span>
+              <span
+                style={{
+                  fontFamily: '"Sora", sans-serif',
+                  fontSize: "0.62rem",
+                  fontWeight: 700,
+                  letterSpacing: "0.08em",
+                  color:
+                    streak > 0 ? "oklch(0.72 0.28 22)" : "oklch(0.45 0.03 260)",
+                  textShadow:
+                    streak > 0 ? "0 0 6px oklch(0.62 0.25 22 / 0.6)" : "none",
+                }}
+              >
+                {streak} DAY STREAK
+              </span>
+            </div>
             {/* Principal ID */}
             {principalId && (
               <div
@@ -517,49 +578,74 @@ export function ProfileView({ profile, principalId }: ProfileViewProps) {
         {/* Rank badge */}
         <div
           style={{
-            padding: "1.25rem",
-            background: "oklch(0.09 0.015 260 / 0.8)",
-            border: `1px solid ${rankInfo.color.replace(")", " / 0.4)")}`,
-            borderRadius: "10px",
-            backdropFilter: "blur(16px)",
+            padding: "1.25rem 1rem",
+            background: "oklch(0.07 0.018 260)",
+            border: `2px solid ${rankInfo.color.replace(")", " / 0.55)")}`,
+            borderRadius: "12px",
+            backdropFilter: "blur(20px)",
             textAlign: "center",
-            boxShadow: rankInfo.glow,
+            boxShadow: `${rankInfo.glow}, inset 0 0 30px oklch(0 0 0 / 0.3)`,
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
-            gap: "0.4rem",
+            gap: "0.5rem",
             minWidth: "160px",
+            position: "relative",
+            overflow: "hidden",
           }}
         >
+          {/* Background glow pulse */}
           <div
             style={{
-              fontSize: "0.6rem",
+              position: "absolute",
+              inset: 0,
+              background: `radial-gradient(ellipse at center, ${rankInfo.color.replace(")", " / 0.08)")} 0%, transparent 70%)`,
+              pointerEvents: "none",
+            }}
+          />
+          <div
+            style={{
+              fontSize: "0.58rem",
               fontFamily: '"Sora", sans-serif',
-              letterSpacing: "0.2em",
+              letterSpacing: "0.25em",
               color: "oklch(0.45 0.03 260)",
               fontWeight: 700,
+              position: "relative",
+              zIndex: 1,
             }}
           >
-            RANK
+            ◆ CURRENT RANK ◆
           </div>
           <div
             style={{
-              fontSize: "2.5rem",
               animation: "float 4s ease-in-out infinite",
+              position: "relative",
+              zIndex: 1,
+              filter: `drop-shadow(0 0 12px ${rankInfo.color.replace(")", " / 0.7)")})`,
             }}
           >
-            {rankInfo.badge}
+            <img
+              src={rankInfo.badgeImage}
+              alt={rankInfo.title}
+              style={{
+                width: "80px",
+                height: "80px",
+                objectFit: "contain",
+              }}
+            />
           </div>
           <div
             style={{
               fontFamily: '"Sora", sans-serif',
-              fontSize: "0.68rem",
+              fontSize: "0.72rem",
               fontWeight: 900,
-              letterSpacing: "0.12em",
+              letterSpacing: "0.14em",
               color: rankInfo.color,
               textShadow: rankInfo.glow.split(",")[0],
               textTransform: "uppercase",
+              position: "relative",
+              zIndex: 1,
             }}
           >
             {rankInfo.title}
@@ -570,18 +656,20 @@ export function ProfileView({ profile, principalId }: ProfileViewProps) {
             data-ocid="ranks.open_modal_button"
             onClick={() => setShowRanksModal(true)}
             style={{
-              marginTop: "0.35rem",
-              padding: "0.3rem 0.7rem",
-              background: rankInfo.color.replace(")", " / 0.1)"),
-              border: `1px solid ${rankInfo.color.replace(")", " / 0.35)")}`,
+              marginTop: "0.2rem",
+              padding: "0.3rem 0.75rem",
+              background: rankInfo.color.replace(")", " / 0.12)"),
+              border: `1px solid ${rankInfo.color.replace(")", " / 0.45)")}`,
               borderRadius: "100px",
               fontFamily: '"Sora", sans-serif',
               fontSize: "0.58rem",
               fontWeight: 700,
-              letterSpacing: "0.1em",
+              letterSpacing: "0.12em",
               color: rankInfo.color,
               cursor: "pointer",
               transition: "all 0.2s ease",
+              position: "relative",
+              zIndex: 1,
             }}
           >
             VIEW ALL RANKS

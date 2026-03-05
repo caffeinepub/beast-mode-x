@@ -15,6 +15,11 @@ export interface CategoryXP {
     fitness: bigint;
     intelligence: bigint;
 }
+export interface ActiveChallenge {
+    day: bigint;
+    challengeId: string;
+    startDate: string;
+}
 export interface PlayerStats {
     focus: bigint;
     aura: bigint;
@@ -28,15 +33,18 @@ export interface PlayerProfile {
     age: bigint;
     categoryXP: CategoryXP;
     weight: string;
+    completedHabits: Array<string>;
     height: string;
     fitnessLevel: string;
     username: string;
     goal: string;
     martialArtsLevel: bigint;
     completedMissions: Array<string>;
+    activeChallenge?: ActiveChallenge;
     level: bigint;
     stats: PlayerStats;
     achievements: Array<bigint>;
+    weeklyWorkouts: Array<string>;
     gender: string;
     skillPoints: bigint;
     martialArtsXP: bigint;
@@ -48,12 +56,16 @@ export enum UserRole {
     guest = "guest"
 }
 export interface backendInterface {
-    applyPenalty(player: Principal, xpLoss: bigint): Promise<void>;
+    advanceChallengeDay(): Promise<void>;
+    applySelfPenalty(xpLoss: bigint): Promise<void>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
     awardCameraXP(xpAmount: bigint, category: string): Promise<void>;
+    completeHabit(habitId: string, date: string): Promise<void>;
     completeMission(missionId: string, category: string, xpReward: bigint): Promise<void>;
+    completeWorkout(workoutId: string, xpReward: bigint, category: string): Promise<void>;
     deletePlayer(): Promise<void>;
     getCallerUserRole(): Promise<UserRole>;
+    getHabitCompletions(): Promise<Array<string>>;
     getLeaderboard(): Promise<Array<PlayerProfile>>;
     getMissionCompletions(): Promise<Array<string>>;
     getPlayerProfile(): Promise<PlayerProfile | null>;
@@ -61,7 +73,9 @@ export interface backendInterface {
     isCallerAdmin(): Promise<boolean>;
     registerPlayer(username: string, age: bigint, gender: string, goal: string, fitnessLevel: string, bodyType: string, weight: string, height: string): Promise<void>;
     resetPlayerProgress(): Promise<void>;
+    startChallenge(challengeId: string, startDate: string): Promise<void>;
     unlockAchievement(badgeId: bigint): Promise<void>;
     updateMartialArtsXP(xpToAdd: bigint): Promise<void>;
     updateStats(newStats: PlayerStats): Promise<void>;
+    xpToLevel(xp: bigint): Promise<bigint>;
 }

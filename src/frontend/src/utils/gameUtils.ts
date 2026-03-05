@@ -2,114 +2,159 @@ import type { CategoryXP } from "../backend.d";
 
 // ─── Class System ───────────────────────────────────────────────
 export interface ClassInfo {
-  name: "WARRIOR" | "SAGE" | "PHANTOM";
+  name: "BERSERKER" | "ARCHMAGE" | "SHADOW ASSASSIN";
   icon: string;
   color: string;
   desc: string;
+  borderColor: string;
+  glowColor: string;
 }
 
 export function getClassInfo(categoryXP: CategoryXP): ClassInfo {
-  const warrior = Number(categoryXP.fitness) + Number(categoryXP.martial);
-  const sage = Number(categoryXP.intelligence) + Number(categoryXP.focus);
-  const phantom = Number(categoryXP.discipline) + Number(categoryXP.mindset);
+  const berserker = Number(categoryXP.fitness) + Number(categoryXP.martial);
+  const archmage = Number(categoryXP.intelligence) + Number(categoryXP.focus);
+  const shadowAssassin =
+    Number(categoryXP.discipline) + Number(categoryXP.mindset);
 
-  if (warrior >= sage && warrior >= phantom) {
+  if (berserker >= archmage && berserker >= shadowAssassin) {
     return {
-      name: "WARRIOR",
+      name: "BERSERKER",
       icon: "⚔️",
       color: "oklch(0.62 0.25 22)",
-      desc: "Forged in battle",
+      desc: "Rage forges iron will",
+      borderColor: "oklch(0.72 0.28 22)",
+      glowColor: "0 0 16px oklch(0.62 0.25 22 / 0.7)",
     };
   }
-  if (sage >= warrior && sage >= phantom) {
+  if (archmage >= berserker && archmage >= shadowAssassin) {
     return {
-      name: "SAGE",
-      icon: "📚",
-      color: "oklch(0.65 0.22 250)",
-      desc: "Master of mind",
+      name: "ARCHMAGE",
+      icon: "🔮",
+      color: "oklch(0.65 0.22 275)",
+      desc: "Knowledge is supreme power",
+      borderColor: "oklch(0.65 0.25 275)",
+      glowColor: "0 0 16px oklch(0.65 0.22 275 / 0.7)",
     };
   }
   return {
-    name: "PHANTOM",
-    icon: "🌙",
-    color: "oklch(0.62 0.22 295)",
-    desc: "Shadow of discipline",
+    name: "SHADOW ASSASSIN",
+    icon: "🗡️",
+    color: "oklch(0.62 0.18 295)",
+    desc: "Discipline is the deadliest blade",
+    borderColor: "oklch(0.62 0.22 295)",
+    glowColor: "0 0 16px oklch(0.62 0.18 295 / 0.7)",
   };
 }
 
 // ─── Avatar System ───────────────────────────────────────────────
 export interface AvatarOption {
   index: number;
-  letter: string;
-  gradient: string;
+  label: string;
+  image: string;
   border: string;
   glow: string;
+  type: "male" | "female";
 }
 
 export const AVATAR_OPTIONS: AvatarOption[] = [
   {
     index: 0,
-    letter: "A",
-    gradient:
-      "linear-gradient(135deg, oklch(0.62 0.25 22) 0%, oklch(0.65 0.22 45) 100%)",
+    label: "Warrior M",
+    image: "/assets/generated/avatar-male-warrior-transparent.dim_200x200.png",
     border: "oklch(0.72 0.28 22)",
-    glow: "0 0 12px oklch(0.62 0.25 22 / 0.6)",
+    glow: "0 0 16px oklch(0.62 0.25 22 / 0.8)",
+    type: "male",
   },
   {
     index: 1,
-    letter: "B",
-    gradient:
-      "linear-gradient(135deg, oklch(0.45 0.22 295) 0%, oklch(0.55 0.25 240) 100%)",
+    label: "Sage M",
+    image: "/assets/generated/avatar-male-sage-transparent.dim_200x200.png",
     border: "oklch(0.62 0.22 295)",
-    glow: "0 0 12px oklch(0.62 0.22 295 / 0.6)",
+    glow: "0 0 16px oklch(0.62 0.22 295 / 0.8)",
+    type: "male",
   },
   {
     index: 2,
-    letter: "C",
-    gradient:
-      "linear-gradient(135deg, oklch(0.62 0.2 200) 0%, oklch(0.65 0.18 160) 100%)",
-    border: "oklch(0.72 0.2 200)",
-    glow: "0 0 12px oklch(0.62 0.2 200 / 0.6)",
+    label: "Martial M",
+    image: "/assets/generated/avatar-male-martial-transparent.dim_200x200.png",
+    border: "oklch(0.82 0.18 85)",
+    glow: "0 0 16px oklch(0.82 0.18 85 / 0.7)",
+    type: "male",
   },
   {
     index: 3,
-    letter: "D",
-    gradient:
-      "linear-gradient(135deg, oklch(0.82 0.18 85) 0%, oklch(0.78 0.2 60) 100%)",
-    border: "oklch(0.85 0.18 85)",
-    glow: "0 0 12px oklch(0.82 0.18 85 / 0.6)",
+    label: "Phantom M",
+    image: "/assets/generated/avatar-male-phantom-transparent.dim_200x200.png",
+    border: "oklch(0.65 0.22 200)",
+    glow: "0 0 16px oklch(0.65 0.22 200 / 0.7)",
+    type: "male",
   },
   {
     index: 4,
-    letter: "E",
-    gradient:
-      "linear-gradient(135deg, oklch(0.62 0.2 140) 0%, oklch(0.7 0.22 120) 100%)",
-    border: "oklch(0.7 0.2 140)",
-    glow: "0 0 12px oklch(0.62 0.2 140 / 0.6)",
+    label: "Beast M",
+    image: "/assets/generated/avatar-male-beast-transparent.dim_200x200.png",
+    border: "oklch(0.72 0.2 45)",
+    glow: "0 0 16px oklch(0.72 0.2 45 / 0.8)",
+    type: "male",
   },
   {
     index: 5,
-    letter: "F",
-    gradient:
-      "linear-gradient(135deg, oklch(0.65 0.25 340) 0%, oklch(0.62 0.22 0) 100%)",
-    border: "oklch(0.72 0.25 340)",
-    glow: "0 0 12px oklch(0.65 0.25 340 / 0.6)",
+    label: "Shadow M",
+    image: "/assets/generated/avatar-male-shadow-transparent.dim_200x200.png",
+    border: "oklch(0.82 0.04 260)",
+    glow: "0 0 16px oklch(0.82 0.04 260 / 0.6)",
+    type: "male",
   },
   {
     index: 6,
-    letter: "G",
-    gradient:
-      "linear-gradient(135deg, oklch(0.82 0.04 260) 0%, oklch(0.72 0.06 240) 100%)",
-    border: "oklch(0.85 0.04 260)",
-    glow: "0 0 12px oklch(0.82 0.04 260 / 0.5)",
+    label: "Warrior F",
+    image:
+      "/assets/generated/avatar-female-warrior-transparent.dim_200x200.png",
+    border: "oklch(0.72 0.28 22)",
+    glow: "0 0 16px oklch(0.62 0.25 22 / 0.8)",
+    type: "female",
   },
   {
     index: 7,
-    letter: "H",
-    gradient:
-      "linear-gradient(135deg, oklch(0.55 0.28 22) 0%, oklch(0.48 0.22 10) 100%)",
-    border: "oklch(0.62 0.3 22)",
-    glow: "0 0 16px oklch(0.62 0.3 22 / 0.8)",
+    label: "Sage F",
+    image: "/assets/generated/avatar-female-sage-transparent.dim_200x200.png",
+    border: "oklch(0.62 0.22 295)",
+    glow: "0 0 16px oklch(0.62 0.22 295 / 0.8)",
+    type: "female",
+  },
+  {
+    index: 8,
+    label: "Phantom F",
+    image:
+      "/assets/generated/avatar-female-phantom-transparent.dim_200x200.png",
+    border: "oklch(0.72 0.22 295)",
+    glow: "0 0 16px oklch(0.72 0.22 295 / 0.8)",
+    type: "female",
+  },
+  {
+    index: 9,
+    label: "Martial F",
+    image:
+      "/assets/generated/avatar-female-martial-transparent.dim_200x200.png",
+    border: "oklch(0.82 0.18 85)",
+    glow: "0 0 16px oklch(0.82 0.18 85 / 0.7)",
+    type: "female",
+  },
+  {
+    index: 10,
+    label: "Beast F",
+    image: "/assets/generated/avatar-female-beast-transparent.dim_200x200.png",
+    border: "oklch(0.72 0.2 45)",
+    glow: "0 0 16px oklch(0.72 0.2 45 / 0.7)",
+    type: "female",
+  },
+  {
+    index: 11,
+    label: "Shadow F",
+    image: "/assets/generated/avatar-female-shadow-transparent.dim_200x200.png",
+    border: "oklch(0.82 0.04 260)",
+    glow: "0 0 16px oklch(0.82 0.04 260 / 0.6)",
+    type: "female",
   },
 ];
 

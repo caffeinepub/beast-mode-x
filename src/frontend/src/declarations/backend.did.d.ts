@@ -10,6 +10,11 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
+export interface ActiveChallenge {
+  'day' : bigint,
+  'challengeId' : string,
+  'startDate' : string,
+}
 export interface CategoryXP {
   'focus' : bigint,
   'discipline' : bigint,
@@ -23,15 +28,18 @@ export interface PlayerProfile {
   'age' : bigint,
   'categoryXP' : CategoryXP,
   'weight' : string,
+  'completedHabits' : Array<string>,
   'height' : string,
   'fitnessLevel' : string,
   'username' : string,
   'goal' : string,
   'martialArtsLevel' : bigint,
   'completedMissions' : Array<string>,
+  'activeChallenge' : [] | [ActiveChallenge],
   'level' : bigint,
   'stats' : PlayerStats,
   'achievements' : Array<bigint>,
+  'weeklyWorkouts' : Array<string>,
   'gender' : string,
   'skillPoints' : bigint,
   'martialArtsXP' : bigint,
@@ -50,12 +58,16 @@ export type UserRole = { 'admin' : null } |
   { 'guest' : null };
 export interface _SERVICE {
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
-  'applyPenalty' : ActorMethod<[Principal, bigint], undefined>,
+  'advanceChallengeDay' : ActorMethod<[], undefined>,
+  'applySelfPenalty' : ActorMethod<[bigint], undefined>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
   'awardCameraXP' : ActorMethod<[bigint, string], undefined>,
+  'completeHabit' : ActorMethod<[string, string], undefined>,
   'completeMission' : ActorMethod<[string, string, bigint], undefined>,
+  'completeWorkout' : ActorMethod<[string, bigint, string], undefined>,
   'deletePlayer' : ActorMethod<[], undefined>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
+  'getHabitCompletions' : ActorMethod<[], Array<string>>,
   'getLeaderboard' : ActorMethod<[], Array<PlayerProfile>>,
   'getMissionCompletions' : ActorMethod<[], Array<string>>,
   'getPlayerProfile' : ActorMethod<[], [] | [PlayerProfile]>,
@@ -66,9 +78,11 @@ export interface _SERVICE {
     undefined
   >,
   'resetPlayerProgress' : ActorMethod<[], undefined>,
+  'startChallenge' : ActorMethod<[string, string], undefined>,
   'unlockAchievement' : ActorMethod<[bigint], undefined>,
   'updateMartialArtsXP' : ActorMethod<[bigint], undefined>,
   'updateStats' : ActorMethod<[PlayerStats], undefined>,
+  'xpToLevel' : ActorMethod<[bigint], bigint>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

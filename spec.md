@@ -1,52 +1,52 @@
-# BEAST MODE X
+# BEAST MODE LEVEL X
 
 ## Current State
 Full self-improvement gaming app with:
-- Internet Identity auth, onboarding flow, player profiles
-- Daily/Weekly/Monthly missions with XP rewards and penalty system
-- 6 anime AI trainers, Martial Arts Dojo, Habit Tracker, Skill Tree
-- Leaderboard, rank badges, achievement system, level-up animations
-- No Guest ID / Login ID display
-- No account management (delete/reset)
-- No camera-based exercise tracking
+- Anime AI trainers (KIRA, RYU, NOVA, ZEN, VEGA, APEX) with missions
+- Daily/Weekly/Monthly missions with anti-cheat
+- Challenges (28/30/21-day)
+- Camera tracker (AI pose detection)
+- Player dashboard with rank, XP, stats, achievements
+- Music toggle button (no actual audio)
+- Hero section with "WATCH TRAILER" button (no video)
+- Trainer dialogue in English only
+- "Connecting to network, please wait" glitch when actor not ready
 
 ## Requested Changes (Diff)
 
 ### Add
-- **Guest ID / Login ID panel**: Show the player's Principal ID (truncated + copy button) in Navbar and Profile. For logged-in users show "Login ID", for guests show "Guest ID".
-- **Account Settings modal**: Accessible from Navbar/Profile with:
-  - Display full Principal ID with copy button
-  - "Reset Progress" option: resets XP, level, missions to zero (keeps profile)
-  - "Delete Account" option: fully deletes the player's backend profile (with confirmation)
-  - "Logout" button
-- **Camera Workout Tracker**: New section/page "CAM TRACKER" that:
-  - Opens device camera using browser MediaDevices API
-  - Uses TensorFlow.js PoseNet/MoveNet or MediaPipe Pose to detect body pose in real-time
-  - Displays live camera feed with skeleton overlay (detected keypoints drawn on canvas)
-  - Detects exercises: Push-ups, Sit-ups, Squats, Jumping Jacks based on pose angles
-  - Shows rep counter per exercise with live count
-  - Shows which exercise is currently being performed (auto-detect from pose)
-  - Shows real-time stats: reps completed, calories estimated, time elapsed
-  - "End Session" button: calculates XP earned from reps, calls completeMission or a direct XP award, shows summary
-  - Camera permission prompt with friendly UI
-  - Works on mobile (rear/front camera toggle)
+- Trainer Hindi dialogue: Each trainer now speaks in Hindi (intro + praiseLines all in Hindi)
+- Animated trailer modal: "WATCH TRAILER" button opens a fullscreen modal with an embedded YouTube trailer (using a motivational/workout epic video URL like https://www.youtube.com/embed/V7nzjZF0TDc?autoplay=1). Modal has close button, dark overlay, responsive iframe.
+- Working ambient music: MusicToggle now uses HTML5 Audio element with a royalty-free epic gaming track from a CDN URL. When playing=true the audio plays, when false it pauses. Volume control slider in the toggle popover.
+- New self-improvement sections:
+  1. **Sleep Tracker** - Log sleep hours (slider 4-12h), quality (1-5 stars), wake-up time. Show weekly sleep chart (bar chart using CSS). XP for consistent 7-9h sleep. Store in localStorage.
+  2. **Nutrition Logger** - Log daily water intake (glasses counter), meals count, calories estimate. Show daily summary. Store in localStorage.
+  3. **Mental Health Check-in** - Daily mood rating (1-5 emoji scale), gratitude journal (textarea, 3 items). Motivational response based on mood. Store in localStorage.
+  4. **Progress Photos** - Placeholder section showing transformation progress timeline UI with "Before/After" slots, date labels, animated reveal. Uses static placeholder images.
+  5. **Body Stats Tracker** - Log weight, body fat %, chest/waist/arm measurements. Show trend line (CSS-based sparkline). Store in localStorage.
 
 ### Modify
-- **Navbar**: Add "ID" button that opens Account Settings modal. Show truncated Principal ID next to username when logged in.
-- **Player Dashboard**: Show Login ID / Principal ID in profile card.
-- **Backend**: Add `deletePlayer` and `resetPlayerProgress` functions.
+- Fix "Connecting to network, please wait a moment" glitch: Show a skeleton/loading state for action buttons when actor is not yet ready instead of triggering toast spam. Add a `useActorReady` state that shows a spinner on the button until connected.
+- Fix CameraTracker: Ensure the detection loop properly restarts when cameraActive becomes true. Fix the `runDetectionLoop` closure dependency issue. Camera should show live feed without hanging.
+- Fix all touch interactions: Ensure all buttons have `touchAction: manipulation`, `WebkitTapHighlightColor: transparent`, minimum 44px touch targets.
+- TrainerHub: Add Hindi trainer dialogue for all 6 trainers. Keep English as fallback display. Add a "Trainer Baat Kar Raha Hai" header above dialogue box.
+- MusicToggle: Replace placeholder toggle with working HTML5 Audio. Add a royalty-free epic ambient track. Show volume control.
+- Hero Section: Connect "WATCH TRAILER" button to open trailer modal.
+- Add new sections to App.tsx navigation flow after QuotesSection.
 
 ### Remove
-- Nothing removed.
+- Nothing removed
 
 ## Implementation Plan
-1. **Backend**: Add `deletePlayer()` and `resetPlayerProgress()` methods to main.mo
-2. **Frontend - Account Settings Modal**: New `AccountSettingsModal.tsx` with ID display, copy, reset, delete, logout
-3. **Frontend - Camera Tracker**: New `CameraTracker.tsx` section using:
-   - `@tensorflow-models/pose-detection` with MoveNet (lightweight, works in browser)
-   - `@tensorflow/tfjs-backend-webgl`
-   - Canvas overlay for skeleton drawing
-   - Angle-based rep counting for push-ups/squats/sit-ups/jumping jacks
-   - XP calculation and award on session end
-4. **Navbar update**: Add ID button + Account Settings trigger
-5. **App.tsx update**: Add CameraTracker section, AccountSettings modal state
+1. Fix actor-not-ready glitch: in TrainerHub and other action buttons, show loading spinner on button until `actor` is truthy (not toast warning)
+2. Add Hindi dialogue to all 6 trainers in TrainerHub.tsx (intro + 3 praiseLines each in Hindi)
+3. Fix CameraTracker detection loop restart bug
+4. Build TrailerModal component with YouTube embed + HeroSection connect
+5. Build working MusicToggle with HTML5 Audio and CDN track URL
+6. Build SleepTracker component (localStorage-based)
+7. Build NutritionLogger component (localStorage-based)  
+8. Build MentalHealthCheckin component (localStorage-based)
+9. Build BodyStatsTracker component (localStorage-based)
+10. Build ProgressPhotosSection component (visual placeholder)
+11. Add all new sections to App.tsx
+12. Final touch/interaction audit across all components
