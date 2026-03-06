@@ -22,8 +22,14 @@ export interface AnimeBattleSceneProps {
   bgType?: DungeonBgType;
 }
 
+// ─── Enemy sprite image map ───────────────────────────────────────────────────
+const ENEMY_SPRITE_IMAGES: Record<string, string> = {
+  goblin: "/assets/generated/goblin-sprite-transparent.dim_200x280.png",
+  shadowBeast:
+    "/assets/generated/shadow-beast-sprite-transparent.dim_200x280.png",
+};
+
 // ─── Enemy Sprite Map ─────────────────────────────────────────────────────────
-// CSS-drawn enemy sprites using inline styling for Pokemon GBA look
 function EnemySprite({
   type,
   isBoss,
@@ -37,38 +43,84 @@ function EnemySprite({
   isHurt: boolean;
   isAttacking: boolean;
 }) {
-  const scale = isBoss ? 1.35 : 1.0;
-  const smallTypes = ["goblin"];
-  const effectiveScale = smallTypes.includes(type) ? scale * 0.8 : scale;
+  const scale = isBoss ? 1.4 : 1.1;
   const [imgError, setImgError] = useState(false);
+  const [imgLoaded, setImgLoaded] = useState(false);
 
   const shakeAnim = isHurt
     ? "pokemonHurt 0.3s ease-in-out"
     : isAttacking
       ? "pokemonAttack 0.4s ease-in-out"
-      : "none";
+      : "enemyIdleBob 2s ease-in-out infinite";
 
-  // CSS Fallback sprites for all enemy types — always use CSS
-  // (image sprites may not exist; CSS sprites are reliable and look great)
+  const spriteUrl = ENEMY_SPRITE_IMAGES[type];
+
+  if (spriteUrl && !imgError) {
+    const spriteSize = Math.round(190 * scale);
+    return (
+      <div
+        style={{
+          animation: shakeAnim,
+          position: "relative",
+          width: spriteSize,
+          height: spriteSize * 1.4,
+          display: "flex",
+          alignItems: "flex-end",
+          justifyContent: "center",
+        }}
+      >
+        {/* Boss aura */}
+        {isBoss && (
+          <div
+            style={{
+              position: "absolute",
+              inset: -16,
+              borderRadius: "50%",
+              background: `radial-gradient(ellipse, ${color}50 0%, transparent 70%)`,
+              animation: "bossAura 1.5s ease-in-out infinite alternate",
+              pointerEvents: "none",
+            }}
+          />
+        )}
+        <img
+          src={spriteUrl}
+          alt={type}
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "contain",
+            imageRendering: "pixelated",
+            filter: isHurt
+              ? "brightness(3) saturate(0)"
+              : isAttacking
+                ? `drop-shadow(0 0 12px ${color}) brightness(1.2)`
+                : `drop-shadow(0 0 6px ${color}88)`,
+            display: imgLoaded ? "block" : "none",
+          }}
+          onLoad={() => setImgLoaded(true)}
+          onError={() => setImgError(true)}
+        />
+        {!imgLoaded && (
+          <CSSEnemySprite
+            type={type}
+            isBoss={isBoss}
+            color={color}
+            isHurt={isHurt}
+            scale={scale}
+          />
+        )}
+      </div>
+    );
+  }
+
   return (
     <div style={{ animation: shakeAnim }}>
-      {!imgError ? (
-        // Hidden img to preload; if it loads we could use it, but CSS sprite
-        // is always the visible element for reliability
-        <span style={{ display: "none" }}>
-          <img
-            src={`/assets/generated/enemy-${type}-sprite-transparent.png`}
-            alt=""
-            onError={() => setImgError(true)}
-          />
-        </span>
-      ) : null}
       <CSSEnemySprite
         type={type}
         isBoss={isBoss}
         color={color}
         isHurt={isHurt}
-        scale={effectiveScale}
+        scale={scale}
       />
     </div>
   );
@@ -87,7 +139,7 @@ function CSSEnemySprite({
   isHurt: boolean;
   scale: number;
 }) {
-  const size = Math.round(110 * scale);
+  const size = Math.round(180 * scale);
   const bodyColor = isHurt ? "#ffffff" : color;
   const emissive = isHurt ? "#ffffff" : color;
 
@@ -771,7 +823,7 @@ function PlayerSprite({
 }) {
   // Determine if we should use generated sprite images
   const maleSprite =
-    "/assets/generated/battle-hero-male-v2-transparent.dim_200x300.png";
+    "/assets/generated/player-hero-male-sprite-transparent.dim_160x240.png";
   const femaleSprite =
     "/assets/generated/battle-hero-female-v2-transparent.dim_200x300.png";
 
@@ -790,8 +842,8 @@ function PlayerSprite({
     <div
       style={{
         position: "relative",
-        width: 120,
-        height: 160,
+        width: 140,
+        height: 185,
         animation: bounceAnim,
         imageRendering: "pixelated",
         display: "flex",
@@ -880,7 +932,7 @@ function CSSPlayerCharacter({
       : "none";
 
   return (
-    <div style={{ position: "relative", width: 80, height: 130, filter }}>
+    <div style={{ position: "relative", width: 96, height: 155, filter }}>
       {/* HEAD */}
       <div
         style={{
@@ -888,8 +940,8 @@ function CSSPlayerCharacter({
           left: "50%",
           transform: "translateX(-50%)",
           top: 0,
-          width: 34,
-          height: 36,
+          width: 40,
+          height: 43,
           background: skinTone,
           borderRadius: isFemale
             ? "50% 50% 45% 45% / 55% 55% 45% 45%"
@@ -997,9 +1049,9 @@ function CSSPlayerCharacter({
           position: "absolute",
           left: "50%",
           transform: "translateX(-50%)",
-          top: 34,
-          width: isFemale ? 8 : 10,
-          height: 8,
+          top: 41,
+          width: isFemale ? 10 : 12,
+          height: 10,
           background: skinTone,
           zIndex: 2,
         }}
@@ -1011,9 +1063,9 @@ function CSSPlayerCharacter({
           position: "absolute",
           left: "50%",
           transform: "translateX(-50%)",
-          top: 40,
-          width: isFemale ? 26 : 32,
-          height: isFemale ? 38 : 40,
+          top: 49,
+          width: isFemale ? 31 : 38,
+          height: isFemale ? 46 : 48,
           background: outfitColor,
           borderRadius: isFemale ? "4px 4px 10px 10px" : "3px 3px 8px 8px",
           border: `1px solid ${auraColor}50`,
@@ -1044,9 +1096,9 @@ function CSSPlayerCharacter({
         style={{
           position: "absolute",
           left: isFemale ? "14%" : "10%",
-          top: 41,
-          width: isFemale ? 9 : 11,
-          height: 32,
+          top: 50,
+          width: isFemale ? 11 : 13,
+          height: 38,
           background: outfitColor,
           borderRadius: "4px",
           border: `1px solid ${auraColor}40`,
@@ -1062,9 +1114,9 @@ function CSSPlayerCharacter({
         style={{
           position: "absolute",
           right: isFemale ? "14%" : "10%",
-          top: 41,
-          width: isFemale ? 9 : 11,
-          height: 32,
+          top: 50,
+          width: isFemale ? 11 : 13,
+          height: 38,
           background: outfitColor,
           borderRadius: "4px",
           border: `1px solid ${auraColor}40`,
@@ -1112,9 +1164,9 @@ function CSSPlayerCharacter({
           position: "absolute",
           left: "50%",
           transform: "translateX(-50%)",
-          top: 78,
-          width: isFemale ? 30 : 34,
-          height: 8,
+          top: 95,
+          width: isFemale ? 36 : 41,
+          height: 10,
           background: outfitColor,
           border: `1px solid ${auraColor}40`,
           borderRadius: "0 0 4px 4px",
@@ -1127,10 +1179,10 @@ function CSSPlayerCharacter({
         style={{
           position: "absolute",
           left: "50%",
-          marginLeft: isFemale ? -16 : -18,
-          top: 84,
-          width: isFemale ? 12 : 14,
-          height: 30,
+          marginLeft: isFemale ? -19 : -22,
+          top: 103,
+          width: isFemale ? 14 : 17,
+          height: 36,
           background: outfitColor,
           borderRadius: "0 0 4px 4px",
           border: `1px solid ${auraColor}30`,
@@ -1143,8 +1195,8 @@ function CSSPlayerCharacter({
             position: "absolute",
             bottom: 0,
             left: -1,
-            width: 14,
-            height: 10,
+            width: 17,
+            height: 12,
             background: "#111",
             borderRadius: "0 0 4px 4px",
             boxShadow: `0 0 4px ${auraColor}20`,
@@ -1157,10 +1209,10 @@ function CSSPlayerCharacter({
         style={{
           position: "absolute",
           left: "50%",
-          marginLeft: isFemale ? 4 : 4,
-          top: 84,
-          width: isFemale ? 12 : 14,
-          height: 30,
+          marginLeft: isFemale ? 5 : 5,
+          top: 103,
+          width: isFemale ? 14 : 17,
+          height: 36,
           background: outfitColor,
           borderRadius: "0 0 4px 4px",
           border: `1px solid ${auraColor}30`,
@@ -1172,8 +1224,8 @@ function CSSPlayerCharacter({
             position: "absolute",
             bottom: 0,
             left: -1,
-            width: 14,
-            height: 10,
+            width: 17,
+            height: 12,
             background: "#111",
             borderRadius: "0 0 4px 4px",
             boxShadow: `0 0 4px ${auraColor}20`,
@@ -1388,7 +1440,7 @@ function HairSprite({
   );
 }
 
-// ─── Pokemon GBA Battle Scene (Pure 2D, no Three.js) ─────────────────────────
+// ─── Dragon Quest Battle Scene (Pure 2D) ──────────────────────────────────────
 function PokemonBattleLayout({
   playerAttacking,
   enemyAttacking,
@@ -1401,20 +1453,55 @@ function PokemonBattleLayout({
 }: AnimeBattleSceneProps) {
   const { config } = useCharacterStore();
   const [attackFlash, setAttackFlash] = useState<string | null>(null);
+  const [playerRushing, setPlayerRushing] = useState(false);
+  const [enemyRushing, setEnemyRushing] = useState(false);
+  const [hitEffect, setHitEffect] = useState<{
+    x: number;
+    y: number;
+    color: string;
+  } | null>(null);
   const attackFlashRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const isFemale = config.gender === "female";
   const auraColor = config.auraColor || "#00aaff";
+  const effectAttackColor = attackColor || auraColor;
 
-  // Show attack flash effect
+  // Player rush animation sequence: rush → hit → return
   useEffect(() => {
-    if (playerAttacking || enemyAttacking) {
-      const fc = playerAttacking ? attackColor || auraColor : "#ff0033";
+    if (playerAttacking) {
+      setPlayerRushing(true);
+      const fc = effectAttackColor;
       setAttackFlash(fc);
       if (attackFlashRef.current) clearTimeout(attackFlashRef.current);
-      attackFlashRef.current = setTimeout(() => setAttackFlash(null), 500);
+      // Hit effect at enemy position
+      setTimeout(() => {
+        setHitEffect({ x: 65, y: 22, color: fc });
+        setTimeout(() => setHitEffect(null), 500);
+      }, 250);
+      attackFlashRef.current = setTimeout(() => {
+        setAttackFlash(null);
+        setPlayerRushing(false);
+      }, 600);
     }
-  }, [playerAttacking, enemyAttacking, attackColor, auraColor]);
+  }, [playerAttacking, effectAttackColor]);
+
+  // Enemy rush animation sequence
+  useEffect(() => {
+    if (enemyAttacking) {
+      setEnemyRushing(true);
+      setAttackFlash("#ff0033");
+      if (attackFlashRef.current) clearTimeout(attackFlashRef.current);
+      // Hit effect at player position
+      setTimeout(() => {
+        setHitEffect({ x: 15, y: 50, color: "#ff0033" });
+        setTimeout(() => setHitEffect(null), 500);
+      }, 250);
+      attackFlashRef.current = setTimeout(() => {
+        setAttackFlash(null);
+        setEnemyRushing(false);
+      }, 600);
+    }
+  }, [enemyAttacking]);
 
   useEffect(() => {
     return () => {
@@ -1446,13 +1533,26 @@ function PokemonBattleLayout({
         isBoss={enemyData?.isBoss ?? false}
       />
 
+      {/* Screen shake on hit */}
+      {(enemyHurt || playerHurt) && (
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            animation: "screenShake 0.3s ease-out",
+            pointerEvents: "none",
+            zIndex: 1,
+          }}
+        />
+      )}
+
       {/* Attack flash overlay */}
       {attackFlash && (
         <div
           style={{
             position: "absolute",
             inset: 0,
-            background: `${attackFlash}22`,
+            background: `${attackFlash}1a`,
             zIndex: 20,
             pointerEvents: "none",
             animation: "flashFade 0.5s ease-out forwards",
@@ -1460,17 +1560,20 @@ function PokemonBattleLayout({
         />
       )}
 
-      {/* ── POKEMON GBA LAYOUT ── */}
-      {/* Enemy platform (top-right, elevated) */}
+      {/* ── DQ BATTLE LAYOUT ── */}
+      {/* Enemy — top-right, with rush animation when attacking */}
       <div
         style={{
           position: "absolute",
-          right: "8%",
-          top: "8%",
+          right: "5%",
+          top: "6%",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
           zIndex: 10,
+          filter: "drop-shadow(0 8px 20px rgba(0,0,0,0.8))",
+          animation: enemyRushing ? "enemyRush 0.5s ease-in-out" : undefined,
+          transition: "transform 0.1s ease",
         }}
       >
         {enemyData ? (
@@ -1482,25 +1585,26 @@ function PokemonBattleLayout({
             isAttacking={enemyAttacking}
           />
         ) : (
-          /* Loading placeholder — shown during the 500ms spawn delay */
+          /* Loading placeholder */
           <div
             style={{
-              width: 110,
-              height: 110,
+              width: 130,
+              height: 130,
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
               gap: 8,
-              background: "rgba(0,0,0,0.4)",
-              border: "1px solid rgba(255,0,51,0.25)",
+              background: "rgba(0,0,0,0.5)",
+              border: "2px solid rgba(255,0,51,0.4)",
               borderRadius: "50%",
               animation: "spawnPulse 1s ease-in-out infinite alternate",
+              boxShadow: "0 0 20px rgba(255,0,51,0.3)",
             }}
           >
             <div
               style={{
-                fontSize: "1.8rem",
+                fontSize: "2.5rem",
                 animation: "spawnPulse 0.8s ease-in-out infinite alternate",
               }}
             >
@@ -1508,39 +1612,42 @@ function PokemonBattleLayout({
             </div>
             <div
               style={{
-                fontSize: "0.45rem",
+                fontSize: "0.5rem",
                 letterSpacing: "0.12em",
-                color: "rgba(255,80,80,0.6)",
+                color: "rgba(255,80,80,0.8)",
                 fontFamily: '"Sora", sans-serif',
+                fontWeight: 700,
               }}
             >
               SPAWNING...
             </div>
           </div>
         )}
-        {/* Enemy shadow ellipse */}
+        {/* Enemy ground shadow */}
         <div
           style={{
-            width: "70%",
-            height: 8,
-            background: "rgba(0,0,0,0.4)",
+            width: "80%",
+            height: 10,
+            background: "rgba(0,0,0,0.5)",
             borderRadius: "50%",
-            filter: "blur(4px)",
-            marginTop: -4,
+            filter: "blur(6px)",
+            marginTop: -6,
           }}
         />
       </div>
 
-      {/* Player platform (bottom-left) — raised to avoid overlap with bottom HUD */}
+      {/* Player — bottom-left, with rush animation when attacking */}
       <div
         style={{
           position: "absolute",
-          left: "6%",
-          bottom: "38%",
+          left: "4%",
+          bottom: "42%",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
           zIndex: 10,
+          filter: "drop-shadow(0 8px 16px rgba(0,0,0,0.8))",
+          animation: playerRushing ? "playerRush 0.5s ease-in-out" : undefined,
         }}
       >
         <PlayerSprite
@@ -1557,74 +1664,99 @@ function PokemonBattleLayout({
         {/* Player shadow */}
         <div
           style={{
-            width: "60%",
-            height: 8,
-            background: "rgba(0,0,0,0.4)",
+            width: "70%",
+            height: 10,
+            background: "rgba(0,0,0,0.5)",
             borderRadius: "50%",
-            filter: "blur(4px)",
-            marginTop: -4,
+            filter: "blur(5px)",
+            marginTop: -5,
           }}
         />
       </div>
 
-      {/* Ground divide line (Pokemon style) */}
+      {/* Ground divide line */}
       <div
         style={{
           position: "absolute",
-          bottom: "28%",
+          bottom: "38%",
           left: 0,
           right: 0,
-          height: 2,
-          background: "rgba(255,255,255,0.06)",
+          height: 1,
+          background: "rgba(255,255,255,0.04)",
           pointerEvents: "none",
         }}
       />
 
-      {/* Attack effect line (player attacks → enemy) */}
+      {/* Attack energy effect (enhanced DQ style) */}
       {playerAttacking && (
-        <div
-          style={{
-            position: "absolute",
-            left: "22%",
-            right: "18%",
-            top: "40%",
-            height: 3,
-            background: `linear-gradient(90deg, transparent, ${attackColor || auraColor}, transparent)`,
-            boxShadow: `0 0 12px ${attackColor || auraColor}`,
-            borderRadius: "2px",
-            animation: "attackLine 0.4s ease-out forwards",
-            zIndex: 15,
-            pointerEvents: "none",
-          }}
-        />
+        <>
+          {/* Energy line */}
+          <div
+            style={{
+              position: "absolute",
+              left: "18%",
+              right: "12%",
+              top: "35%",
+              height: 5,
+              background: `linear-gradient(90deg, transparent, ${effectAttackColor}, white, ${effectAttackColor}44, transparent)`,
+              boxShadow: `0 0 20px ${effectAttackColor}, 0 0 40px ${effectAttackColor}66`,
+              borderRadius: "3px",
+              animation: "attackSlash 0.45s ease-out forwards",
+              zIndex: 15,
+              pointerEvents: "none",
+            }}
+          />
+          {/* Secondary slash diagonal */}
+          <div
+            style={{
+              position: "absolute",
+              left: "45%",
+              top: "15%",
+              width: 5,
+              height: "30%",
+              background: `linear-gradient(180deg, transparent, ${effectAttackColor}cc, transparent)`,
+              boxShadow: `0 0 12px ${effectAttackColor}`,
+              borderRadius: "3px",
+              animation: "attackSlashV 0.4s ease-out forwards",
+              zIndex: 15,
+              pointerEvents: "none",
+              transform: "rotate(25deg)",
+            }}
+          />
+        </>
       )}
 
-      {/* Enemy attack effect line (enemy → player) */}
+      {/* Enemy attack energy */}
       {enemyAttacking && (
         <div
           style={{
             position: "absolute",
-            left: "18%",
-            right: "22%",
-            top: "55%",
-            height: 3,
+            left: "12%",
+            right: "18%",
+            top: "50%",
+            height: 5,
             background:
-              "linear-gradient(270deg, transparent, #ff0033, transparent)",
-            boxShadow: "0 0 12px #ff0033",
-            borderRadius: "2px",
-            animation: "attackLine 0.4s ease-out forwards",
+              "linear-gradient(270deg, transparent, #ff0033, white, #ff003366, transparent)",
+            boxShadow: "0 0 20px #ff0033, 0 0 40px #ff003366",
+            borderRadius: "3px",
+            animation: "attackSlash 0.45s ease-out forwards",
             zIndex: 15,
             pointerEvents: "none",
           }}
         />
       )}
 
-      {/* Hit sparks */}
+      {/* Hit sparks at position */}
+      {hitEffect && (
+        <HitSparks x={hitEffect.x} y={hitEffect.y} color={hitEffect.color} />
+      )}
+
+      {/* Extra hurt flash on characters */}
       {(enemyHurt || playerHurt) && (
         <HitSparks
-          x={enemyHurt ? 75 : 20}
-          y={enemyHurt ? 30 : 55}
-          color={enemyHurt ? attackColor || auraColor : "#ff0033"}
+          x={enemyHurt ? 70 : 15}
+          y={enemyHurt ? 20 : 48}
+          color={enemyHurt ? effectAttackColor : "#ff0033"}
         />
       )}
 
@@ -1639,18 +1771,32 @@ function PokemonBattleLayout({
           60% { transform: translateX(5px); }
           100% { transform: translateX(0); }
         }
+        @keyframes playerRush {
+          0% { transform: translateX(0) translateY(0) scale(1); }
+          35% { transform: translateX(55%) translateY(-12%) scale(1.08); }
+          60% { transform: translateX(45%) translateY(-8%) scale(1.05); }
+          80% { transform: translateX(10%) translateY(-2%) scale(1.02); }
+          100% { transform: translateX(0) translateY(0) scale(1); }
+        }
+        @keyframes enemyRush {
+          0% { transform: translateX(0) translateY(0) scale(1); }
+          35% { transform: translateX(-65%) translateY(15%) scale(1.08); }
+          60% { transform: translateX(-50%) translateY(10%) scale(1.05); }
+          80% { transform: translateX(-15%) translateY(3%) scale(1.02); }
+          100% { transform: translateX(0) translateY(0) scale(1); }
+        }
         @keyframes playerHurt {
           0%, 100% { transform: translateX(0); filter: brightness(1); }
-          20% { transform: translateX(-8px); filter: brightness(3) saturate(0); }
-          40% { transform: translateX(8px); filter: brightness(3) saturate(0); }
-          60% { transform: translateX(-4px); }
-          80% { transform: translateX(4px); }
+          20% { transform: translateX(-10px); filter: brightness(4) saturate(0); }
+          40% { transform: translateX(10px); filter: brightness(4) saturate(0); }
+          60% { transform: translateX(-5px); }
+          80% { transform: translateX(5px); }
         }
         @keyframes pokemonHurt {
           0%, 100% { transform: translateX(0) scale(1); filter: brightness(1); }
-          25% { transform: translateX(8px) scale(0.95); filter: brightness(3) saturate(0); }
-          50% { transform: translateX(-8px) scale(1.05); filter: brightness(3) saturate(0); }
-          75% { transform: translateX(4px); }
+          25% { transform: translateX(10px) scale(0.93); filter: brightness(4) saturate(0); }
+          50% { transform: translateX(-10px) scale(1.07); filter: brightness(4) saturate(0); }
+          75% { transform: translateX(5px); }
         }
         @keyframes pokemonAttack {
           0% { transform: translateX(0); }
@@ -1658,15 +1804,28 @@ function PokemonBattleLayout({
           60% { transform: translateX(-5px); }
           100% { transform: translateX(0); }
         }
-        @keyframes attackLine {
+        @keyframes attackSlash {
           0% { opacity: 0; transform: scaleX(0); transform-origin: left; }
-          20% { opacity: 1; transform: scaleX(1); }
-          80% { opacity: 1; }
+          15% { opacity: 1; transform: scaleX(1); }
+          75% { opacity: 0.8; }
           100% { opacity: 0; transform: scaleX(1); }
+        }
+        @keyframes attackSlashV {
+          0% { opacity: 0; transform: rotate(25deg) scaleY(0); transform-origin: top; }
+          20% { opacity: 1; transform: rotate(25deg) scaleY(1); }
+          80% { opacity: 0.6; }
+          100% { opacity: 0; }
         }
         @keyframes flashFade {
           0% { opacity: 1; }
           100% { opacity: 0; }
+        }
+        @keyframes screenShake {
+          0%, 100% { transform: translate(0, 0); }
+          20% { transform: translate(-4px, 3px); }
+          40% { transform: translate(4px, -3px); }
+          60% { transform: translate(-3px, 2px); }
+          80% { transform: translate(2px, -1px); }
         }
         @keyframes bossAura {
           0% { opacity: 0.4; transform: scale(0.97); }
@@ -1695,6 +1854,10 @@ function PokemonBattleLayout({
         @keyframes spawnPulse {
           0% { opacity: 0.4; transform: scale(0.95); }
           100% { opacity: 0.85; transform: scale(1.05); }
+        }
+        @keyframes enemyIdleBob {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-6px); }
         }
       `}</style>
     </div>

@@ -11,6 +11,7 @@ import {
 import type { DungeonBgType } from "./DungeonBackground";
 import { ATTACK_CARDS, CLASS_ATTACK_CARDS, useGameStore } from "./GameStore";
 import { InventoryModal } from "./InventoryModal";
+import { SkillInventoryPage } from "./SkillInventoryPage";
 
 interface PokemonBattleProps {
   onBack: () => void;
@@ -23,32 +24,17 @@ interface XPFloat {
 }
 let xpFloatCounter = 0;
 
-// ─── Get best 4 attack cards for current level ─────────────────────────────
-function getBestCards(gameLevel: number, playerClass?: string | null) {
-  // Use class-specific cards if a class is selected
-  const cardPool =
-    playerClass && CLASS_ATTACK_CARDS[playerClass]
-      ? CLASS_ATTACK_CARDS[playerClass]
-      : [...ATTACK_CARDS];
-
-  // Sort: available cards first by damage desc, locked cards last
-  const available = cardPool.filter((c) => gameLevel >= c.minLevel);
-  const locked = cardPool.filter((c) => gameLevel < c.minLevel);
-
-  // Take best 3 available + 1 locked slot (preview)
-  const best = available.slice(-4); // last 4 = highest level
-  if (best.length < 4 && locked.length > 0) {
-    best.push(locked[0]);
+// ─── Build all card lookup map (class + generic) ─────────────────────────────
+function buildCardMap() {
+  const map: Record<string, import("./GameStore").AttackCard> = {};
+  for (const card of ATTACK_CARDS) map[card.id] = card;
+  for (const cards of Object.values(CLASS_ATTACK_CARDS)) {
+    for (const card of cards) map[card.id] = card;
   }
-
-  // Ensure we always have 4 items (pad with basics if needed)
-  const fallback = cardPool[0] ?? ATTACK_CARDS[0];
-  while (best.length < 4) {
-    best.unshift(fallback);
-  }
-
-  return best.slice(0, 4);
+  return map;
 }
+
+const CARD_MAP = buildCardMap();
 
 const BATTLE_BACKGROUNDS: DungeonBgType[] = [
   "cave",
@@ -64,14 +50,18 @@ function SplashScreen({
   onStart,
   onBack,
   onClassSelect,
+  onSkillInventory,
 }: {
   onStart: () => void;
   onBack: () => void;
   onClassSelect: () => void;
+  onSkillInventory: () => void;
 }) {
-  const { gold, kills, gameLevel, sessionXP, playerClass } = useGameStore();
+  const { gold, kills, gameLevel, sessionXP, playerClass, equippedSkills } =
+    useGameStore();
   const [inventoryOpen, setInventoryOpen] = useState(false);
   const [characterCreatorOpen, setCharacterCreatorOpen] = useState(false);
+  const equippedCount = (equippedSkills || []).filter((s) => s !== "").length;
   const classInfo = playerClass
     ? CLASS_DEFINITIONS.find((c) => c.id === playerClass)
     : null;
@@ -460,32 +450,80 @@ function SplashScreen({
         </button>
       </div>
 
-      {/* Add Customize Character button */}
-      <button
-        type="button"
-        data-ocid="game.character.open_modal_button"
-        onClick={() => setCharacterCreatorOpen(true)}
+      {/* Customize Character + Skills row */}
+      <div
         style={{
-          fontFamily: '"Sora", sans-serif',
-          fontWeight: 700,
-          fontSize: "0.75rem",
-          letterSpacing: "0.08em",
-          padding: "0.9rem 1.5rem",
-          background: "rgba(0,0,0,0.5)",
-          border: "1px solid rgba(0,170,255,0.4)",
-          borderRadius: "10px",
-          color: "#00aaff",
-          cursor: "pointer",
-          touchAction: "manipulation",
-          minHeight: "52px",
+          display: "flex",
+          gap: "0.6rem",
           width: "100%",
           maxWidth: "320px",
           position: "relative",
           zIndex: 1,
         }}
       >
-        🎨 CUSTOMIZE CHARACTER
-      </button>
+        <button
+          type="button"
+          data-ocid="game.character.open_modal_button"
+          onClick={() => setCharacterCreatorOpen(true)}
+          style={{
+            fontFamily: '"Sora", sans-serif',
+            fontWeight: 700,
+            fontSize: "0.7rem",
+            letterSpacing: "0.08em",
+            padding: "0.9rem 1rem",
+            background: "rgba(0,0,0,0.5)",
+            border: "1px solid rgba(0,170,255,0.4)",
+            borderRadius: "10px",
+            color: "#00aaff",
+            cursor: "pointer",
+            touchAction: "manipulation",
+            minHeight: "52px",
+            flex: 1,
+          }}
+        >
+          🎨 CHARACTER
+        </button>
+        <button
+          type="button"
+          data-ocid="game.skill_inventory.button"
+          onClick={onSkillInventory}
+          style={{
+            fontFamily: '"Sora", sans-serif',
+            fontWeight: 700,
+            fontSize: "0.7rem",
+            letterSpacing: "0.08em",
+            padding: "0.9rem 1rem",
+            background: "rgba(0,0,0,0.5)",
+            border: "1px solid rgba(157,0,255,0.4)",
+            borderRadius: "10px",
+            color: "#9d00ff",
+            cursor: "pointer",
+            touchAction: "manipulation",
+            minHeight: "52px",
+            flex: 1,
+            position: "relative",
+          }}
+        >
+          ✨ SKILLS
+          {equippedCount > 0 && (
+            <span
+              style={{
+                position: "absolute",
+                top: 6,
+                right: 8,
+                background: "#9d00ff",
+                borderRadius: "10px",
+                padding: "1px 5px",
+                fontSize: "0.45rem",
+                fontWeight: 900,
+                color: "white",
+              }}
+            >
+              {equippedCount}/6
+            </span>
+          )}
+        </button>
+      </div>
 
       <InventoryModal
         open={inventoryOpen}
@@ -503,6 +541,7 @@ function SplashScreen({
 export function PokemonBattle({ onBack, playerLevel = 1 }: PokemonBattleProps) {
   const [gameStarted, setGameStarted] = useState(false);
   const [showClassSelection, setShowClassSelection] = useState(false);
+  const [showSkillInventory, setShowSkillInventory] = useState(false);
   const [xpFloats, setXPFloats] = useState<XPFloat[]>([]);
   const [lastVictoryXP, setLastVictoryXP] = useState(0);
   const [lastVictoryGold, setLastVictoryGold] = useState(0);
@@ -523,6 +562,9 @@ export function PokemonBattle({ onBack, playerLevel = 1 }: PokemonBattleProps) {
     exitDungeon,
     nextWave,
     playerClass,
+    lastNewSkills,
+    clearLastNewSkills,
+    getEquippedSkillCards,
 
     // Player state
     playerHP,
@@ -555,6 +597,27 @@ export function PokemonBattle({ onBack, playerLevel = 1 }: PokemonBattleProps) {
       setGameLevel(playerLevel);
     }
   }, [playerLevel, setGameLevel]);
+
+  // Show notification when new skills unlock
+  useEffect(() => {
+    if (lastNewSkills && lastNewSkills.length > 0) {
+      for (const skillId of lastNewSkills) {
+        const card = CARD_MAP[skillId];
+        if (card) {
+          toast.success(`${card.icon} NEW SKILL UNLOCKED: ${card.name}!`, {
+            duration: 3500,
+            style: {
+              background: "rgba(0,0,0,0.9)",
+              border: "1px solid #9d00ff",
+              color: "#9d00ff",
+              fontFamily: '"Sora", sans-serif',
+            },
+          });
+        }
+      }
+      clearLastNewSkills();
+    }
+  }, [lastNewSkills, clearLastNewSkills]);
 
   // XP auto-sync every 30 kills
   useEffect(() => {
@@ -674,18 +737,33 @@ export function PokemonBattle({ onBack, playerLevel = 1 }: PokemonBattleProps) {
   // Computed background type based on wave
   const bgType = BATTLE_BACKGROUNDS[(wave - 1) % BATTLE_BACKGROUNDS.length];
 
-  // Get attack cards - class-specific if class selected
-  const availableCards = getBestCards(gameLevel, playerClass);
+  // Get equipped skill cards from store
+  const equippedCards = getEquippedSkillCards();
+
+  // Fallback: if no skills equipped, use first available for the player's class/level
+  const availableCards = (() => {
+    if (equippedCards.length > 0) return equippedCards;
+    const pool =
+      playerClass && CLASS_ATTACK_CARDS[playerClass]
+        ? CLASS_ATTACK_CARDS[playerClass]
+        : ATTACK_CARDS;
+    return pool.filter((c) => c.minLevel <= Math.max(gameLevel, 1)).slice(0, 4);
+  })();
 
   const handleAttackCard = useCallback(
     (cardIndex: number) => {
       const card = availableCards[cardIndex];
-      if (!card || gameLevel < card.minLevel) return;
+      if (!card) return;
       setLastAttackColor(card.color);
       playerAttack(card);
     },
-    [availableCards, gameLevel, playerAttack],
+    [availableCards, playerAttack],
   );
+
+  // ─── Skill inventory screen ─────────────────────────────────────────────────
+  if (showSkillInventory) {
+    return <SkillInventoryPage onBack={() => setShowSkillInventory(false)} />;
+  }
 
   // ─── Class selection screen ─────────────────────────────────────────────────
   if (showClassSelection) {
@@ -705,6 +783,7 @@ export function PokemonBattle({ onBack, playerLevel = 1 }: PokemonBattleProps) {
         onStart={handleStartGame}
         onBack={onBack}
         onClassSelect={() => setShowClassSelection(true)}
+        onSkillInventory={() => setShowSkillInventory(true)}
       />
     );
   }

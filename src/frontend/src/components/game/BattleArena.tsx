@@ -56,13 +56,13 @@ const MONSTER_TYPES: Record<string, MonsterConfig> = {
     gold: 5,
     speed: 2.5,
     color: "#22aa22",
-    emissive: "#114411",
-    scale: 0.6,
+    emissive: "#44ff44",
+    scale: 1.2,
     isBoss: false,
-    bodyW: 0.5,
-    bodyH: 0.7,
+    bodyW: 0.6,
+    bodyH: 0.9,
     bodyD: 0.4,
-    headSize: 0.4,
+    headSize: 0.5,
   },
   shadowBeast: {
     label: "Shadow Beast",
@@ -71,14 +71,14 @@ const MONSTER_TYPES: Record<string, MonsterConfig> = {
     xp: 35,
     gold: 15,
     speed: 3.5,
-    color: "#6600aa",
-    emissive: "#330066",
-    scale: 1.0,
+    color: "#9900ff",
+    emissive: "#6600cc",
+    scale: 1.4,
     isBoss: false,
     bodyW: 1.0,
-    bodyH: 0.6,
+    bodyH: 0.8,
     bodyD: 0.5,
-    headSize: 0.45,
+    headSize: 0.55,
   },
   boneKnight: {
     label: "Bone Knight",
@@ -88,13 +88,13 @@ const MONSTER_TYPES: Record<string, MonsterConfig> = {
     gold: 30,
     speed: 2.0,
     color: "#ddddcc",
-    emissive: "#555544",
-    scale: 1.1,
+    emissive: "#aaaaaa",
+    scale: 1.5,
     isBoss: false,
     bodyW: 0.8,
     bodyH: 1.2,
     bodyD: 0.4,
-    headSize: 0.55,
+    headSize: 0.6,
   },
   voidDemon: {
     label: "Void Demon",
@@ -103,14 +103,14 @@ const MONSTER_TYPES: Record<string, MonsterConfig> = {
     xp: 150,
     gold: 60,
     speed: 2.0,
-    color: "#cc1100",
-    emissive: "#660800",
-    scale: 1.3,
+    color: "#ff2200",
+    emissive: "#cc0000",
+    scale: 1.6,
     isBoss: false,
-    bodyW: 0.8,
-    bodyH: 0.8,
+    bodyW: 0.9,
+    bodyH: 1.0,
     bodyD: 0.8,
-    headSize: 0.65,
+    headSize: 0.7,
   },
   shadowLord: {
     label: "SHADOW LORD",
@@ -549,73 +549,76 @@ function PlayerCharacter({
   const weaponInfo = WEAPONS[equippedWeapon];
   const weaponColor = weaponInfo?.color || "#00ffff";
 
+  // Scale up character by 1.4x for better visibility
+  const S = 1.4;
+
   return (
     <group ref={groupRef} position={[0, 0, 0]} castShadow>
       {/* Point light on player */}
-      <pointLight color="#00aaff" intensity={1.5} distance={4} />
+      <pointLight color="#00aaff" intensity={2} distance={6} />
       {/* Body */}
-      <mesh position={[0, 1.2, 0]} castShadow>
-        <boxGeometry args={[0.8, 1.2, 0.4]} />
+      <mesh position={[0, 1.2 * S, 0]} castShadow>
+        <boxGeometry args={[0.8 * S, 1.2 * S, 0.4 * S]} />
         {bodyMat}
       </mesh>
       {/* Head */}
-      <mesh position={[0, 2.1, 0]} castShadow>
-        <boxGeometry args={[0.6, 0.6, 0.6]} />
+      <mesh position={[0, 2.1 * S, 0]} castShadow>
+        <boxGeometry args={[0.6 * S, 0.6 * S, 0.6 * S]} />
         {headMat}
       </mesh>
       {/* Eyes */}
-      <mesh position={[0.15, 2.15, 0.31]}>
-        <boxGeometry args={[0.12, 0.08, 0.05]} />
+      <mesh position={[0.15 * S, 2.15 * S, 0.31 * S]}>
+        <boxGeometry args={[0.14 * S, 0.1 * S, 0.05]} />
         <meshStandardMaterial
           color="#00ffff"
           emissive="#00ffff"
-          emissiveIntensity={3}
+          emissiveIntensity={4}
         />
       </mesh>
-      <mesh position={[-0.15, 2.15, 0.31]}>
-        <boxGeometry args={[0.12, 0.08, 0.05]} />
+      <mesh position={[-0.15 * S, 2.15 * S, 0.31 * S]}>
+        <boxGeometry args={[0.14 * S, 0.1 * S, 0.05]} />
         <meshStandardMaterial
           color="#00ffff"
           emissive="#00ffff"
-          emissiveIntensity={3}
+          emissiveIntensity={4}
         />
       </mesh>
       {/* Left arm */}
-      <mesh position={[-0.55, 1.2, 0]} castShadow>
-        <boxGeometry args={[0.25, 0.8, 0.25]} />
+      <mesh position={[-0.55 * S, 1.2 * S, 0]} castShadow>
+        <boxGeometry args={[0.25 * S, 0.8 * S, 0.25 * S]} />
         {limbMat}
       </mesh>
       {/* Right arm (attack group) */}
-      <group ref={rightArmRef} position={[0.55, 1.5, 0]}>
-        <mesh position={[0, -0.4, 0]} castShadow>
-          <boxGeometry args={[0.25, 0.8, 0.25]} />
+      <group ref={rightArmRef} position={[0.55 * S, 1.5 * S, 0]}>
+        <mesh position={[0, -0.4 * S, 0]} castShadow>
+          <boxGeometry args={[0.25 * S, 0.8 * S, 0.25 * S]} />
           {limbMat}
         </mesh>
         {/* Weapon in hand */}
         {equippedWeapon !== "fists" && (
-          <mesh position={[0, -1.0, 0.1]} castShadow>
+          <mesh position={[0, -1.0 * S, 0.1]} castShadow>
             <boxGeometry
               args={
                 equippedWeapon === "voidScythe"
-                  ? [0.1, 1.4, 0.1]
-                  : [0.08, 1.0, 0.08]
+                  ? [0.1 * S, 1.6 * S, 0.1 * S]
+                  : [0.09 * S, 1.2 * S, 0.09 * S]
               }
             />
             <meshStandardMaterial
               color={weaponColor}
               emissive={weaponColor}
-              emissiveIntensity={1}
+              emissiveIntensity={1.5}
             />
           </mesh>
         )}
       </group>
       {/* Legs */}
-      <mesh position={[0.2, 0.35, 0]} castShadow>
-        <boxGeometry args={[0.3, 0.9, 0.3]} />
+      <mesh position={[0.2 * S, 0.35 * S, 0]} castShadow>
+        <boxGeometry args={[0.3 * S, 0.9 * S, 0.3 * S]} />
         {limbMat}
       </mesh>
-      <mesh position={[-0.2, 0.35, 0]} castShadow>
-        <boxGeometry args={[0.3, 0.9, 0.3]} />
+      <mesh position={[-0.2 * S, 0.35 * S, 0]} castShadow>
+        <boxGeometry args={[0.3 * S, 0.9 * S, 0.3 * S]} />
         {limbMat}
       </mesh>
     </group>
@@ -1001,14 +1004,15 @@ function CameraFollow({
   const { camera } = useThree();
   useFrame(() => {
     const target = playerPos.current;
-    camera.position.x = THREE.MathUtils.lerp(camera.position.x, target.x, 0.08);
+    // Closer camera - player fills more of screen
+    camera.position.x = THREE.MathUtils.lerp(camera.position.x, target.x, 0.1);
     camera.position.z = THREE.MathUtils.lerp(
       camera.position.z,
-      target.z + 12,
-      0.08,
+      target.z + 7,
+      0.1,
     );
-    camera.position.y = THREE.MathUtils.lerp(camera.position.y, 8, 0.08);
-    camera.lookAt(target.x, 0.5, target.z);
+    camera.position.y = THREE.MathUtils.lerp(camera.position.y, 5, 0.1);
+    camera.lookAt(target.x, 1.2, target.z);
   });
   return null;
 }
@@ -1086,9 +1090,6 @@ function GameController({
       else bossType = "shadowLord";
     }
 
-    const arenaBound = isDungeon ? 8 : 22;
-    const arenaBoundZ = isDungeon ? 25 : 22;
-
     for (let i = 0; i < waveCount; i++) {
       const type = monsterPool[Math.floor(Math.random() * monsterPool.length)];
       const cfg = MONSTER_TYPES[type];
@@ -1098,27 +1099,11 @@ function GameController({
       const scaledHp = Math.floor(cfg.hp * levelScale);
       const scaledDmg = Math.floor(cfg.damage * (1 + (gameLevel - 1) * 0.08));
 
-      // Spawn at arena edges
-      const edge = Math.floor(Math.random() * 4);
-      let spawnX = 0;
-      let spawnZ = 0;
-      switch (edge) {
-        case 0:
-          spawnX = -arenaBound + 1;
-          spawnZ = (Math.random() - 0.5) * arenaBoundZ * 2;
-          break;
-        case 1:
-          spawnX = arenaBound - 1;
-          spawnZ = (Math.random() - 0.5) * arenaBoundZ * 2;
-          break;
-        case 2:
-          spawnX = (Math.random() - 0.5) * arenaBound * 2;
-          spawnZ = -arenaBoundZ + 1;
-          break;
-        default:
-          spawnX = (Math.random() - 0.5) * arenaBound * 2;
-          spawnZ = arenaBoundZ - 1;
-      }
+      // Spawn closer to player (visible range), not at far edges
+      const spawnDist = 6 + Math.random() * 4; // 6-10 units away
+      const angle = Math.random() * Math.PI * 2;
+      let spawnX = Math.cos(angle) * spawnDist;
+      let spawnZ = Math.sin(angle) * spawnDist - 3; // slightly in front
 
       newMonsters.push({
         id: ++monsterIdCounter,
@@ -1423,7 +1408,7 @@ export function BattleArena({
   return (
     <Canvas
       style={{ touchAction: "none", background: "#000000" }}
-      camera={{ position: [0, 8, 12], fov: 60, near: 0.1, far: 500 }}
+      camera={{ position: [0, 5, 8], fov: 70, near: 0.1, far: 500 }}
       shadows
       gl={{ antialias: false, powerPreference: "high-performance" }}
     >
@@ -1454,8 +1439,8 @@ export function BattleArena({
         distance={20}
       />
 
-      {/* Fog */}
-      <fog attach="fog" args={[isDungeon ? "#0a0000" : "#000008", 20, 60]} />
+      {/* Fog - start further so enemies are clearly visible */}
+      <fog attach="fog" args={[isDungeon ? "#0a0000" : "#000008", 30, 80]} />
 
       <ArenaFloor isDungeon={isDungeon} />
 

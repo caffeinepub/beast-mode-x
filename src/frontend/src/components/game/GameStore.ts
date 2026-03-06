@@ -449,6 +449,11 @@ export interface GameState {
   inventory: InventoryItem[];
   equippedWeapon: string;
 
+  // Skill system
+  unlockedSkills: string[]; // skill IDs unlocked by level
+  equippedSkills: string[]; // 6 skill slot IDs (can be empty string for empty slot)
+  lastNewSkills: string[]; // newly unlocked in last level-up (for notification)
+
   // Game
   currentZone: "normal" | "dungeon";
   wave: number;
@@ -481,6 +486,13 @@ export interface GameState {
   resetGame: () => void;
   setPlayerClass: (className: string) => void;
   resetClassProgress: (className: string) => void;
+
+  // Skill actions
+  unlockSkill: (skillId: string) => void;
+  equipSkill: (slotIndex: number, skillId: string) => void;
+  unequipSkill: (slotIndex: number) => void;
+  clearLastNewSkills: () => void;
+  getEquippedSkillCards: () => AttackCard[];
 
   // Turn-based battle actions
   setBattlePhase: (phase: BattlePhase) => void;
@@ -927,6 +939,22 @@ const initialInventory: InventoryItem[] = [
   },
 ];
 
+// ─── Helper: get IDs of newly unlocked skills between two levels ──────────────
+function getNewlyUnlockedSkillIds(
+  prevLevel: number,
+  newLevel: number,
+  playerClass: string | null,
+): string[] {
+  if (newLevel <= prevLevel) return [];
+  const pool =
+    playerClass && CLASS_ATTACK_CARDS[playerClass]
+      ? CLASS_ATTACK_CARDS[playerClass]
+      : ATTACK_CARDS;
+  return pool
+    .filter((card) => card.minLevel > prevLevel && card.minLevel <= newLevel)
+    .map((card) => card.id);
+}
+
 export const useGameStore = create<GameState>()(
   persist(
     (set, get) => ({
@@ -946,6 +974,12 @@ export const useGameStore = create<GameState>()(
       classXP: {},
       inventory: initialInventory,
       equippedWeapon: "fists",
+
+      // Skill system — start with first 2 generic skills unlocked and equipped
+      unlockedSkills: ["shadow_fist", "beast_surge"],
+      equippedSkills: ["shadow_fist", "beast_surge", "", "", "", ""],
+      lastNewSkills: [],
+
       currentZone: "normal",
       wave: 1,
       isGameOver: false,
@@ -970,6 +1004,7 @@ export const useGameStore = create<GameState>()(
         const newSessionXP = state.sessionXP + xp;
 
         // Level up formula: level = floor(sqrt(totalXP / 50)) + 1
+        const prevLevel = state.gameLevel;
         const newLevel = Math.floor(Math.sqrt(newGameXP / 50)) + 1;
 
         // Merge drops into inventory
@@ -997,6 +1032,36 @@ export const useGameStore = create<GameState>()(
             (newClassXP[state.playerClass] ?? 0) + xp;
         }
 
+        // Auto-unlock new skills on level-up
+        let newUnlockedSkills = [...state.unlockedSkills];
+        let newLastNewSkills: string[] = [];
+        if (newLevel > prevLevel) {
+          const newSkillIds = getNewlyUnlockedSkillIds(
+            prevLevel,
+            newLevel,
+            state.playerClass,
+          );
+          for (const id of newSkillIds) {
+            if (!newUnlockedSkills.includes(id)) {
+              newUnlockedSkills.push(id);
+              newLastNewSkills.push(id);
+            }
+          }
+          // Also unlock class-specific skills if class is now set
+          if (state.playerClass) {
+            const classPool = CLASS_ATTACK_CARDS[state.playerClass] ?? [];
+            for (const card of classPool) {
+              if (
+                card.minLevel <= newLevel &&
+                !newUnlockedSkills.includes(card.id)
+              ) {
+                newUnlockedSkills.push(card.id);
+                newLastNewSkills.push(card.id);
+              }
+            }
+          }
+        }
+
         set({
           kills: newKills,
           sessionKills: newSessionKills,
@@ -1009,6 +1074,8 @@ export const useGameStore = create<GameState>()(
           inventory: newInventory,
           classKills: newClassKills,
           classXP: newClassXP,
+          unlockedSkills: newUnlockedSkills,
+          lastNewSkills: newLastNewSkills,
         });
       },
 
@@ -1160,6 +1227,68 @@ export const useGameStore = create<GameState>()(
           classKills: { ...state.classKills, [className]: 0 },
           classXP: { ...state.classXP, [className]: 0 },
         });
+      },
+
+      // ─── Skill actions ──────────────────────────────────────────────────────
+
+      unlockSkill: (skillId) => {
+        const state = get();
+        if (!state.unlockedSkills.includes(skillId)) {
+          set({ unlockedSkills: [...state.unlockedSkills, skillId] });
+        }
+      },
+
+      equipSkill: (slotIndex, skillId) => {
+        const state = get();
+        if (slotIndex < 0 || slotIndex > 5) return;
+        const newSlots = [...state.equippedSkills];
+        // Ensure array is 6 elements
+        while (newSlots.length < 6) newSlots.push("");
+        // Remove the skill from any other slot first
+        for (let i = 0; i < 6; i++) {
+          if (newSlots[i] === skillId && i !== slotIndex) {
+            newSlots[i] = "";
+          }
+        }
+        newSlots[slotIndex] = skillId;
+        set({ equippedSkills: newSlots });
+      },
+
+      unequipSkill: (slotIndex) => {
+        const state = get();
+        if (slotIndex < 0 || slotIndex > 5) return;
+        const newSlots = [...state.equippedSkills];
+        while (newSlots.length < 6) newSlots.push("");
+        newSlots[slotIndex] = "";
+        set({ equippedSkills: newSlots });
+      },
+
+      clearLastNewSkills: () => {
+        set({ lastNewSkills: [] });
+      },
+
+      getEquippedSkillCards: () => {
+        const state = get();
+        const allCards =
+          state.playerClass && CLASS_ATTACK_CARDS[state.playerClass]
+            ? [...CLASS_ATTACK_CARDS[state.playerClass], ...ATTACK_CARDS]
+            : ATTACK_CARDS;
+        const cardMap: Record<string, AttackCard> = {};
+        for (const card of allCards) {
+          cardMap[card.id] = card;
+        }
+        // Also add class cards
+        for (const cards of Object.values(CLASS_ATTACK_CARDS)) {
+          for (const card of cards) {
+            cardMap[card.id] = card;
+          }
+        }
+        const slots = state.equippedSkills.slice(0, 6);
+        while (slots.length < 6) slots.push("");
+        return slots
+          .filter((id) => id !== "")
+          .map((id) => cardMap[id])
+          .filter(Boolean) as AttackCard[];
       },
 
       // ─── Turn-based battle actions ──────────────────────────────────────────
@@ -1408,7 +1537,7 @@ export const useGameStore = create<GameState>()(
       },
     }),
     {
-      name: "bmlx_game_v1",
+      name: "bmlx_game_v2",
       partialize: (state) => ({
         gold: state.gold,
         kills: state.kills,
@@ -1422,6 +1551,8 @@ export const useGameStore = create<GameState>()(
         playerClass: state.playerClass,
         classKills: state.classKills,
         classXP: state.classXP,
+        unlockedSkills: state.unlockedSkills,
+        equippedSkills: state.equippedSkills,
       }),
     },
   ),

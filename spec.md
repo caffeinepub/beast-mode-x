@@ -1,55 +1,59 @@
 # BEAST MODE LEVEL X
 
 ## Current State
-Full self-improvement gaming app with Pokemon-style turn-based card battle system (PokemonBattle.tsx, AnimeBattleScene.tsx, BattleHUD.tsx, GameStore.ts). The game works on desktop but is cut off / not fully visible on mobile phones. No character customization exists -- all players use the same default blue anime character in battle.
+- Turn-based RPG battle system (Dragon Quest inspired) exists in `PokemonBattle.tsx`
+- `AnimeBattleScene.tsx` renders 2D battle scene: player bottom-left, enemy top-right
+- `BattleHUD.tsx` shows HP/MP bars and 4 attack card buttons + Potion + Flee in bottom row
+- `GameStore.ts` holds `ATTACK_CARDS` pool + `CLASS_ATTACK_CARDS` per class (6 classes), unlimited card pool
+- `getBestCards()` in PokemonBattle auto-selects best 4 cards based on game level
+- Attack animations: player lunges right, enemy shakes left on hurt; attack line crosses screen
+- Enemy attacks animate back to player
+- `ClassSelectionScreen.tsx` shows 6 classes with preview moves
 
 ## Requested Changes (Diff)
 
 ### Add
-- **Character Creator** -- Full character customization screen accessible from the game splash screen and from the main app (Navbar / Profile section)
-  - Gender: Male / Female toggle
-  - Hair styles: 8+ options (short, long, spiky, ponytail, bun, mohawk, curly, straight)
-  - Hair color: 10 options (black, white, blonde, red, blue, purple, green, orange, silver, pink)
-  - Skin tone: 6 options (fair, light, medium, tan, brown, dark)
-  - Eye color: 8 options (brown, black, blue, green, red, purple, gold, silver)
-  - Outfit/class armor: 6 options (Warrior, Mage, Assassin, Berserker, Knight, Shadow)
-  - Aura color: 6 options (blue, red, purple, gold, green, white)
-  - Accessories: 5 options (none, headband, eyepatch, scar, face paint)
-  - All options shown as color swatches or icon buttons with labels
-  - Live 2D preview panel showing character with selected customization
-  - Character appearance persists in localStorage (CharacterStore)
-  - The anime player character in AnimeBattleScene.tsx reads from CharacterStore and renders the correct colors/style
-
-- **Dungeon loot expansion** -- More varied drops in dungeon:
-  - New armor types: Iron Armor (+15 def), Shadow Armor (+30 def), Dragon Armor (+60 def)
-  - New skill scrolls (material type): Fire Scroll, Thunder Scroll, Ice Scroll -- increase damage bonus
-  - More gold drops, gems (material), elixirs (potion)
-  - Dungeon boss drops guaranteed rare+ item
+- **Skill Inventory Page** (`SkillInventoryPage.tsx`) — standalone page accessible from dungeon splash
+  - Shows ALL unlocked attacks (all cards player has earned via level-up)
+  - 6 equipped slots at top — drag or tap to assign any unlocked card to a slot
+  - Cards shown with: icon, name, damage, mana cost, rarity color, level requirement
+  - "Equipped" badge on cards currently in slots
+  - Filter tabs: All / Free / Rare / Epic / Legendary
+  - Back button to return to dungeon splash
+- **Skill unlock system in GameStore** — track which attacks player has unlocked (by level)
+  - `unlockedSkills: string[]` — skill IDs unlocked so far
+  - `equippedSkills: string[]` — array of 6 skill IDs (max 6 equipped)
+  - `unlockSkill(id)`, `equipSkill(slotIndex, skillId)`, `unequipSkill(slotIndex)` actions
+  - On level-up (in `awardKill`), auto-unlock new skills for that level
+  - Initial: unlock first 2 skills at level 1
+- **Dragon Quest command menu in BattleHUD** — replace current 6-button row with proper DQ-style menu
+  - Bottom-left corner: command panel with "Fight" / "Skills" / "Items" / "Flee"
+  - "Fight" = basic attack using first free-cost card
+  - "Skills" = opens skill sub-menu showing 6 equipped skills (tap to use)
+  - "Items" = shows potions from inventory
+  - "Flee" = flee battle
+  - Skills sub-menu shows card name, damage, MP cost, use button
+- **Enhanced attack animations** — character movement when attacking
+  - Player attacks: character sprite visually rushes toward enemy, hits, jumps back
+  - Enemy attacks: enemy sprite rushes toward player, hits, returns
+  - Hit effect: big flash + screen shake + sparks at hit location
+  - Each attack type has a colored energy effect matching its class color
+- **Level-up skill notification** — when player levels up, show "NEW SKILL UNLOCKED!" banner
+  with the skill name and icon
 
 ### Modify
-- **Mobile responsive fixes** -- The entire app is cut off on phones:
-  - All sections must use `max-width: 100vw`, `overflow-x: hidden`, `box-sizing: border-box`
-  - Navbar: on mobile show only logo + hamburger (already exists but ensure it works)
-  - HeroSection: text sizes use `clamp()`, buttons stack vertically on mobile
-  - PlayerDashboard, TrainerHub, LeaderboardSection, SkillTree -- all must scroll properly on mobile, no horizontal overflow
-  - PokemonBattle splash screen: scrollable on small screens, buttons not cut off
-  - BattleHUD: attack cards stack to 2x2 grid that fits within phone screen width, HP bars scale properly
-  - AnimeBattleScene: canvas height on mobile = 45vh (not full screen height)
-  - All sections: padding reduces on mobile (1rem instead of 2-3rem)
-  - index.css / global: add `* { box-sizing: border-box; }` and `body { overflow-x: hidden; }`
-
-- **AnimeBattleScene.tsx**: Player character reads `characterConfig` from CharacterStore -- apply hair color, skin tone, outfit color, aura color to the 3D model meshes
-
-- **Navbar**: Add "CHARACTER" button linking to character creator modal
+- `PokemonBattle.tsx` — add "SKILLS" button to splash screen alongside Inventory/Character buttons
+- `BattleHUD.tsx` — replace 6-button row with Dragon Quest command menu system
+- `AnimeBattleScene.tsx` — enhance attack animations with character movement (rush forward/back)
+- `GameStore.ts` — add `unlockedSkills`, `equippedSkills`, unlock/equip actions; auto-unlock on levelup
 
 ### Remove
-Nothing removed.
+- Nothing removed; old 6-button layout replaced by DQ command menu
 
 ## Implementation Plan
-1. Create `src/components/game/CharacterStore.ts` -- Zustand store with character config (gender, hair style/color, skin, eyes, outfit, aura, accessory), persisted to localStorage key `bmlx_character_v1`
-2. Create `src/components/game/CharacterCreator.tsx` -- full-screen modal/page with all customization options + live 2D CSS preview of character
-3. Update `AnimeBattleScene.tsx` -- import CharacterStore, apply colors to player character meshes
-4. Update `GameStore.ts` -- expand dungeon loot drops (new armor, skill scrolls, gems, elixirs)
-5. Fix mobile responsiveness across ALL major components -- global CSS fix + per-component padding/font-size fixes
-6. Update `PokemonBattle.tsx` splash screen -- add "CUSTOMIZE CHARACTER" button
-7. Update `Navbar.tsx` -- add CHARACTER nav button (desktop + mobile menu)
+1. Update `GameStore.ts`: add `unlockedSkills`, `equippedSkills` state + actions + auto-unlock in `awardKill`
+2. Create `SkillInventoryPage.tsx`: full-screen page with slot grid at top + all-skills list below, tap to equip/unequip
+3. Update `BattleHUD.tsx`: Dragon Quest style command menu (Fight/Skills/Items/Flee), skills sub-menu with 6 equipped cards
+4. Update `AnimeBattleScene.tsx`: add `playerRushing`, `enemyRushing` states + CSS keyframe animations for charge/hit/return movement
+5. Update `PokemonBattle.tsx`: pass equipped skills to BattleHUD, add SKILLS nav button in splash screen, route to `SkillInventoryPage`
+6. Add level-up detection + new skill unlock notification toast/banner

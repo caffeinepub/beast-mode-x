@@ -22,7 +22,7 @@ export interface BattleHUDProps {
   onAttack: (cardIndex: number) => void;
   onPotion: () => void;
   onFlee: () => void;
-  availableCards: AttackCard[];
+  availableCards: AttackCard[]; // equipped skills (up to 6)
   playerManaForCards: number;
   gold: number;
   wave: number;
@@ -30,7 +30,7 @@ export interface BattleHUDProps {
   gameLevel: number;
 }
 
-// ─── HP Bar ───────────────────────────────────────────────────────────────────
+// ─── HP Bar ────────────────────────────────────────────────────────────────────
 function HPBar({
   label,
   current,
@@ -48,13 +48,13 @@ function HPBar({
   return (
     <div
       style={{
-        background: "rgba(0,0,0,0.75)",
+        background: "rgba(0,0,0,0.82)",
         backdropFilter: "blur(10px)",
         border: `1px solid ${isEnemy ? "rgba(255,0,51,0.5)" : "rgba(0,255,255,0.5)"}`,
         borderRadius: "10px",
-        padding: "8px 14px",
-        minWidth: "min(160px, 42vw)",
-        maxWidth: "200px",
+        padding: "6px 10px",
+        minWidth: "min(140px, 38vw)",
+        maxWidth: "170px",
         fontFamily: '"Sora", sans-serif',
       }}
     >
@@ -67,7 +67,7 @@ function HPBar({
       >
         <span
           style={{
-            fontSize: "0.65rem",
+            fontSize: "0.58rem",
             fontWeight: 700,
             letterSpacing: "0.08em",
             color: isEnemy ? "rgba(255,120,120,0.9)" : "rgba(100,220,255,0.9)",
@@ -75,23 +75,17 @@ function HPBar({
         >
           {label}
         </span>
-        <span
-          style={{
-            fontSize: "0.65rem",
-            fontWeight: 700,
-            color: barColor,
-          }}
-        >
+        <span style={{ fontSize: "0.58rem", fontWeight: 700, color: barColor }}>
           {Math.max(0, current)}/{max}
         </span>
       </div>
       <div
         style={{
-          height: "12px",
-          background: "rgba(255,255,255,0.1)",
-          borderRadius: "6px",
+          height: "10px",
+          background: "rgba(255,255,255,0.08)",
+          borderRadius: "5px",
           overflow: "hidden",
-          border: "1px solid rgba(255,255,255,0.1)",
+          border: "1px solid rgba(255,255,255,0.08)",
         }}
       >
         <div
@@ -99,188 +93,13 @@ function HPBar({
             height: "100%",
             width: `${pct}%`,
             background: `linear-gradient(90deg, ${barColor}cc, ${barColor})`,
-            borderRadius: "5px",
-            boxShadow: `0 0 8px ${barColor}88`,
+            borderRadius: "4px",
+            boxShadow: `0 0 6px ${barColor}88`,
             transition: "width 0.3s ease",
           }}
         />
       </div>
     </div>
-  );
-}
-
-// ─── Rarity colors ─────────────────────────────────────────────────────────────
-const RARITY_COLORS: Record<string, string> = {
-  common: "#aaaaaa",
-  rare: "#4488ff",
-  epic: "#9d00ff",
-  legendary: "#ff8800",
-};
-
-// ─── Rarity badge dot ─────────────────────────────────────────────────────────
-function RarityDot({ rarity }: { rarity: string }) {
-  const isLegendary = rarity === "legendary";
-  const color =
-    rarity === "legendary"
-      ? "#ff8800"
-      : rarity === "epic"
-        ? "#9d00ff"
-        : rarity === "rare"
-          ? "#4488ff"
-          : "#888888";
-
-  return (
-    <div
-      style={{
-        position: "absolute",
-        top: 5,
-        right: 5,
-        width: 7,
-        height: 7,
-        borderRadius: "50%",
-        background: color,
-        boxShadow: `0 0 ${isLegendary ? 8 : 4}px ${color}`,
-        animation: isLegendary
-          ? "legendaryPulse 1.2s ease-in-out infinite"
-          : "none",
-      }}
-    />
-  );
-}
-
-// ─── Attack Card ──────────────────────────────────────────────────────────────
-function AttackCardItem({
-  card,
-  index,
-  disabled,
-  noMana,
-  locked,
-  onClick,
-}: {
-  card: AttackCard;
-  index: number;
-  disabled: boolean;
-  noMana: boolean;
-  locked: boolean;
-  onClick: () => void;
-}) {
-  const rarityColor = RARITY_COLORS[card.rarity] || "#aaaaaa";
-  const cardColor = card.color;
-  const isDisabled = disabled || locked;
-
-  return (
-    <button
-      type="button"
-      data-ocid={`battle.card.button.${index + 1}`}
-      onClick={onClick}
-      disabled={isDisabled}
-      style={{
-        fontFamily: '"Sora", sans-serif',
-        cursor: isDisabled ? "not-allowed" : "pointer",
-        background: isDisabled ? "rgba(0,0,0,0.5)" : "rgba(0,0,0,0.82)",
-        backdropFilter: "blur(8px)",
-        border: `2px solid ${isDisabled ? "rgba(100,100,100,0.3)" : `${cardColor}88`}`,
-        borderRadius: "10px",
-        padding: "8px 6px",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        gap: "2px",
-        opacity: isDisabled ? 0.45 : 1,
-        transition: "all 0.15s ease",
-        boxShadow: isDisabled
-          ? "none"
-          : `0 0 12px ${cardColor}40, inset 0 0 8px ${cardColor}0d`,
-        touchAction: "manipulation",
-        minHeight: "clamp(64px, 12vw, 80px)",
-        minWidth: "clamp(64px, 12vw, 80px)",
-        flex: 1,
-        position: "relative",
-        overflow: "hidden",
-      }}
-      onMouseEnter={(e) => {
-        if (!isDisabled) {
-          e.currentTarget.style.transform = "scale(1.05) translateY(-2px)";
-          e.currentTarget.style.background = `${cardColor}22`;
-          e.currentTarget.style.boxShadow = `0 0 20px ${cardColor}66, inset 0 0 12px ${cardColor}22`;
-          e.currentTarget.style.borderColor = cardColor;
-        }
-      }}
-      onMouseLeave={(e) => {
-        if (!isDisabled) {
-          e.currentTarget.style.transform = "scale(1)";
-          e.currentTarget.style.background = "rgba(0,0,0,0.82)";
-          e.currentTarget.style.boxShadow = `0 0 12px ${cardColor}40, inset 0 0 8px ${cardColor}0d`;
-          e.currentTarget.style.borderColor = `${cardColor}88`;
-        }
-      }}
-    >
-      {locked ? (
-        <>
-          <span style={{ fontSize: "1.2rem" }}>🔒</span>
-          <span
-            style={{
-              fontSize: "0.5rem",
-              color: "#666",
-              letterSpacing: "0.05em",
-            }}
-          >
-            LV {card.minLevel}+
-          </span>
-        </>
-      ) : (
-        <>
-          {/* Rarity glow line at top */}
-          <div
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              height: "2px",
-              background: `linear-gradient(90deg, transparent, ${rarityColor}, transparent)`,
-              boxShadow: `0 0 6px ${rarityColor}`,
-            }}
-          />
-          {/* Rarity dot badge */}
-          <RarityDot rarity={card.rarity} />
-
-          <span style={{ fontSize: "1.4rem", lineHeight: 1 }}>{card.icon}</span>
-          <span
-            style={{
-              fontSize: "0.52rem",
-              fontWeight: 700,
-              letterSpacing: "0.04em",
-              color: noMana ? "#666" : cardColor,
-              textShadow: noMana ? "none" : `0 0 6px ${cardColor}88`,
-              textAlign: "center",
-              lineHeight: 1.2,
-            }}
-          >
-            {card.name}
-          </span>
-          <span
-            style={{
-              fontSize: "0.58rem",
-              fontWeight: 900,
-              color: card.color,
-              textShadow: `0 0 6px ${card.color}88`,
-            }}
-          >
-            {card.damage} DMG
-          </span>
-          <span
-            style={{
-              fontSize: "0.48rem",
-              color: noMana ? "#ff4444" : "rgba(100,200,255,0.8)",
-            }}
-          >
-            {card.manaCost === 0 ? "FREE" : `${card.manaCost} MP`}
-            {card.hitCount && card.hitCount > 1 ? ` ×${card.hitCount}` : ""}
-          </span>
-        </>
-      )}
-    </button>
   );
 }
 
@@ -331,7 +150,7 @@ function TurnBanner({
     <div
       style={{
         position: "absolute",
-        top: "35%",
+        top: "30%",
         left: "50%",
         transform: "translate(-50%, -50%)",
         pointerEvents: "none",
@@ -344,15 +163,15 @@ function TurnBanner({
         style={{
           fontFamily: '"Sora", sans-serif',
           fontWeight: 900,
-          fontSize: "clamp(1.5rem, 5vw, 2.5rem)",
+          fontSize: "clamp(1.4rem, 5vw, 2.2rem)",
           letterSpacing: "0.12em",
           color,
           textShadow: `0 0 20px ${color}, 0 0 40px ${color}88`,
-          background: "rgba(0,0,0,0.6)",
-          backdropFilter: "blur(8px)",
+          background: "rgba(0,0,0,0.7)",
+          backdropFilter: "blur(10px)",
           border: `2px solid ${color}66`,
-          borderRadius: "12px",
-          padding: "0.5rem 2rem",
+          borderRadius: "10px",
+          padding: "0.4rem 1.5rem",
           whiteSpace: "nowrap",
         }}
       >
@@ -371,7 +190,7 @@ function BossIntroOverlay({ show }: { show: boolean }) {
       style={{
         position: "absolute",
         inset: 0,
-        background: "rgba(180,0,0,0.15)",
+        background: "rgba(180,0,0,0.12)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -384,7 +203,7 @@ function BossIntroOverlay({ show }: { show: boolean }) {
         style={{
           fontFamily: '"Sora", sans-serif',
           fontWeight: 900,
-          fontSize: "clamp(2rem, 8vw, 4rem)",
+          fontSize: "clamp(1.8rem, 7vw, 3.5rem)",
           letterSpacing: "0.1em",
           color: "#ff0033",
           textShadow: "0 0 30px #ff0033, 0 0 60px #ff003380",
@@ -393,6 +212,524 @@ function BossIntroOverlay({ show }: { show: boolean }) {
         }}
       >
         ⚠️ BOSS APPEARS!
+      </div>
+    </div>
+  );
+}
+
+// ─── DQ Command Menu ──────────────────────────────────────────────────────────
+type CommandTab = "main" | "skills" | "items";
+
+function CommandMenu({
+  availableCards,
+  playerManaForCards,
+  gameLevel,
+  isPlayerTurn,
+  onAttack,
+  onPotion,
+  onFlee,
+  battleLog,
+}: {
+  availableCards: AttackCard[];
+  playerManaForCards: number;
+  gameLevel: number;
+  isPlayerTurn: boolean;
+  onAttack: (idx: number) => void;
+  onPotion: () => void;
+  onFlee: () => void;
+  battleLog: string[];
+}) {
+  const [tab, setTab] = useState<CommandTab>("main");
+  const logRef = useRef<HTMLDivElement>(null);
+
+  // Auto scroll battle log
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentional ref scroll
+  useEffect(() => {
+    if (logRef.current) {
+      logRef.current.scrollTop = logRef.current.scrollHeight;
+    }
+  }, [battleLog]);
+
+  const isDisabled = !isPlayerTurn;
+
+  // DQ main menu items
+  const mainMenuItems = [
+    { key: "fight", label: "FIGHT", icon: "⚔️" },
+    { key: "skills", label: "SKILLS", icon: "✨" },
+    { key: "items", label: "ITEMS", icon: "🎒" },
+    { key: "flee", label: "FLEE", icon: "🏃" },
+  ];
+
+  const handleMainMenu = (key: string) => {
+    if (isDisabled) return;
+    if (key === "fight") {
+      // Basic attack: first free skill or first available skill
+      const freeCard = availableCards.find(
+        (c) => c.manaCost === 0 && gameLevel >= c.minLevel,
+      );
+      const idx = freeCard ? availableCards.indexOf(freeCard) : 0;
+      if (availableCards[idx]) {
+        onAttack(idx);
+      }
+    } else if (key === "skills") {
+      setTab("skills");
+    } else if (key === "items") {
+      setTab("items");
+    } else if (key === "flee") {
+      onFlee();
+    }
+  };
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        bottom: 0,
+        left: 0,
+        right: 0,
+        zIndex: 20,
+        pointerEvents: "all",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      {/* Battle log box — Dragon Quest style */}
+      <div
+        ref={logRef}
+        style={{
+          margin: "0 10px 6px 10px",
+          background: "rgba(0,0,0,0.88)",
+          backdropFilter: "blur(10px)",
+          border: "1px solid rgba(255,255,255,0.12)",
+          borderRadius: "8px",
+          padding: "6px 10px",
+          maxHeight: "56px",
+          overflowY: "auto",
+          display: "flex",
+          flexDirection: "column",
+          gap: "2px",
+          fontFamily: '"Sora", sans-serif',
+        }}
+      >
+        {battleLog.length === 0 ? (
+          <span
+            style={{ fontSize: "0.55rem", color: "rgba(255,255,255,0.25)" }}
+          >
+            Battle log...
+          </span>
+        ) : (
+          battleLog.slice(-3).map((log) => (
+            <div
+              key={log}
+              style={{
+                fontSize: "0.57rem",
+                color: log.includes("You used")
+                  ? "rgba(100,220,255,0.9)"
+                  : log.includes("VICTORY") || log.includes("defeated")
+                    ? "rgba(255,200,0,0.9)"
+                    : log.includes("attacks")
+                      ? "rgba(255,120,120,0.9)"
+                      : "rgba(200,200,200,0.8)",
+                fontFamily: "monospace",
+                lineHeight: 1.4,
+              }}
+            >
+              {log}
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Command panel — DQ style */}
+      <div
+        style={{
+          margin: "0 10px 10px 10px",
+          background: "rgba(0,0,0,0.92)",
+          backdropFilter: "blur(12px)",
+          border: "1px solid rgba(255,255,255,0.14)",
+          borderRadius: "10px",
+          overflow: "hidden",
+          fontFamily: '"Sora", sans-serif',
+        }}
+      >
+        {/* Tab title bar */}
+        {tab !== "main" && (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              padding: "6px 12px",
+              borderBottom: "1px solid rgba(255,255,255,0.08)",
+              background: "rgba(255,255,255,0.03)",
+            }}
+          >
+            <button
+              type="button"
+              data-ocid="battle.menu.back.button"
+              onClick={() => setTab("main")}
+              style={{
+                fontFamily: '"Sora", sans-serif',
+                fontWeight: 700,
+                fontSize: "0.58rem",
+                background: "transparent",
+                border: "none",
+                color: "rgba(255,255,255,0.5)",
+                cursor: "pointer",
+                padding: "0 4px 0 0",
+                touchAction: "manipulation",
+              }}
+            >
+              ← BACK
+            </button>
+            <span
+              style={{
+                fontSize: "0.65rem",
+                fontWeight: 900,
+                letterSpacing: "0.1em",
+                color: "rgba(255,255,255,0.7)",
+                marginLeft: "0.4rem",
+              }}
+            >
+              {tab === "skills" ? "✨ SKILLS" : "🎒 ITEMS"}
+            </span>
+            {tab === "skills" && (
+              <span
+                style={{
+                  marginLeft: "auto",
+                  fontSize: "0.52rem",
+                  color: "rgba(100,180,255,0.7)",
+                }}
+              >
+                💙 {playerManaForCards} MP
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Main menu */}
+        {tab === "main" && (
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "0",
+            }}
+          >
+            {mainMenuItems.map((item, idx) => {
+              const isTopLeft = idx === 0;
+              const isTopRight = idx === 1;
+              const isBottomLeft = idx === 2;
+              const _isBottomRight = idx === 3;
+              return (
+                <button
+                  key={item.key}
+                  type="button"
+                  data-ocid={`battle.menu.${item.key}.button`}
+                  onClick={() => handleMainMenu(item.key)}
+                  disabled={isDisabled}
+                  style={{
+                    fontFamily: '"Sora", sans-serif',
+                    fontWeight: 700,
+                    fontSize: "0.78rem",
+                    letterSpacing: "0.08em",
+                    padding: "0.7rem 0.5rem",
+                    background: "transparent",
+                    border: "none",
+                    borderRight:
+                      isTopLeft || isBottomLeft
+                        ? "1px solid rgba(255,255,255,0.08)"
+                        : "none",
+                    borderBottom:
+                      isTopLeft || isTopRight
+                        ? "1px solid rgba(255,255,255,0.08)"
+                        : "none",
+                    color: isDisabled
+                      ? "rgba(255,255,255,0.25)"
+                      : item.key === "flee"
+                        ? "rgba(255,120,120,0.9)"
+                        : item.key === "fight"
+                          ? "rgba(100,220,255,0.95)"
+                          : item.key === "skills"
+                            ? "rgba(200,100,255,0.95)"
+                            : "rgba(255,200,0,0.9)",
+                    cursor: isDisabled ? "not-allowed" : "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "0.4rem",
+                    touchAction: "manipulation",
+                    minHeight: "44px",
+                    transition: "background 0.1s",
+                    borderRadius: isTopLeft
+                      ? "0"
+                      : isTopRight
+                        ? "0"
+                        : isBottomLeft
+                          ? "0 0 0 10px"
+                          : "0 0 10px 0",
+                  }}
+                  onMouseDown={(e) => {
+                    e.currentTarget.style.background = "rgba(255,255,255,0.06)";
+                  }}
+                  onMouseUp={(e) => {
+                    e.currentTarget.style.background = "transparent";
+                  }}
+                  onTouchStart={(e) => {
+                    e.currentTarget.style.background = "rgba(255,255,255,0.06)";
+                  }}
+                  onTouchEnd={(e) => {
+                    e.currentTarget.style.background = "transparent";
+                  }}
+                >
+                  <span>{item.icon}</span>
+                  <span>{item.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Skills submenu */}
+        {tab === "skills" && (
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              maxHeight: "190px",
+              overflowY: "auto",
+            }}
+          >
+            {availableCards.length === 0 ? (
+              <div
+                style={{
+                  padding: "1rem",
+                  textAlign: "center",
+                  fontSize: "0.65rem",
+                  color: "rgba(255,255,255,0.3)",
+                }}
+              >
+                No skills equipped. Visit Skill Inventory to equip skills.
+              </div>
+            ) : (
+              availableCards.map((card, i) => {
+                const locked = gameLevel < card.minLevel;
+                const noMana =
+                  playerManaForCards < card.manaCost && card.manaCost > 0;
+                const disabled = isDisabled || locked;
+                const rarityColors: Record<string, string> = {
+                  common: "#aaaaaa",
+                  rare: "#4488ff",
+                  epic: "#9d00ff",
+                  legendary: "#ff8800",
+                };
+                const cardColor = rarityColors[card.rarity] ?? card.color;
+
+                return (
+                  <button
+                    key={card.id}
+                    type="button"
+                    data-ocid={`battle.skill.${i + 1}.button`}
+                    onClick={() => {
+                      if (!disabled && !noMana) {
+                        onAttack(i);
+                        setTab("main");
+                      }
+                    }}
+                    disabled={disabled || noMana}
+                    style={{
+                      fontFamily: '"Sora", sans-serif',
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.6rem",
+                      padding: "0.5rem 0.75rem",
+                      background: "transparent",
+                      border: "none",
+                      borderBottom: "1px solid rgba(255,255,255,0.06)",
+                      color: disabled
+                        ? "rgba(255,255,255,0.25)"
+                        : "rgba(255,255,255,0.9)",
+                      cursor: disabled || noMana ? "not-allowed" : "pointer",
+                      opacity: disabled ? 0.45 : noMana ? 0.6 : 1,
+                      touchAction: "manipulation",
+                      textAlign: "left",
+                      width: "100%",
+                      minHeight: "40px",
+                      transition: "background 0.1s",
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!disabled && !noMana)
+                        e.currentTarget.style.background =
+                          "rgba(255,255,255,0.04)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = "transparent";
+                    }}
+                  >
+                    {/* Icon */}
+                    <span
+                      style={{
+                        fontSize: "1.2rem",
+                        lineHeight: 1,
+                        filter: disabled ? "grayscale(1)" : "none",
+                      }}
+                    >
+                      {locked ? "🔒" : card.icon}
+                    </span>
+
+                    {/* Name + desc */}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div
+                        style={{
+                          fontSize: "0.68rem",
+                          fontWeight: 700,
+                          letterSpacing: "0.04em",
+                          color: disabled ? "rgba(150,150,150,0.5)" : cardColor,
+                        }}
+                      >
+                        {card.name}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "0.5rem",
+                          color: "rgba(255,255,255,0.35)",
+                          marginTop: "1px",
+                        }}
+                      >
+                        {locked
+                          ? `Requires Level ${card.minLevel}`
+                          : card.description}
+                      </div>
+                    </div>
+
+                    {/* Stats */}
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "flex-end",
+                        gap: "2px",
+                        flexShrink: 0,
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontSize: "0.62rem",
+                          fontWeight: 900,
+                          color: disabled ? "#555" : "#ff6666",
+                        }}
+                      >
+                        {card.damage} DMG
+                        {card.hitCount && card.hitCount > 1
+                          ? ` ×${card.hitCount}`
+                          : ""}
+                      </span>
+                      <span
+                        style={{
+                          fontSize: "0.52rem",
+                          fontWeight: 700,
+                          color:
+                            card.manaCost === 0
+                              ? "#00ff88"
+                              : noMana
+                                ? "#ff4444"
+                                : "rgba(100,180,255,0.8)",
+                        }}
+                      >
+                        {card.manaCost === 0 ? "FREE" : `${card.manaCost} MP`}
+                      </span>
+                    </div>
+                  </button>
+                );
+              })
+            )}
+          </div>
+        )}
+
+        {/* Items submenu */}
+        {tab === "items" && (
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            {/* Potion option */}
+            <button
+              type="button"
+              data-ocid="battle.item.potion.button"
+              onClick={() => {
+                if (!isDisabled) {
+                  onPotion();
+                  setTab("main");
+                }
+              }}
+              disabled={isDisabled}
+              style={{
+                fontFamily: '"Sora", sans-serif',
+                display: "flex",
+                alignItems: "center",
+                gap: "0.6rem",
+                padding: "0.6rem 0.75rem",
+                background: "transparent",
+                border: "none",
+                borderBottom: "1px solid rgba(255,255,255,0.06)",
+                color: isDisabled
+                  ? "rgba(255,255,255,0.25)"
+                  : "rgba(255,255,255,0.9)",
+                cursor: isDisabled ? "not-allowed" : "pointer",
+                opacity: isDisabled ? 0.45 : 1,
+                touchAction: "manipulation",
+                textAlign: "left",
+                width: "100%",
+                minHeight: "44px",
+              }}
+              onMouseEnter={(e) => {
+                if (!isDisabled)
+                  e.currentTarget.style.background = "rgba(255,255,255,0.04)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "transparent";
+              }}
+            >
+              <span style={{ fontSize: "1.3rem" }}>🧪</span>
+              <div style={{ flex: 1 }}>
+                <div
+                  style={{
+                    fontSize: "0.7rem",
+                    fontWeight: 700,
+                    color: "#00ff88",
+                    letterSpacing: "0.04em",
+                  }}
+                >
+                  Health Potion
+                </div>
+                <div
+                  style={{
+                    fontSize: "0.52rem",
+                    color: "rgba(255,255,255,0.35)",
+                  }}
+                >
+                  Restore 50 HP
+                </div>
+              </div>
+              <span
+                style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.35)" }}
+              >
+                USE
+              </span>
+            </button>
+            <div
+              style={{
+                padding: "0.5rem 0.75rem",
+                fontSize: "0.55rem",
+                color: "rgba(255,255,255,0.2)",
+                textAlign: "center",
+              }}
+            >
+              Check main Inventory for all items
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -420,17 +757,8 @@ export function BattleHUD({
   currentZone,
   gameLevel,
 }: BattleHUDProps) {
-  const logRef = useRef<HTMLDivElement>(null);
   const [showBossIntro, setShowBossIntro] = useState(false);
   const prevPhaseRef = useRef<string>("");
-
-  // Auto scroll battle log
-  // biome-ignore lint/correctness/useExhaustiveDependencies: ref mutation is intentional
-  useEffect(() => {
-    if (logRef.current) {
-      logRef.current.scrollTop = logRef.current.scrollHeight;
-    }
-  }, [battleLog]);
 
   // Boss intro on start when boss
   useEffect(() => {
@@ -445,11 +773,9 @@ export function BattleHUD({
     prevPhaseRef.current = battlePhase;
   }, [battlePhase, enemyName]);
 
-  const isCardDisabled = !isPlayerTurn || battlePhase === "animating";
-
   return (
     <>
-      {/* Main HUD container — pointer-events none on wrapper */}
+      {/* Main HUD container */}
       <div
         style={{
           position: "absolute",
@@ -460,20 +786,14 @@ export function BattleHUD({
         }}
       >
         {/* ── Top Left: Enemy HP ── */}
-        <div
-          style={{
-            position: "absolute",
-            top: "12px",
-            left: "12px",
-          }}
-        >
+        <div style={{ position: "absolute", top: "8px", left: "8px" }}>
           <div
             style={{
-              fontSize: "0.58rem",
+              fontSize: "0.55rem",
               fontWeight: 700,
               letterSpacing: "0.1em",
               color: "rgba(255,120,120,0.8)",
-              marginBottom: "4px",
+              marginBottom: "3px",
               textShadow: "0 0 8px rgba(255,0,51,0.5)",
             }}
           >
@@ -486,11 +806,11 @@ export function BattleHUD({
         <div
           style={{
             position: "absolute",
-            top: "12px",
-            right: "12px",
+            top: "8px",
+            right: "8px",
             display: "flex",
             flexDirection: "column",
-            gap: "6px",
+            gap: "5px",
             alignItems: "flex-end",
           }}
         >
@@ -503,12 +823,13 @@ export function BattleHUD({
           {/* Mana bar */}
           <div
             style={{
-              background: "rgba(0,0,0,0.75)",
+              background: "rgba(0,0,0,0.82)",
               backdropFilter: "blur(10px)",
               border: "1px solid rgba(0,100,255,0.4)",
               borderRadius: "8px",
               padding: "5px 10px",
-              minWidth: "160px",
+              minWidth: "min(140px, 38vw)",
+              maxWidth: "170px",
             }}
           >
             <div
@@ -520,7 +841,7 @@ export function BattleHUD({
             >
               <span
                 style={{
-                  fontSize: "0.58rem",
+                  fontSize: "0.55rem",
                   color: "rgba(100,150,255,0.9)",
                   fontWeight: 700,
                 }}
@@ -529,7 +850,7 @@ export function BattleHUD({
               </span>
               <span
                 style={{
-                  fontSize: "0.58rem",
+                  fontSize: "0.55rem",
                   color: "rgba(150,200,255,0.9)",
                   fontWeight: 700,
                 }}
@@ -539,8 +860,8 @@ export function BattleHUD({
             </div>
             <div
               style={{
-                height: "8px",
-                background: "rgba(0,0,255,0.15)",
+                height: "7px",
+                background: "rgba(0,0,255,0.12)",
                 borderRadius: "4px",
                 overflow: "hidden",
               }}
@@ -551,19 +872,19 @@ export function BattleHUD({
                   width: `${Math.max(0, (playerMana / maxPlayerMana) * 100)}%`,
                   background: "linear-gradient(90deg, #0044ff, #00aaff)",
                   borderRadius: "4px",
-                  boxShadow: "0 0 6px rgba(0,100,255,0.5)",
+                  boxShadow: "0 0 5px rgba(0,100,255,0.5)",
                   transition: "width 0.3s ease",
                 }}
               />
             </div>
           </div>
 
-          {/* Wave + Gold info */}
+          {/* Wave + Gold + Level info */}
           <div
             style={{
               display: "flex",
-              gap: "6px",
-              fontSize: "0.6rem",
+              gap: "4px",
+              fontSize: "0.52rem",
               fontWeight: 700,
             }}
           >
@@ -571,8 +892,8 @@ export function BattleHUD({
               style={{
                 background: "rgba(0,0,0,0.6)",
                 border: "1px solid rgba(157,0,255,0.4)",
-                borderRadius: "6px",
-                padding: "3px 8px",
+                borderRadius: "5px",
+                padding: "2px 5px",
                 color: "#9d00ff",
               }}
             >
@@ -582,8 +903,8 @@ export function BattleHUD({
               style={{
                 background: "rgba(0,0,0,0.6)",
                 border: "1px solid rgba(255,200,0,0.3)",
-                borderRadius: "6px",
-                padding: "3px 8px",
+                borderRadius: "5px",
+                padding: "2px 5px",
                 color: "#ffaa00",
               }}
             >
@@ -593,14 +914,14 @@ export function BattleHUD({
               style={{
                 background:
                   currentZone === "dungeon"
-                    ? "rgba(255,0,0,0.15)"
+                    ? "rgba(255,0,0,0.12)"
                     : "rgba(0,0,0,0.6)",
                 border:
                   currentZone === "dungeon"
                     ? "1px solid rgba(255,0,0,0.5)"
                     : "1px solid rgba(0,255,255,0.3)",
-                borderRadius: "6px",
-                padding: "3px 8px",
+                borderRadius: "5px",
+                padding: "2px 5px",
                 color: currentZone === "dungeon" ? "#ff6666" : "#00ffff",
               }}
             >
@@ -612,147 +933,18 @@ export function BattleHUD({
         {/* ── Center: Turn Banner ── */}
         <TurnBanner battlePhase={battlePhase} />
 
-        {/* ── Bottom Left: Battle Log ── */}
-        <div
-          style={{
-            position: "absolute",
-            bottom: "100px",
-            left: "12px",
-            width: "min(260px, 45vw)",
-          }}
-        >
-          <div
-            ref={logRef}
-            style={{
-              background: "rgba(0,0,0,0.82)",
-              backdropFilter: "blur(8px)",
-              border: "1px solid rgba(255,255,255,0.12)",
-              borderRadius: "8px",
-              padding: "8px 10px",
-              maxHeight: "80px",
-              overflowY: "auto",
-              display: "flex",
-              flexDirection: "column",
-              gap: "2px",
-            }}
-          >
-            {battleLog.length === 0 ? (
-              <span
-                style={{ fontSize: "0.55rem", color: "rgba(255,255,255,0.3)" }}
-              >
-                Battle log...
-              </span>
-            ) : (
-              battleLog.slice(-3).map((log) => (
-                <div
-                  key={log}
-                  style={{
-                    fontSize: "0.58rem",
-                    color: log.includes("You used")
-                      ? "rgba(100,220,255,0.9)"
-                      : log.includes("VICTORY") || log.includes("defeated")
-                        ? "rgba(255,200,0,0.9)"
-                        : log.includes("attacks")
-                          ? "rgba(255,120,120,0.9)"
-                          : "rgba(200,200,200,0.8)",
-                    fontFamily: "monospace",
-                    lineHeight: 1.4,
-                  }}
-                >
-                  {log}
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-
-        {/* ── Bottom Right: Attack Cards + Flee + Potion ── */}
-        <div
-          style={{
-            position: "absolute",
-            bottom: "12px",
-            right: "12px",
-            pointerEvents: "all",
-            display: "flex",
-            flexDirection: "column",
-            gap: "6px",
-            alignItems: "flex-end",
-          }}
-        >
-          {/* Cards 2x2 grid */}
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr",
-              gap: "6px",
-              width: "min(200px, 44vw)",
-            }}
-          >
-            {availableCards.slice(0, 4).map((card, i) => (
-              <AttackCardItem
-                key={card.id}
-                card={card}
-                index={i}
-                disabled={isCardDisabled}
-                noMana={playerManaForCards < card.manaCost}
-                locked={gameLevel < card.minLevel}
-                onClick={() => onAttack(i)}
-              />
-            ))}
-          </div>
-
-          {/* Utility row */}
-          <div style={{ display: "flex", gap: "6px" }}>
-            {/* Potion */}
-            <button
-              type="button"
-              data-ocid="battle.potion.button"
-              onClick={onPotion}
-              disabled={!isPlayerTurn}
-              style={{
-                fontFamily: '"Sora", sans-serif',
-                fontWeight: 700,
-                fontSize: "0.6rem",
-                letterSpacing: "0.06em",
-                padding: "8px 12px",
-                background: "rgba(0,80,0,0.6)",
-                border: "1px solid rgba(0,200,100,0.5)",
-                borderRadius: "8px",
-                color: isPlayerTurn ? "#00ff88" : "#555",
-                cursor: isPlayerTurn ? "pointer" : "not-allowed",
-                touchAction: "manipulation",
-                minHeight: "36px",
-                opacity: isPlayerTurn ? 1 : 0.5,
-                transition: "all 0.15s",
-              }}
-            >
-              🧪 POTION
-            </button>
-
-            {/* Flee */}
-            <button
-              type="button"
-              data-ocid="battle.flee.button"
-              onClick={onFlee}
-              style={{
-                fontFamily: '"Sora", sans-serif',
-                fontWeight: 700,
-                fontSize: "0.6rem",
-                letterSpacing: "0.06em",
-                padding: "8px 12px",
-                background: "rgba(80,0,0,0.5)",
-                border: "1px solid rgba(255,0,51,0.4)",
-                borderRadius: "8px",
-                color: "rgba(255,100,100,0.8)",
-                cursor: "pointer",
-                touchAction: "manipulation",
-                minHeight: "36px",
-                transition: "all 0.15s",
-              }}
-            >
-              🏃 FLEE
-            </button>
-          </div>
+        {/* ── Bottom: Dragon Quest Command Menu ── */}
+        <div style={{ pointerEvents: "all" }}>
+          <CommandMenu
+            availableCards={availableCards}
+            playerManaForCards={playerManaForCards}
+            gameLevel={gameLevel}
+            isPlayerTurn={isPlayerTurn}
+            onAttack={onAttack}
+            onPotion={onPotion}
+            onFlee={onFlee}
+            battleLog={battleLog}
+          />
         </div>
       </div>
 
@@ -775,10 +967,6 @@ export function BattleHUD({
         @keyframes bossTextPulse {
           0%, 100% { transform: scale(1); }
           50% { transform: scale(1.04); }
-        }
-        @keyframes legendaryPulse {
-          0%, 100% { opacity: 1; box-shadow: 0 0 8px #ff8800; transform: scale(1); }
-          50% { opacity: 0.6; box-shadow: 0 0 16px #ff8800, 0 0 24px #ff880066; transform: scale(1.3); }
         }
       `}</style>
     </>
@@ -806,7 +994,7 @@ export function VictoryScreen({
       style={{
         position: "absolute",
         inset: 0,
-        background: "rgba(0,0,0,0.85)",
+        background: "rgba(0,0,0,0.88)",
         backdropFilter: "blur(12px)",
         display: "flex",
         flexDirection: "column",
@@ -815,12 +1003,13 @@ export function VictoryScreen({
         zIndex: 80,
         fontFamily: '"Sora", sans-serif',
         pointerEvents: "all",
-        gap: "1rem",
+        gap: "0.85rem",
+        padding: "1rem",
       }}
     >
       <div
         style={{
-          fontSize: "clamp(2rem, 8vw, 3.5rem)",
+          fontSize: "clamp(1.8rem, 7vw, 3rem)",
           fontWeight: 900,
           letterSpacing: "0.1em",
           color: "#ffaa00",
@@ -831,8 +1020,8 @@ export function VictoryScreen({
       </div>
       <div
         style={{
-          fontSize: "0.8rem",
-          color: "rgba(255,255,255,0.5)",
+          fontSize: "0.75rem",
+          color: "rgba(255,255,255,0.45)",
           letterSpacing: "0.08em",
         }}
       >
@@ -843,19 +1032,19 @@ export function VictoryScreen({
       <div
         style={{
           background: "rgba(0,0,0,0.6)",
-          border: "1px solid rgba(255,200,0,0.4)",
+          border: "1px solid rgba(255,200,0,0.35)",
           borderRadius: "12px",
-          padding: "1rem 1.5rem",
+          padding: "0.85rem 1.25rem",
           display: "flex",
           flexDirection: "column",
           gap: "0.5rem",
-          minWidth: "200px",
+          minWidth: "190px",
           textAlign: "center",
         }}
       >
         <div
           style={{
-            fontSize: "0.75rem",
+            fontSize: "0.7rem",
             fontWeight: 700,
             color: "#ffaa00",
             letterSpacing: "0.1em",
@@ -866,32 +1055,32 @@ export function VictoryScreen({
         <div
           style={{ display: "flex", justifyContent: "center", gap: "1.5rem" }}
         >
-          <div style={{ textAlign: "center" }}>
+          <div>
             <div
-              style={{ fontSize: "1.1rem", fontWeight: 900, color: "#00ff88" }}
+              style={{ fontSize: "1rem", fontWeight: 900, color: "#00ff88" }}
             >
               +{xpEarned}
             </div>
             <div
               style={{
-                fontSize: "0.55rem",
-                color: "rgba(255,255,255,0.4)",
+                fontSize: "0.52rem",
+                color: "rgba(255,255,255,0.35)",
                 letterSpacing: "0.08em",
               }}
             >
               XP
             </div>
           </div>
-          <div style={{ textAlign: "center" }}>
+          <div>
             <div
-              style={{ fontSize: "1.1rem", fontWeight: 900, color: "#ffaa00" }}
+              style={{ fontSize: "1rem", fontWeight: 900, color: "#ffaa00" }}
             >
               +{goldEarned}
             </div>
             <div
               style={{
-                fontSize: "0.55rem",
-                color: "rgba(255,255,255,0.4)",
+                fontSize: "0.52rem",
+                color: "rgba(255,255,255,0.35)",
                 letterSpacing: "0.08em",
               }}
             >
@@ -903,10 +1092,10 @@ export function VictoryScreen({
           <div
             style={{
               display: "flex",
-              gap: "0.5rem",
+              gap: "0.4rem",
               flexWrap: "wrap",
               justifyContent: "center",
-              marginTop: "0.25rem",
+              marginTop: "0.2rem",
             }}
           >
             {loot.map((item) => (
@@ -921,11 +1110,11 @@ export function VictoryScreen({
                         ? "#9d00ff"
                         : item.rarity === "rare"
                           ? "#4488ff"
-                          : "#666"
-                  }66`,
+                          : "#555"
+                  }55`,
                   borderRadius: "6px",
-                  padding: "4px 8px",
-                  fontSize: "0.6rem",
+                  padding: "3px 7px",
+                  fontSize: "0.57rem",
                   color: "rgba(255,255,255,0.8)",
                 }}
               >
@@ -939,7 +1128,7 @@ export function VictoryScreen({
       <div
         style={{
           display: "flex",
-          gap: "0.75rem",
+          gap: "0.6rem",
           flexWrap: "wrap",
           justifyContent: "center",
         }}
@@ -951,15 +1140,15 @@ export function VictoryScreen({
           style={{
             fontFamily: '"Sora", sans-serif',
             fontWeight: 900,
-            fontSize: "0.9rem",
+            fontSize: "0.85rem",
             letterSpacing: "0.1em",
-            padding: "0.85rem 2rem",
+            padding: "0.8rem 1.75rem",
             background: "linear-gradient(135deg, #ff0033 0%, #9d00ff 100%)",
             border: "none",
             borderRadius: "10px",
             color: "white",
             cursor: "pointer",
-            boxShadow: "0 0 25px rgba(255,0,51,0.5)",
+            boxShadow: "0 0 22px rgba(255,0,51,0.5)",
             touchAction: "manipulation",
             minHeight: "48px",
           }}
@@ -973,13 +1162,13 @@ export function VictoryScreen({
           style={{
             fontFamily: '"Sora", sans-serif',
             fontWeight: 700,
-            fontSize: "0.75rem",
+            fontSize: "0.72rem",
             letterSpacing: "0.08em",
-            padding: "0.85rem 1.5rem",
+            padding: "0.8rem 1.4rem",
             background: "transparent",
             border: "1px solid rgba(255,255,255,0.2)",
             borderRadius: "10px",
-            color: "rgba(255,255,255,0.5)",
+            color: "rgba(255,255,255,0.45)",
             cursor: "pointer",
             touchAction: "manipulation",
             minHeight: "48px",
@@ -1007,7 +1196,7 @@ export function DefeatScreen({
       style={{
         position: "absolute",
         inset: 0,
-        background: "rgba(0,0,0,0.88)",
+        background: "rgba(0,0,0,0.9)",
         backdropFilter: "blur(12px)",
         display: "flex",
         flexDirection: "column",
@@ -1016,12 +1205,12 @@ export function DefeatScreen({
         zIndex: 80,
         fontFamily: '"Sora", sans-serif',
         pointerEvents: "all",
-        gap: "1rem",
+        gap: "0.85rem",
       }}
     >
       <div
         style={{
-          fontSize: "clamp(2rem, 8vw, 3.5rem)",
+          fontSize: "clamp(1.8rem, 7vw, 3rem)",
           fontWeight: 900,
           letterSpacing: "0.1em",
           color: "#ff0033",
@@ -1030,14 +1219,14 @@ export function DefeatScreen({
       >
         💀 DEFEATED
       </div>
-      <div style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.4)" }}>
+      <div style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.35)" }}>
         Wave {wave} — You were slain
       </div>
 
       <div
         style={{
           display: "flex",
-          gap: "0.75rem",
+          gap: "0.6rem",
           flexWrap: "wrap",
           justifyContent: "center",
         }}
@@ -1049,15 +1238,15 @@ export function DefeatScreen({
           style={{
             fontFamily: '"Sora", sans-serif',
             fontWeight: 900,
-            fontSize: "0.9rem",
+            fontSize: "0.85rem",
             letterSpacing: "0.1em",
-            padding: "0.85rem 2rem",
+            padding: "0.8rem 1.75rem",
             background: "linear-gradient(135deg, #ff0033 0%, #9d00ff 100%)",
             border: "none",
             borderRadius: "10px",
             color: "white",
             cursor: "pointer",
-            boxShadow: "0 0 25px rgba(255,0,51,0.5)",
+            boxShadow: "0 0 22px rgba(255,0,51,0.5)",
             touchAction: "manipulation",
             minHeight: "48px",
           }}
@@ -1071,13 +1260,13 @@ export function DefeatScreen({
           style={{
             fontFamily: '"Sora", sans-serif',
             fontWeight: 700,
-            fontSize: "0.75rem",
+            fontSize: "0.72rem",
             letterSpacing: "0.08em",
-            padding: "0.85rem 1.5rem",
+            padding: "0.8rem 1.4rem",
             background: "transparent",
             border: "1px solid rgba(255,255,255,0.2)",
             borderRadius: "10px",
-            color: "rgba(255,255,255,0.5)",
+            color: "rgba(255,255,255,0.45)",
             cursor: "pointer",
             touchAction: "manipulation",
             minHeight: "48px",
