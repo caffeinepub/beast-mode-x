@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { CLASS_CHARACTER_IMAGES } from "./AnimeBattleScene";
 import { useCharacterStore } from "./CharacterStore";
 import { useGameStore } from "./GameStore";
 
@@ -265,28 +266,31 @@ interface ClassCardProps {
 
 function ClassCard({ classInfo, isSelected, onSelect }: ClassCardProps) {
   const [hovered, setHovered] = useState(false);
+  const [imgLoaded, setImgLoaded] = useState(false);
+  const [imgError, setImgError] = useState(false);
+  const portraitSrc = CLASS_CHARACTER_IMAGES[classInfo.id];
 
   return (
     <div
       data-ocid={`class.${classInfo.id.toLowerCase()}.card`}
       style={{
         background: hovered
-          ? `radial-gradient(ellipse at top, ${classInfo.primaryColor}15 0%, rgba(0,0,0,0.8) 80%)`
-          : "rgba(0,0,0,0.6)",
+          ? `radial-gradient(ellipse at top, ${classInfo.primaryColor}18 0%, rgba(0,0,0,0.85) 80%)`
+          : "rgba(0,0,0,0.7)",
         border: isSelected
           ? `2px solid ${classInfo.primaryColor}`
           : hovered
             ? `1px solid ${classInfo.primaryColor}`
-            : "1px solid rgba(255,255,255,0.08)",
+            : "1px solid rgba(255,255,255,0.1)",
         borderRadius: "14px",
-        padding: "1.25rem",
+        padding: "0",
         cursor: "pointer",
         transition: "all 0.25s ease",
-        transform: hovered ? "scale(1.02) translateY(-2px)" : "scale(1)",
+        transform: hovered ? "scale(1.02) translateY(-3px)" : "scale(1)",
         boxShadow: hovered
-          ? `0 0 25px ${classInfo.glowColor}, 0 8px 32px rgba(0,0,0,0.4)`
+          ? `0 0 28px ${classInfo.glowColor}, 0 8px 36px rgba(0,0,0,0.5)`
           : isSelected
-            ? `0 0 15px ${classInfo.glowColor}`
+            ? `0 0 18px ${classInfo.glowColor}, 0 0 40px ${classInfo.glowColor.replace("0.6", "0.15")}`
             : "none",
         fontFamily: '"Sora", sans-serif',
         position: "relative",
@@ -295,61 +299,136 @@ function ClassCard({ classInfo, isSelected, onSelect }: ClassCardProps) {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {/* Top glow accent */}
-      {hovered && (
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            height: "2px",
-            background: `linear-gradient(90deg, transparent, ${classInfo.primaryColor}, transparent)`,
-          }}
-        />
-      )}
-
-      {/* Selected badge */}
-      {isSelected && (
-        <div
-          style={{
-            position: "absolute",
-            top: "0.6rem",
-            right: "0.6rem",
-            background: classInfo.primaryColor,
-            borderRadius: "20px",
-            padding: "0.15rem 0.5rem",
-            fontSize: "0.55rem",
-            fontWeight: 700,
-            letterSpacing: "0.08em",
-            color: "white",
-          }}
-        >
-          ACTIVE
-        </div>
-      )}
-
-      {/* Header */}
+      {/* Top glow line */}
       <div
         style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: "2px",
+          background: `linear-gradient(90deg, transparent, ${classInfo.primaryColor}, transparent)`,
+          opacity: hovered || isSelected ? 1 : 0.3,
+          transition: "opacity 0.2s",
+        }}
+      />
+
+      {/* Character portrait — top of card */}
+      <div
+        style={{
+          position: "relative",
+          width: "100%",
+          height: "120px",
+          overflow: "hidden",
+          borderRadius: "12px 12px 0 0",
+          background: `radial-gradient(ellipse at center, ${classInfo.primaryColor}18 0%, rgba(0,0,0,0.6) 100%)`,
           display: "flex",
           alignItems: "center",
-          gap: "0.75rem",
-          marginBottom: "0.6rem",
+          justifyContent: "center",
         }}
       >
-        <span
-          style={{
-            fontSize: "2rem",
-            filter: `drop-shadow(0 0 8px ${classInfo.primaryColor})`,
-          }}
-        >
-          {classInfo.icon}
-        </span>
-        <div>
+        {portraitSrc && !imgError ? (
+          <img
+            src={portraitSrc}
+            alt={classInfo.name}
+            style={{
+              height: "100%",
+              width: "100%",
+              objectFit: "cover",
+              objectPosition: "top center",
+              display: imgLoaded ? "block" : "none",
+              filter: `drop-shadow(0 0 8px ${classInfo.primaryColor}88)`,
+              transition: "filter 0.2s",
+            }}
+            onLoad={() => setImgLoaded(true)}
+            onError={() => setImgError(true)}
+          />
+        ) : null}
+        {/* Fallback icon when image missing or error */}
+        {(!portraitSrc || imgError || !imgLoaded) && (
           <div
             style={{
-              fontSize: "clamp(0.8rem, 2vw, 1rem)",
+              fontSize: "3.5rem",
+              filter: `drop-shadow(0 0 12px ${classInfo.primaryColor})`,
+              animation: hovered
+                ? "cardIconPulse 1s ease-in-out infinite alternate"
+                : "none",
+            }}
+          >
+            {classInfo.icon}
+          </div>
+        )}
+        {/* Gradient overlay at bottom of portrait */}
+        <div
+          style={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: "40px",
+            background: "linear-gradient(transparent, rgba(0,0,0,0.8))",
+            pointerEvents: "none",
+          }}
+        />
+        {/* Element badge */}
+        <div
+          style={{
+            position: "absolute",
+            bottom: "6px",
+            left: "8px",
+            fontSize: "0.55rem",
+            letterSpacing: "0.1em",
+            color: classInfo.secondaryColor,
+            fontWeight: 700,
+            textShadow: `0 0 6px ${classInfo.primaryColor}`,
+          }}
+        >
+          {classInfo.elementIcon} {classInfo.elementType}
+        </div>
+        {/* Selected badge */}
+        {isSelected && (
+          <div
+            style={{
+              position: "absolute",
+              top: "6px",
+              right: "6px",
+              background: classInfo.primaryColor,
+              borderRadius: "20px",
+              padding: "0.15rem 0.5rem",
+              fontSize: "0.5rem",
+              fontWeight: 700,
+              letterSpacing: "0.08em",
+              color: "white",
+              boxShadow: `0 0 8px ${classInfo.primaryColor}`,
+            }}
+          >
+            ✓ ACTIVE
+          </div>
+        )}
+      </div>
+
+      {/* Card body */}
+      <div style={{ padding: "1rem" }}>
+        {/* Header with class name */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "0.6rem",
+            marginBottom: "0.6rem",
+          }}
+        >
+          <span
+            style={{
+              fontSize: "1.6rem",
+              filter: `drop-shadow(0 0 8px ${classInfo.primaryColor})`,
+            }}
+          >
+            {classInfo.icon}
+          </span>
+          <div
+            style={{
+              fontSize: "clamp(0.75rem, 2vw, 0.95rem)",
               fontWeight: 900,
               letterSpacing: "0.06em",
               color: classInfo.primaryColor,
@@ -361,118 +440,116 @@ function ClassCard({ classInfo, isSelected, onSelect }: ClassCardProps) {
           >
             {classInfo.name}
           </div>
-          <div
-            style={{
-              fontSize: "0.6rem",
-              letterSpacing: "0.12em",
-              color: classInfo.secondaryColor,
-              fontWeight: 700,
-              marginTop: "0.15rem",
-            }}
-          >
-            {classInfo.elementIcon} {classInfo.elementType}
-          </div>
         </div>
-      </div>
 
-      {/* Description */}
-      <div
-        style={{
-          fontSize: "0.7rem",
-          color: "rgba(255,255,255,0.6)",
-          lineHeight: 1.5,
-          marginBottom: "0.6rem",
-        }}
-      >
-        {classInfo.description}
-      </div>
-
-      {/* Lore */}
-      <div
-        style={{
-          fontSize: "0.65rem",
-          fontStyle: "italic",
-          color: classInfo.primaryColor,
-          opacity: 0.7,
-          marginBottom: "0.75rem",
-        }}
-      >
-        "{classInfo.lore}"
-      </div>
-
-      {/* Moves preview */}
-      <div style={{ marginBottom: "0.9rem" }}>
+        {/* Description */}
         <div
           style={{
-            fontSize: "0.55rem",
-            letterSpacing: "0.1em",
-            color: "rgba(255,255,255,0.35)",
-            marginBottom: "0.35rem",
-            fontWeight: 700,
+            fontSize: "0.68rem",
+            color: "rgba(255,255,255,0.6)",
+            lineHeight: 1.5,
+            marginBottom: "0.55rem",
           }}
         >
-          ◆ SIGNATURE MOVES
+          {classInfo.description}
         </div>
-        <div
-          style={{ display: "flex", flexDirection: "column", gap: "0.2rem" }}
-        >
-          {classInfo.previewMoves.map((move, i) => (
-            <div
-              key={move}
-              style={{
-                fontSize: "0.62rem",
-                color:
-                  i === classInfo.previewMoves.length - 1
-                    ? classInfo.primaryColor
-                    : "rgba(255,255,255,0.55)",
-                fontWeight: i === classInfo.previewMoves.length - 1 ? 700 : 400,
-                display: "flex",
-                alignItems: "center",
-                gap: "0.3rem",
-              }}
-            >
-              <span style={{ opacity: 0.5 }}>▸</span>
-              {move}
-              {i === classInfo.previewMoves.length - 1 && (
-                <span style={{ fontSize: "0.6rem", color: "gold" }}>
-                  LEGENDARY
-                </span>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
 
-      {/* Select button */}
-      <button
-        type="button"
-        data-ocid={`class.${classInfo.id.toLowerCase()}.primary_button`}
-        onClick={(e) => {
-          e.stopPropagation();
-          onSelect(classInfo.id);
-        }}
-        style={{
-          width: "100%",
-          fontFamily: '"Sora", sans-serif',
-          fontWeight: 700,
-          fontSize: "0.72rem",
-          letterSpacing: "0.12em",
-          padding: "0.65rem 1rem",
-          background: hovered
-            ? `linear-gradient(135deg, ${classInfo.primaryColor} 0%, ${classInfo.secondaryColor} 100%)`
-            : `linear-gradient(135deg, ${classInfo.primaryColor}44 0%, ${classInfo.secondaryColor}33 100%)`,
-          border: `1px solid ${classInfo.primaryColor}`,
-          borderRadius: "8px",
-          color: hovered ? "white" : classInfo.primaryColor,
-          cursor: "pointer",
-          boxShadow: hovered ? `0 0 16px ${classInfo.glowColor}` : "none",
-          transition: "all 0.2s ease",
-          touchAction: "manipulation",
-          minHeight: "44px",
-        }}
-      >
-        {isSelected ? "✓ SELECTED CLASS" : "⚔ SELECT CLASS"}
-      </button>
+        {/* Lore */}
+        <div
+          style={{
+            fontSize: "0.62rem",
+            fontStyle: "italic",
+            color: classInfo.primaryColor,
+            opacity: 0.7,
+            marginBottom: "0.7rem",
+          }}
+        >
+          "{classInfo.lore}"
+        </div>
+
+        {/* Moves preview */}
+        <div style={{ marginBottom: "0.85rem" }}>
+          <div
+            style={{
+              fontSize: "0.52rem",
+              letterSpacing: "0.1em",
+              color: "rgba(255,255,255,0.3)",
+              marginBottom: "0.3rem",
+              fontWeight: 700,
+            }}
+          >
+            ◆ SIGNATURE MOVES
+          </div>
+          <div
+            style={{ display: "flex", flexDirection: "column", gap: "0.2rem" }}
+          >
+            {classInfo.previewMoves.map((move, i) => (
+              <div
+                key={move}
+                style={{
+                  fontSize: "0.6rem",
+                  color:
+                    i === classInfo.previewMoves.length - 1
+                      ? classInfo.primaryColor
+                      : "rgba(255,255,255,0.55)",
+                  fontWeight:
+                    i === classInfo.previewMoves.length - 1 ? 700 : 400,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.3rem",
+                }}
+              >
+                <span style={{ opacity: 0.5 }}>▸</span>
+                {move}
+                {i === classInfo.previewMoves.length - 1 && (
+                  <span style={{ fontSize: "0.55rem", color: "gold" }}>
+                    LEGENDARY
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Select button */}
+        <button
+          type="button"
+          data-ocid={`class.${classInfo.id.toLowerCase()}.primary_button`}
+          onClick={(e) => {
+            e.stopPropagation();
+            onSelect(classInfo.id);
+          }}
+          style={{
+            width: "100%",
+            fontFamily: '"Sora", sans-serif',
+            fontWeight: 700,
+            fontSize: "0.72rem",
+            letterSpacing: "0.12em",
+            padding: "0.65rem 1rem",
+            background: hovered
+              ? `linear-gradient(135deg, ${classInfo.primaryColor} 0%, ${classInfo.secondaryColor} 100%)`
+              : `linear-gradient(135deg, ${classInfo.primaryColor}44 0%, ${classInfo.secondaryColor}33 100%)`,
+            border: `1px solid ${classInfo.primaryColor}`,
+            borderRadius: "8px",
+            color: hovered ? "white" : classInfo.primaryColor,
+            cursor: "pointer",
+            boxShadow: hovered ? `0 0 16px ${classInfo.glowColor}` : "none",
+            transition: "all 0.2s ease",
+            touchAction: "manipulation",
+            minHeight: "44px",
+          }}
+        >
+          {isSelected ? "✓ SELECTED CLASS" : "⚔ SELECT CLASS"}
+        </button>
+      </div>
+      {/* end card body */}
+
+      <style>{`
+        @keyframes cardIconPulse {
+          0% { transform: scale(1); filter: drop-shadow(0 0 8px ${classInfo.primaryColor}); }
+          100% { transform: scale(1.08); filter: drop-shadow(0 0 16px ${classInfo.primaryColor}); }
+        }
+      `}</style>
     </div>
   );
 }

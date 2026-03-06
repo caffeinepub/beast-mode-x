@@ -28,6 +28,8 @@ export interface BattleHUDProps {
   wave: number;
   currentZone: "normal" | "dungeon";
   gameLevel: number;
+  playerAgility?: number;
+  gateRank?: string | null;
 }
 
 // ─── HP Bar ────────────────────────────────────────────────────────────────────
@@ -756,7 +758,18 @@ export function BattleHUD({
   wave,
   currentZone,
   gameLevel,
+  playerAgility = 1,
+  gateRank,
 }: BattleHUDProps) {
+  const gateColors: Record<string, string> = {
+    E: "#888888",
+    D: "#00cc66",
+    C: "#0088ff",
+    B: "#8800cc",
+    A: "#ff6600",
+    S: "#ffdd00",
+    SPECIAL: "#ff0011",
+  };
   const [showBossIntro, setShowBossIntro] = useState(false);
   const prevPhaseRef = useRef<string>("");
 
@@ -879,13 +892,15 @@ export function BattleHUD({
             </div>
           </div>
 
-          {/* Wave + Gold + Level info */}
+          {/* Wave + Gold + Level + AGI info */}
           <div
             style={{
               display: "flex",
               gap: "4px",
               fontSize: "0.52rem",
               fontWeight: 700,
+              flexWrap: "wrap",
+              justifyContent: "flex-end",
             }}
           >
             <span
@@ -899,6 +914,30 @@ export function BattleHUD({
             >
               LV {gameLevel}
             </span>
+            <span
+              style={{
+                background: "rgba(0,0,0,0.6)",
+                border: "1px solid rgba(0,220,255,0.4)",
+                borderRadius: "5px",
+                padding: "2px 5px",
+                color: "#00ddff",
+              }}
+            >
+              AGI {playerAgility}
+            </span>
+            {playerAgility > 3 && (
+              <span
+                style={{
+                  background: "rgba(0,200,100,0.1)",
+                  border: "1px solid rgba(0,200,100,0.4)",
+                  borderRadius: "5px",
+                  padding: "2px 5px",
+                  color: "#00dd88",
+                }}
+              >
+                💨 {playerAgility > 6 ? "20" : "10"}% DODGE
+              </span>
+            )}
             <span
               style={{
                 background: "rgba(0,0,0,0.6)",
@@ -927,6 +966,23 @@ export function BattleHUD({
             >
               {currentZone === "dungeon" ? "⚔️" : "🌍"} W{wave}
             </span>
+            {gateRank && currentZone === "dungeon" && (
+              <span
+                data-ocid="battle.gate_rank.badge"
+                style={{
+                  background: `${gateColors[gateRank] ?? "#9d00ff"}22`,
+                  border: `1px solid ${gateColors[gateRank] ?? "#9d00ff"}`,
+                  borderRadius: "5px",
+                  padding: "2px 6px",
+                  color: gateColors[gateRank] ?? "#9d00ff",
+                  fontWeight: 900,
+                  letterSpacing: "0.05em",
+                  boxShadow: `0 0 8px ${gateColors[gateRank] ?? "#9d00ff"}44`,
+                }}
+              >
+                {gateRank === "SPECIAL" ? "🔴 RED" : `${gateRank}-GATE`}
+              </span>
+            )}
           </div>
         </div>
 

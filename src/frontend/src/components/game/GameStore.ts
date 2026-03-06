@@ -170,6 +170,17 @@ export const CLASS_ATTACK_CARDS: Record<string, AttackCard[]> = {
       rarity: "rare",
     },
     {
+      id: "shadow_step",
+      name: "SHADOW STEP",
+      icon: "👣",
+      damage: 85,
+      manaCost: 30,
+      minLevel: 5,
+      color: "#6600bb",
+      description: "Vanish into shadow and strike from behind.",
+      rarity: "rare",
+    },
+    {
       id: "shadow_army",
       name: "SHADOW ARMY",
       icon: "👥",
@@ -182,6 +193,29 @@ export const CLASS_ATTACK_CARDS: Record<string, AttackCard[]> = {
       hitCount: 3,
     },
     {
+      id: "domain_expansion_sm",
+      name: "DOMAIN EXPANSION",
+      icon: "🔲",
+      damage: 200,
+      manaCost: 55,
+      minLevel: 12,
+      color: "#440088",
+      description: "Expand your domain of shadows. All inside are helpless.",
+      rarity: "epic",
+    },
+    {
+      id: "monarch_arise",
+      name: "MONARCH ARISE",
+      icon: "💀",
+      damage: 280,
+      manaCost: 65,
+      minLevel: 16,
+      color: "#8800cc",
+      description: "Raise fallen warriors as shadow soldiers.",
+      rarity: "epic",
+      hitCount: 2,
+    },
+    {
       id: "void_domination",
       name: "VOID DOMINATION",
       icon: "👑",
@@ -191,6 +225,29 @@ export const CLASS_ATTACK_CARDS: Record<string, AttackCard[]> = {
       color: "#cc00ff",
       description: "The Shadow Monarch's absolute authority. LEGENDARY.",
       rarity: "legendary",
+    },
+    {
+      id: "shadow_realm",
+      name: "SHADOW REALM",
+      icon: "🌌",
+      damage: 450,
+      manaCost: 80,
+      minLevel: 28,
+      color: "#440088",
+      description: "Drag enemy into the realm of shadows — no escape.",
+      rarity: "legendary",
+    },
+    {
+      id: "monarchs_decree",
+      name: "MONARCH'S DECREE",
+      icon: "👑",
+      damage: 750,
+      manaCost: 120,
+      minLevel: 35,
+      color: "#9d00ff",
+      description: "The absolute will of the Shadow Monarch. None can resist.",
+      rarity: "legendary",
+      hitCount: 3,
     },
   ],
   THUNDER_GOD: [
@@ -218,6 +275,17 @@ export const CLASS_ATTACK_CARDS: Record<string, AttackCard[]> = {
       hitCount: 2,
     },
     {
+      id: "volt_spike",
+      name: "VOLT SPIKE",
+      icon: "🔱",
+      damage: 80,
+      manaCost: 28,
+      minLevel: 5,
+      color: "#ffcc00",
+      description: "Concentrated voltage spike pierces armor.",
+      rarity: "rare",
+    },
+    {
       id: "thunder_clap",
       name: "THUNDER CLAP",
       icon: "💥",
@@ -229,6 +297,29 @@ export const CLASS_ATTACK_CARDS: Record<string, AttackCard[]> = {
       rarity: "epic",
     },
     {
+      id: "lightning_prison",
+      name: "LIGHTNING PRISON",
+      icon: "⚡",
+      damage: 190,
+      manaCost: 50,
+      minLevel: 12,
+      color: "#00aaff",
+      description: "Cage of lightning entraps and shocks the enemy.",
+      rarity: "epic",
+    },
+    {
+      id: "storm_emperor",
+      name: "STORM EMPEROR",
+      icon: "🌪️",
+      damage: 260,
+      manaCost: 62,
+      minLevel: 16,
+      color: "#ffffff",
+      description: "Command the full force of the storm.",
+      rarity: "epic",
+      hitCount: 2,
+    },
+    {
       id: "gods_wrath",
       name: "GOD'S WRATH",
       icon: "⚡",
@@ -238,6 +329,29 @@ export const CLASS_ATTACK_CARDS: Record<string, AttackCard[]> = {
       color: "#ffffff",
       description: "Divine lightning judgment from the heavens. LEGENDARY.",
       rarity: "legendary",
+    },
+    {
+      id: "divine_thunder",
+      name: "DIVINE THUNDER",
+      icon: "⛈️",
+      damage: 480,
+      manaCost: 82,
+      minLevel: 28,
+      color: "#ffee00",
+      description: "Thunder blessed by the gods themselves.",
+      rarity: "legendary",
+    },
+    {
+      id: "zeus_judgement",
+      name: "ZEUS JUDGEMENT",
+      icon: "🌩️",
+      damage: 780,
+      manaCost: 125,
+      minLevel: 35,
+      color: "#ffffff",
+      description: "The divine punishment of Zeus rains down. Obliterates all.",
+      rarity: "legendary",
+      hitCount: 2,
     },
   ],
   INFERNO_KING: [
@@ -264,6 +378,17 @@ export const CLASS_ATTACK_CARDS: Record<string, AttackCard[]> = {
       rarity: "rare",
     },
     {
+      id: "flame_blade",
+      name: "FLAME BLADE",
+      icon: "🗡️",
+      damage: 95,
+      manaCost: 30,
+      minLevel: 5,
+      color: "#ff4400",
+      description: "Blade wreathed in living fire slashes deeply.",
+      rarity: "rare",
+    },
+    {
       id: "magma_burst",
       name: "MAGMA BURST",
       icon: "🌋",
@@ -275,6 +400,29 @@ export const CLASS_ATTACK_CARDS: Record<string, AttackCard[]> = {
       rarity: "epic",
     },
     {
+      id: "inferno_nova",
+      name: "INFERNO NOVA",
+      icon: "☀️",
+      damage: 200,
+      manaCost: 52,
+      minLevel: 12,
+      color: "#ff6600",
+      description: "Nova explosion of concentrated inferno energy.",
+      rarity: "epic",
+    },
+    {
+      id: "volcanic_wrath",
+      name: "VOLCANIC WRATH",
+      icon: "🌋",
+      damage: 270,
+      manaCost: 65,
+      minLevel: 16,
+      color: "#cc2200",
+      description: "The wrath of volcanoes unleashed upon your enemy.",
+      rarity: "epic",
+      hitCount: 2,
+    },
+    {
       id: "dragons_roar",
       name: "DRAGON'S ROAR",
       icon: "🐉",
@@ -284,6 +432,30 @@ export const CLASS_ATTACK_CARDS: Record<string, AttackCard[]> = {
       color: "#ff8800",
       description: "Ancient dragon fire consumes everything. LEGENDARY.",
       rarity: "legendary",
+    },
+    {
+      id: "hellfire_nova",
+      name: "HELLFIRE NOVA",
+      icon: "💥",
+      damage: 460,
+      manaCost: 80,
+      minLevel: 28,
+      color: "#ff0000",
+      description: "Fire from the deepest pits of hell erupts outward.",
+      rarity: "legendary",
+    },
+    {
+      id: "dragon_emperor_atk",
+      name: "DRAGON EMPEROR",
+      icon: "🐉",
+      damage: 800,
+      manaCost: 130,
+      minLevel: 35,
+      color: "#ff8800",
+      description:
+        "The Dragon Emperor's ultimate fire. World-destroying power.",
+      rarity: "legendary",
+      hitCount: 3,
     },
   ],
   FROST_SOVEREIGN: [
@@ -310,6 +482,17 @@ export const CLASS_ATTACK_CARDS: Record<string, AttackCard[]> = {
       rarity: "rare",
     },
     {
+      id: "frost_lance",
+      name: "FROST LANCE",
+      icon: "🔱",
+      damage: 90,
+      manaCost: 28,
+      minLevel: 5,
+      color: "#00ddff",
+      description: "A lance of solid ice pierces through armor.",
+      rarity: "rare",
+    },
+    {
       id: "cryo_freeze",
       name: "CRYO FREEZE",
       icon: "🧊",
@@ -321,6 +504,29 @@ export const CLASS_ATTACK_CARDS: Record<string, AttackCard[]> = {
       rarity: "epic",
     },
     {
+      id: "avalanche",
+      name: "AVALANCHE",
+      icon: "🏔️",
+      damage: 190,
+      manaCost: 50,
+      minLevel: 12,
+      color: "#aaeeff",
+      description: "Massive avalanche of ice crushes all before it.",
+      rarity: "epic",
+    },
+    {
+      id: "frozen_world",
+      name: "FROZEN WORLD",
+      icon: "🌍",
+      damage: 260,
+      manaCost: 63,
+      minLevel: 16,
+      color: "#00ffff",
+      description: "Freeze the entire battlefield — nothing moves.",
+      rarity: "epic",
+      hitCount: 2,
+    },
+    {
       id: "absolute_zero",
       name: "ABSOLUTE ZERO",
       icon: "💎",
@@ -330,6 +536,29 @@ export const CLASS_ATTACK_CARDS: Record<string, AttackCard[]> = {
       color: "#ccffff",
       description: "Temperature drops to absolute zero. LEGENDARY.",
       rarity: "legendary",
+    },
+    {
+      id: "glacial_epoch",
+      name: "GLACIAL EPOCH",
+      icon: "🌊",
+      damage: 440,
+      manaCost: 78,
+      minLevel: 28,
+      color: "#00ccff",
+      description: "Begin a new ice age — the glacial epoch begins now.",
+      rarity: "legendary",
+    },
+    {
+      id: "permafrost",
+      name: "PERMAFROST",
+      icon: "❄️",
+      damage: 760,
+      manaCost: 120,
+      minLevel: 35,
+      color: "#ccffff",
+      description: "Eternal permafrost encases the enemy forever. Inescapable.",
+      rarity: "legendary",
+      hitCount: 2,
     },
   ],
   BLOOD_BERSERKER: [
@@ -357,6 +586,18 @@ export const CLASS_ATTACK_CARDS: Record<string, AttackCard[]> = {
       healAmount: 20,
     },
     {
+      id: "frenzy_strike",
+      name: "FRENZY STRIKE",
+      icon: "⚔️",
+      damage: 100,
+      manaCost: 24,
+      minLevel: 5,
+      color: "#dd0000",
+      description: "Frenzied multi-hit barrage. Hits 2x.",
+      rarity: "rare",
+      hitCount: 2,
+    },
+    {
       id: "berserk_mode",
       name: "BERSERK MODE",
       icon: "😤",
@@ -368,6 +609,30 @@ export const CLASS_ATTACK_CARDS: Record<string, AttackCard[]> = {
       rarity: "epic",
     },
     {
+      id: "blood_nova",
+      name: "BLOOD NOVA",
+      icon: "💥",
+      damage: 210,
+      manaCost: 48,
+      minLevel: 12,
+      color: "#ff0000",
+      description: "Explosion of blood energy tears the air apart.",
+      rarity: "epic",
+    },
+    {
+      id: "carnage",
+      name: "CARNAGE",
+      icon: "🗡️",
+      damage: 280,
+      manaCost: 60,
+      minLevel: 16,
+      color: "#cc0022",
+      description: "Pure carnage mode — no mercy, only destruction.",
+      rarity: "epic",
+      hitCount: 3,
+      healAmount: 30,
+    },
+    {
       id: "crimson_extinction",
       name: "CRIMSON EXTINCTION",
       icon: "☠️",
@@ -377,6 +642,31 @@ export const CLASS_ATTACK_CARDS: Record<string, AttackCard[]> = {
       color: "#ff0044",
       description: "Total annihilation through pure bloodlust. LEGENDARY.",
       rarity: "legendary",
+    },
+    {
+      id: "crimson_tide",
+      name: "CRIMSON TIDE",
+      icon: "🌊",
+      damage: 470,
+      manaCost: 85,
+      minLevel: 28,
+      color: "#cc0000",
+      description: "A tide of crimson blood washes over all enemies.",
+      rarity: "legendary",
+    },
+    {
+      id: "blood_god_mode",
+      name: "BLOOD GOD MODE",
+      icon: "💀",
+      damage: 810,
+      manaCost: 130,
+      minLevel: 35,
+      color: "#ff0033",
+      description:
+        "Ascend to Blood God form — pure destruction incarnate. LEGENDARY.",
+      rarity: "legendary",
+      hitCount: 4,
+      healAmount: 100,
     },
   ],
   VOID_ARCHMAGE: [
@@ -403,6 +693,17 @@ export const CLASS_ATTACK_CARDS: Record<string, AttackCard[]> = {
       rarity: "rare",
     },
     {
+      id: "dimension_cut",
+      name: "DIMENSION CUT",
+      icon: "✂️",
+      damage: 100,
+      manaCost: 32,
+      minLevel: 5,
+      color: "#dd00ff",
+      description: "Cut through dimensional barriers dealing massive damage.",
+      rarity: "rare",
+    },
+    {
       id: "time_stop",
       name: "TIME STOP",
       icon: "⏱️",
@@ -412,6 +713,29 @@ export const CLASS_ATTACK_CARDS: Record<string, AttackCard[]> = {
       color: "#ff00cc",
       description: "Time frozen — enemy helpless against assault.",
       rarity: "epic",
+    },
+    {
+      id: "void_collapse",
+      name: "VOID COLLAPSE",
+      icon: "🌀",
+      damage: 220,
+      manaCost: 55,
+      minLevel: 12,
+      color: "#aa00ff",
+      description: "Collapse a section of void onto the target.",
+      rarity: "epic",
+    },
+    {
+      id: "reality_distort",
+      name: "REALITY DISTORT",
+      icon: "🔄",
+      damage: 300,
+      manaCost: 68,
+      minLevel: 16,
+      color: "#cc44ff",
+      description: "Distort reality around the enemy — they cannot escape.",
+      rarity: "epic",
+      hitCount: 2,
     },
     {
       id: "singularity",
@@ -425,8 +749,35 @@ export const CLASS_ATTACK_CARDS: Record<string, AttackCard[]> = {
         "Collapses reality into a single point of infinite power. LEGENDARY.",
       rarity: "legendary",
     },
+    {
+      id: "reality_break",
+      name: "REALITY BREAK",
+      icon: "💥",
+      damage: 500,
+      manaCost: 90,
+      minLevel: 28,
+      color: "#cc00ff",
+      description: "Break reality itself — nothing survives the fracture.",
+      rarity: "legendary",
+    },
+    {
+      id: "big_bang",
+      name: "BIG BANG",
+      icon: "💫",
+      damage: 850,
+      manaCost: 135,
+      minLevel: 35,
+      color: "#ff88ff",
+      description:
+        "Recreate the birth of the universe in condensed form. Ultimate destruction.",
+      rarity: "legendary",
+      hitCount: 3,
+    },
   ],
 };
+
+// GateRank type (avoid circular deps with GateSelectionScreen)
+export type GateRankStore = string | null;
 
 export interface GameState {
   // Player
@@ -434,6 +785,7 @@ export interface GameState {
   maxPlayerHP: number;
   playerMana: number;
   maxPlayerMana: number;
+  playerAgility: number;
   gold: number;
   kills: number;
   dungeonRuns: number;
@@ -444,6 +796,10 @@ export interface GameState {
   playerClass: string | null;
   classKills: Record<string, number>;
   classXP: Record<string, number>;
+
+  // Gate system
+  gateRank: GateRankStore;
+  gateWaves: number;
 
   // Inventory
   inventory: InventoryItem[];
@@ -471,6 +827,7 @@ export interface GameState {
   lastLoot: InventoryItem[];
 
   // Actions
+  setGateRank: (rank: string, waves: number) => void;
   awardKill: (xp: number, gold: number, drops: InventoryItem[]) => void;
   takeDamage: (amount: number) => void;
   heal: (amount: number) => void;
@@ -960,8 +1317,9 @@ export const useGameStore = create<GameState>()(
     (set, get) => ({
       playerHP: 100,
       maxPlayerHP: 100,
-      playerMana: 50,
-      maxPlayerMana: 50,
+      playerMana: 80,
+      maxPlayerMana: 80,
+      playerAgility: 1,
       gold: 0,
       kills: 0,
       dungeonRuns: 0,
@@ -984,6 +1342,8 @@ export const useGameStore = create<GameState>()(
       wave: 1,
       isGameOver: false,
       lastXPSync: 0,
+      gateRank: null,
+      gateWaves: 3,
 
       // Turn-based battle state
       battlePhase: "idle",
@@ -994,6 +1354,10 @@ export const useGameStore = create<GameState>()(
       isPlayerHurt: false,
       isEnemyHurt: false,
       lastLoot: [],
+
+      setGateRank: (rank, waves) => {
+        set({ gateRank: rank, gateWaves: waves });
+      },
 
       awardKill: (xp, gold, drops) => {
         const state = get();
@@ -1018,9 +1382,11 @@ export const useGameStore = create<GameState>()(
           }
         }
 
-        // Max HP increases with game level
-        const newMaxHP = 100 + (newLevel - 1) * 10;
-        const newMaxMana = 50 + (newLevel - 1) * 5;
+        // Max HP/Mana increases with game level (new formulas)
+        const newMaxHP = 100 + newLevel * 15;
+        const newMaxMana = 80 + newLevel * 8;
+        // Agility: +1 per 5 levels
+        const newAgility = Math.floor(newLevel / 5) + 1;
 
         // Track class-specific progress
         const newClassKills = { ...state.classKills };
@@ -1071,6 +1437,7 @@ export const useGameStore = create<GameState>()(
           gameLevel: newLevel,
           maxPlayerHP: newMaxHP,
           maxPlayerMana: newMaxMana,
+          playerAgility: newAgility,
           inventory: newInventory,
           classKills: newClassKills,
           classXP: newClassXP,
@@ -1398,12 +1765,13 @@ export const useGameStore = create<GameState>()(
           const s = get();
           if (!s.currentEnemy) return;
 
-          // Calculate damage with hit count
+          // Calculate damage with hit count + level scaling
           const hitCount = card.hitCount ?? 1;
+          const levelDmgMult = 1 + s.gameLevel * 0.08;
           let totalDamage = 0;
           for (let i = 0; i < hitCount; i++) {
             totalDamage += Math.floor(
-              card.damage * (0.85 + Math.random() * 0.3),
+              card.damage * levelDmgMult * (0.85 + Math.random() * 0.3),
             );
           }
 
@@ -1487,6 +1855,27 @@ export const useGameStore = create<GameState>()(
           const s = get();
           if (!s.currentEnemy) return;
 
+          // Agility-based dodge chance
+          const agility = s.playerAgility ?? 1;
+          const dodgeChance = agility > 6 ? 0.2 : agility > 3 ? 0.1 : 0;
+          const dodged = Math.random() < dodgeChance;
+
+          if (dodged) {
+            const dodgeLog = [
+              ...s.battleLog.slice(-4),
+              `💨 You DODGED the attack! (AGI ${agility})`,
+            ];
+            set({
+              isEnemyAttacking: false,
+              isPlayerHurt: false,
+              battleLog: dodgeLog,
+            });
+            setTimeout(() => {
+              set({ battlePhase: "player_turn" });
+            }, 300);
+            return;
+          }
+
           const rawDmg = Math.floor(
             s.currentEnemy.damage * (0.8 + Math.random() * 0.4),
           );
@@ -1537,7 +1926,7 @@ export const useGameStore = create<GameState>()(
       },
     }),
     {
-      name: "bmlx_game_v2",
+      name: "bmlx_game_v3",
       partialize: (state) => ({
         gold: state.gold,
         kills: state.kills,
@@ -1548,11 +1937,14 @@ export const useGameStore = create<GameState>()(
         equippedWeapon: state.equippedWeapon,
         maxPlayerHP: state.maxPlayerHP,
         maxPlayerMana: state.maxPlayerMana,
+        playerAgility: state.playerAgility,
         playerClass: state.playerClass,
         classKills: state.classKills,
         classXP: state.classXP,
         unlockedSkills: state.unlockedSkills,
         equippedSkills: state.equippedSkills,
+        gateRank: state.gateRank,
+        gateWaves: state.gateWaves,
       }),
     },
   ),

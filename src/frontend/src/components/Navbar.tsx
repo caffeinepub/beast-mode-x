@@ -10,6 +10,7 @@ interface NavbarProps {
   onAccountSettings?: () => void;
   onDungeonClick?: () => void;
   onCharacterClick?: () => void;
+  onGateClick?: () => void;
   activeSection?: string;
   onNavClick?: (section: string) => void;
 }
@@ -20,6 +21,7 @@ export function Navbar({
   onAccountSettings,
   onDungeonClick,
   onCharacterClick,
+  onGateClick,
 }: NavbarProps) {
   const { isLoggedIn, logout, identity } = useAuth();
   const { data: profile } = usePlayerProfile();
@@ -95,12 +97,14 @@ export function Navbar({
         style={{
           maxWidth: "1400px",
           margin: "0 auto",
-          padding: "0 2rem",
+          padding: "0 clamp(0.75rem, 2vw, 2rem)",
           height: "70px",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          gap: "1.5rem",
+          gap: "0.5rem",
+          flexWrap: "nowrap",
+          overflow: "hidden",
         }}
       >
         {/* Logo */}
@@ -109,7 +113,6 @@ export function Navbar({
           style={{
             fontFamily: '"Sora", sans-serif',
             fontWeight: 900,
-            fontSize: "clamp(1rem, 2.2vw, 1.25rem)",
             letterSpacing: "0.08em",
             textDecoration: "none",
             background:
@@ -120,12 +123,21 @@ export function Navbar({
             flexShrink: 0,
           }}
         >
-          BEAST MODE LEVEL X
+          {/* Short name on small screens, full name on md+ */}
+          <span className="md:hidden" style={{ fontSize: "1.1rem" }}>
+            BMX
+          </span>
+          <span
+            className="hidden md:inline"
+            style={{ fontSize: "clamp(0.9rem, 1.8vw, 1.15rem)" }}
+          >
+            BEAST MODE LEVEL X
+          </span>
         </a>
 
         {/* Desktop nav links */}
         <div
-          style={{ display: "flex", gap: "0.15rem", alignItems: "center" }}
+          style={{ display: "flex", gap: "0.1rem", alignItems: "center" }}
           className="hidden md:flex"
         >
           {navLinks.map((link) => (
@@ -135,13 +147,13 @@ export function Navbar({
               data-ocid={link.ocid}
               style={{
                 fontFamily: '"Sora", sans-serif',
-                fontSize: "0.78rem",
+                fontSize: "0.68rem",
                 fontWeight: 500,
-                letterSpacing: "0.08em",
+                letterSpacing: "0.06em",
                 textTransform: "uppercase",
                 textDecoration: "none",
                 color: "oklch(0.72 0.03 260)",
-                padding: "0.4rem 0.75rem",
+                padding: "0.3rem 0.55rem",
                 borderRadius: "4px",
                 transition: "all 0.2s ease",
                 border: "1px solid transparent",
@@ -173,11 +185,11 @@ export function Navbar({
               onClick={onDungeonClick}
               style={{
                 fontFamily: '"Sora", sans-serif',
-                fontSize: "0.78rem",
+                fontSize: "0.68rem",
                 fontWeight: 700,
-                letterSpacing: "0.08em",
+                letterSpacing: "0.06em",
                 textTransform: "uppercase",
-                padding: "0.4rem 0.85rem",
+                padding: "0.3rem 0.65rem",
                 borderRadius: "4px",
                 background: "oklch(0.25 0.15 22 / 0.3)",
                 border: "1px solid oklch(0.62 0.25 22 / 0.5)",
@@ -209,6 +221,48 @@ export function Navbar({
               ⚔️ DUNGEON
             </button>
           )}
+          {/* GATE button */}
+          {onGateClick && (
+            <button
+              type="button"
+              data-ocid="nav.gate.link"
+              onClick={onGateClick}
+              style={{
+                fontFamily: '"Sora", sans-serif',
+                fontSize: "0.68rem",
+                fontWeight: 700,
+                letterSpacing: "0.06em",
+                textTransform: "uppercase",
+                padding: "0.3rem 0.65rem",
+                borderRadius: "4px",
+                background: "rgba(157,0,255,0.2)",
+                border: "1px solid rgba(157,0,255,0.55)",
+                color: "#cc66ff",
+                cursor: "pointer",
+                transition: "all 0.2s ease",
+                boxShadow: "0 0 8px rgba(157,0,255,0.25)",
+                touchAction: "manipulation",
+                WebkitTapHighlightColor: "transparent",
+                minHeight: "36px",
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLElement).style.background =
+                  "rgba(157,0,255,0.35)";
+                (e.currentTarget as HTMLElement).style.boxShadow =
+                  "0 0 16px rgba(157,0,255,0.55)";
+                (e.currentTarget as HTMLElement).style.color = "#dd88ff";
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLElement).style.background =
+                  "rgba(157,0,255,0.2)";
+                (e.currentTarget as HTMLElement).style.boxShadow =
+                  "0 0 8px rgba(157,0,255,0.25)";
+                (e.currentTarget as HTMLElement).style.color = "#cc66ff";
+              }}
+            >
+              🌀 GATE
+            </button>
+          )}
           {/* CHARACTER button */}
           {onCharacterClick && (
             <button
@@ -217,11 +271,11 @@ export function Navbar({
               onClick={onCharacterClick}
               style={{
                 fontFamily: '"Sora", sans-serif',
-                fontSize: "0.78rem",
+                fontSize: "0.68rem",
                 fontWeight: 700,
-                letterSpacing: "0.08em",
+                letterSpacing: "0.06em",
                 textTransform: "uppercase",
-                padding: "0.4rem 0.85rem",
+                padding: "0.3rem 0.65rem",
                 borderRadius: "4px",
                 background: "oklch(0.15 0.1 220 / 0.3)",
                 border: "1px solid oklch(0.55 0.2 220 / 0.5)",
@@ -257,7 +311,12 @@ export function Navbar({
 
         {/* Auth buttons */}
         <div
-          style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "0.5rem",
+            flexShrink: 0,
+          }}
           className="hidden md:flex"
         >
           {isLoggedIn ? (
@@ -553,6 +612,50 @@ export function Navbar({
                 }}
               >
                 Turn-based RPG • Classes • Loot
+              </span>
+            </button>
+          )}
+          {/* Gate System mobile — prominent */}
+          {onGateClick && (
+            <button
+              type="button"
+              data-ocid="nav.gate.link"
+              onClick={() => {
+                onGateClick();
+                setMenuOpen(false);
+              }}
+              style={{
+                fontFamily: '"Sora", sans-serif',
+                fontSize: "0.92rem",
+                fontWeight: 900,
+                letterSpacing: "0.1em",
+                textTransform: "uppercase",
+                color: "#cc66ff",
+                padding: "0.8rem 1rem",
+                background: "rgba(157,0,255,0.15)",
+                border: "1px solid rgba(157,0,255,0.5)",
+                borderRadius: "10px",
+                cursor: "pointer",
+                textAlign: "left",
+                touchAction: "manipulation",
+                WebkitTapHighlightColor: "transparent",
+                minHeight: "60px",
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.2rem",
+                boxShadow: "0 0 12px rgba(157,0,255,0.25)",
+              }}
+            >
+              <span>🌀 GATE SYSTEM</span>
+              <span
+                style={{
+                  fontSize: "0.62rem",
+                  fontWeight: 500,
+                  color: "rgba(157,0,255,0.7)",
+                  letterSpacing: "0.06em",
+                }}
+              >
+                E → S → RED GATE • Solo Leveling Style
               </span>
             </button>
           )}

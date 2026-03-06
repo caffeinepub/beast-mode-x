@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useCharacterStore } from "./CharacterStore";
 import { DungeonBackground, type DungeonBgType } from "./DungeonBackground";
+import type { AttackCard } from "./GameStore";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -20,7 +21,25 @@ export interface AnimeBattleSceneProps {
   equippedWeapon: string;
   attackColor?: string;
   bgType?: DungeonBgType;
+  playerClass?: string | null;
+  lastAttackCard?: AttackCard | null;
+  battlePhase?: string;
+  gateRank?: string | null;
+  showGateClosed?: boolean;
 }
+
+// ─── Class character image map ────────────────────────────────────────────────
+export const CLASS_CHARACTER_IMAGES: Record<string, string> = {
+  SHADOW_MONARCH: "/assets/uploads/grok_image_1772784510971-1.jpg",
+  THUNDER_GOD: "/assets/uploads/grok_image_1772784418586-2.jpg",
+  INFERNO_KING: "/assets/uploads/grok_image_1772784606169-3.jpg",
+  FROST_SOVEREIGN:
+    "/assets/generated/class-frost-sovereign-transparent.dim_400x600.png",
+  BLOOD_BERSERKER:
+    "/assets/generated/class-blood-berserker-transparent.dim_400x600.png",
+  VOID_ARCHMAGE:
+    "/assets/generated/class-void-archmage-transparent.dim_400x600.png",
+};
 
 // ─── Enemy sprite image map ───────────────────────────────────────────────────
 const ENEMY_SPRITE_IMAGES: Record<string, string> = {
@@ -799,7 +818,265 @@ function CSSEnemySprite({
   );
 }
 
-// ─── Player Character Sprite (Pokemon-style, uses custom character config) ────
+// ─── Class Idle Aura Effects ──────────────────────────────────────────────────
+function ClassIdleAura({ playerClass }: { playerClass: string }) {
+  if (playerClass === "SHADOW_MONARCH") {
+    return (
+      <>
+        {/* Purple shadow wisps */}
+        {[0, 1, 2, 3].map((i) => (
+          <div
+            key={i}
+            style={{
+              position: "absolute",
+              left: `${20 + i * 18}%`,
+              bottom: `${10 + (i % 2) * 15}%`,
+              width: 8 + i * 2,
+              height: 20 + i * 4,
+              background: "rgba(157,0,255,0.6)",
+              borderRadius: "50% 50% 30% 30%",
+              filter: "blur(3px)",
+              animation: `shadowWisp 2.${i + 1}s ease-in-out infinite`,
+              animationDelay: `${i * 0.4}s`,
+              pointerEvents: "none",
+            }}
+          />
+        ))}
+        {/* Dark particles */}
+        {[0, 1, 2].map((i) => (
+          <div
+            key={`p${i}`}
+            style={{
+              position: "absolute",
+              left: `${30 + i * 20}%`,
+              top: `${15 + i * 20}%`,
+              width: 5,
+              height: 5,
+              background: "#9d00ff",
+              borderRadius: "50%",
+              boxShadow: "0 0 6px #9d00ff",
+              animation: `darkParticle 3.${i}s ease-in-out infinite`,
+              animationDelay: `${i * 0.6}s`,
+              pointerEvents: "none",
+            }}
+          />
+        ))}
+      </>
+    );
+  }
+
+  if (playerClass === "THUNDER_GOD") {
+    return (
+      <>
+        {/* Gold lightning bolts */}
+        {[0, 1, 2].map((i) => (
+          <div
+            key={i}
+            style={{
+              position: "absolute",
+              left: `${15 + i * 25}%`,
+              top: `${5 + i * 15}%`,
+              width: 3,
+              height: 25 + i * 5,
+              background:
+                "linear-gradient(180deg, transparent, #ffdd00, transparent)",
+              clipPath:
+                "polygon(40% 0%, 60% 0%, 75% 40%, 60% 40%, 80% 100%, 20% 45%, 40% 45%)",
+              filter: "drop-shadow(0 0 4px #ffdd00)",
+              animation: `lightningFlicker ${1.2 + i * 0.3}s ease-in-out infinite`,
+              animationDelay: `${i * 0.3}s`,
+              pointerEvents: "none",
+            }}
+          />
+        ))}
+        {/* Electric arc lines */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            border: "1px solid rgba(255,221,0,0.2)",
+            borderRadius: "4px",
+            animation: "electricPulse 1.5s ease-in-out infinite alternate",
+            pointerEvents: "none",
+          }}
+        />
+      </>
+    );
+  }
+
+  if (playerClass === "INFERNO_KING") {
+    return (
+      <>
+        {/* Rising flames */}
+        {[0, 1, 2, 3].map((i) => (
+          <div
+            key={i}
+            style={{
+              position: "absolute",
+              left: `${15 + i * 20}%`,
+              bottom: "5%",
+              width: 10 + i * 3,
+              height: 25 + i * 5,
+              background: `linear-gradient(180deg, transparent, ${i % 2 === 0 ? "#ff4400" : "#ff8800"})`,
+              borderRadius: "50% 50% 30% 30%",
+              filter: "blur(2px)",
+              animation: `flameRise ${1.5 + i * 0.2}s ease-in-out infinite`,
+              animationDelay: `${i * 0.35}s`,
+              pointerEvents: "none",
+            }}
+          />
+        ))}
+        {/* Ember particles */}
+        {[0, 1, 2].map((i) => (
+          <div
+            key={`e${i}`}
+            style={{
+              position: "absolute",
+              left: `${25 + i * 22}%`,
+              bottom: `${20 + i * 15}%`,
+              width: 4,
+              height: 4,
+              background: "#ffaa00",
+              borderRadius: "50%",
+              boxShadow: "0 0 4px #ff6600",
+              animation: `emberFloat ${2 + i * 0.5}s ease-out infinite`,
+              animationDelay: `${i * 0.4}s`,
+              pointerEvents: "none",
+            }}
+          />
+        ))}
+      </>
+    );
+  }
+
+  if (playerClass === "FROST_SOVEREIGN") {
+    return (
+      <>
+        {/* Ice crystals */}
+        {[0, 1, 2, 3].map((i) => (
+          <div
+            key={i}
+            style={{
+              position: "absolute",
+              left: `${10 + i * 22}%`,
+              top: `${10 + (i % 2) * 30}%`,
+              width: 8,
+              height: 8,
+              background: "rgba(0,255,255,0.7)",
+              boxShadow: "0 0 6px #00ffff",
+              clipPath: "polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)",
+              animation: `iceCrystalFloat ${2 + i * 0.4}s ease-in-out infinite`,
+              animationDelay: `${i * 0.5}s`,
+              pointerEvents: "none",
+            }}
+          />
+        ))}
+        {/* Cold mist */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background:
+              "radial-gradient(ellipse, rgba(0,200,255,0.08) 0%, transparent 70%)",
+            animation: "coldMistPulse 2.5s ease-in-out infinite alternate",
+            pointerEvents: "none",
+          }}
+        />
+      </>
+    );
+  }
+
+  if (playerClass === "BLOOD_BERSERKER") {
+    return (
+      <>
+        {/* Pulsing red aura rings */}
+        {[0, 1].map((i) => (
+          <div
+            key={i}
+            style={{
+              position: "absolute",
+              inset: -8 - i * 10,
+              borderRadius: "4px",
+              border: `${2 - i}px solid rgba(200,0,0,${0.5 - i * 0.15})`,
+              animation: `bloodAuraPulse ${1.2 + i * 0.4}s ease-in-out infinite`,
+              animationDelay: `${i * 0.3}s`,
+              pointerEvents: "none",
+            }}
+          />
+        ))}
+        {/* Red crack effects */}
+        {[0, 1, 2].map((i) => (
+          <div
+            key={`c${i}`}
+            style={{
+              position: "absolute",
+              left: `${20 + i * 25}%`,
+              top: `${30 + (i % 2) * 20}%`,
+              width: 2,
+              height: 15 + i * 5,
+              background: "#cc0000",
+              boxShadow: "0 0 4px #ff0000",
+              transform: `rotate(${-20 + i * 20}deg)`,
+              animation: `bloodCrack ${1.8 + i * 0.3}s ease-in-out infinite`,
+              animationDelay: `${i * 0.5}s`,
+              pointerEvents: "none",
+            }}
+          />
+        ))}
+      </>
+    );
+  }
+
+  if (playerClass === "VOID_ARCHMAGE") {
+    return (
+      <>
+        {/* Orbiting void orbs */}
+        {[0, 1, 2].map((i) => (
+          <div
+            key={i}
+            style={{
+              position: "absolute",
+              left: "50%",
+              top: "50%",
+              width: 10,
+              height: 10,
+              background: "#cc00ff",
+              borderRadius: "50%",
+              boxShadow: "0 0 8px #aa00ff",
+              transform: `translate(-50%, -50%) rotate(${i * 120}deg) translateX(55px)`,
+              animation: `voidOrbOrbit ${3 + i * 0.5}s linear infinite`,
+              animationDelay: `${-i * 1}s`,
+              pointerEvents: "none",
+            }}
+          />
+        ))}
+        {/* Dimensional distortion rings */}
+        {[0, 1].map((i) => (
+          <div
+            key={`r${i}`}
+            style={{
+              position: "absolute",
+              left: "50%",
+              top: "50%",
+              width: 80 + i * 40,
+              height: 30 + i * 15,
+              border: `1px solid rgba(204,0,255,${0.3 - i * 0.1})`,
+              borderRadius: "50%",
+              transform: "translate(-50%, -50%)",
+              animation: `voidRingPulse ${2 + i * 0.8}s ease-in-out infinite`,
+              animationDelay: `${i * 0.4}s`,
+              pointerEvents: "none",
+            }}
+          />
+        ))}
+      </>
+    );
+  }
+
+  return null;
+}
+
+// ─── Player Character Sprite (class-image based) ──────────────────────────────
 function PlayerSprite({
   isAttacking,
   isHurt,
@@ -810,6 +1087,7 @@ function PlayerSprite({
   eyeColor,
   auraColor,
   hairStyle,
+  playerClass,
 }: {
   isAttacking: boolean;
   isHurt: boolean;
@@ -820,38 +1098,115 @@ function PlayerSprite({
   eyeColor: string;
   auraColor: string;
   hairStyle: number;
+  playerClass?: string | null;
 }) {
-  // Determine if we should use generated sprite images
-  const maleSprite =
-    "/assets/generated/player-hero-male-sprite-transparent.dim_160x240.png";
-  const femaleSprite =
-    "/assets/generated/battle-hero-female-v2-transparent.dim_200x300.png";
+  const [classImgLoaded, setClassImgLoaded] = useState(false);
+  const [classImgError, setClassImgError] = useState(false);
 
-  const [spriteLoaded, setSpriteLoaded] = useState(false);
-  const [spriteError, setSpriteError] = useState(false);
-  const spriteSrc = isFemale ? femaleSprite : maleSprite;
+  const classImageSrc = playerClass
+    ? CLASS_CHARACTER_IMAGES[playerClass]
+    : null;
 
   // Pokemon-style animation
-  const bounceAnim = isAttacking
-    ? "playerAttack 0.5s ease-in-out"
+  const containerAnim = isAttacking
+    ? "classPlayerAttack 0.5s ease-in-out"
     : isHurt
-      ? "playerHurt 0.4s ease-in-out"
-      : "playerIdle 2s ease-in-out infinite";
+      ? "classPlayerHurt 0.4s ease-in-out"
+      : "classPlayerIdle 3s ease-in-out infinite";
 
+  const imgFilter = isHurt
+    ? "brightness(3) saturate(0)"
+    : isAttacking
+      ? `drop-shadow(0 0 12px ${auraColor}) brightness(1.15)`
+      : `drop-shadow(0 0 6px ${auraColor}88)`;
+
+  // Show class image if available
+  if (classImageSrc && !classImgError) {
+    return (
+      <div
+        style={{
+          position: "relative",
+          width: 150,
+          height: 280,
+          animation: containerAnim,
+          display: "flex",
+          alignItems: "flex-end",
+          justifyContent: "center",
+        }}
+      >
+        {/* Aura glow behind character */}
+        <div
+          style={{
+            position: "absolute",
+            inset: -8,
+            background: `radial-gradient(ellipse at center 80%, ${auraColor}30 0%, transparent 70%)`,
+            borderRadius: "50%",
+            pointerEvents: "none",
+            animation: "classAuraGlow 2s ease-in-out infinite alternate",
+          }}
+        />
+
+        {/* Class image */}
+        <img
+          src={classImageSrc}
+          alt={playerClass ?? "player"}
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "contain",
+            filter: imgFilter,
+            display: classImgLoaded ? "block" : "none",
+            borderRadius: "4px",
+          }}
+          onLoad={() => setClassImgLoaded(true)}
+          onError={() => setClassImgError(true)}
+        />
+
+        {/* Loading fallback */}
+        {!classImgLoaded && (
+          <CSSPlayerCharacter
+            isFemale={isFemale}
+            hairColor={hairColor}
+            skinTone={skinTone}
+            outfitColor={outfitColor}
+            eyeColor={eyeColor}
+            auraColor={auraColor}
+            hairStyle={hairStyle}
+            isAttacking={isAttacking}
+            isHurt={isHurt}
+          />
+        )}
+
+        {/* Per-class idle aura overlay */}
+        {classImgLoaded && playerClass && (
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              pointerEvents: "none",
+              overflow: "visible",
+            }}
+          >
+            <ClassIdleAura playerClass={playerClass} />
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Fallback: CSS character
   return (
     <div
       style={{
         position: "relative",
-        width: 140,
-        height: 185,
-        animation: bounceAnim,
-        imageRendering: "pixelated",
+        width: 150,
+        height: 240,
+        animation: containerAnim,
         display: "flex",
         alignItems: "flex-end",
         justifyContent: "center",
       }}
     >
-      {/* Aura glow behind character */}
       <div
         style={{
           position: "absolute",
@@ -859,45 +1214,31 @@ function PlayerSprite({
           background: `radial-gradient(ellipse at center 80%, ${auraColor}35 0%, transparent 70%)`,
           borderRadius: "50%",
           pointerEvents: "none",
-          animation: "auraGlow 2s ease-in-out infinite alternate",
+          animation: "classAuraGlow 2s ease-in-out infinite alternate",
         }}
       />
-
-      {/* Sprite image */}
-      {!spriteError ? (
-        <img
-          src={spriteSrc}
-          alt="player"
+      <CSSPlayerCharacter
+        isFemale={isFemale}
+        hairColor={hairColor}
+        skinTone={skinTone}
+        outfitColor={outfitColor}
+        eyeColor={eyeColor}
+        auraColor={auraColor}
+        hairStyle={hairStyle}
+        isAttacking={isAttacking}
+        isHurt={isHurt}
+      />
+      {playerClass && (
+        <div
           style={{
-            width: "100%",
-            height: "100%",
-            objectFit: "contain",
-            imageRendering: "pixelated",
-            filter: isHurt
-              ? "brightness(2) saturate(0)"
-              : isAttacking
-                ? `drop-shadow(0 0 8px ${auraColor})`
-                : "none",
-            display: spriteLoaded ? "block" : "none",
+            position: "absolute",
+            inset: 0,
+            pointerEvents: "none",
+            overflow: "visible",
           }}
-          onLoad={() => setSpriteLoaded(true)}
-          onError={() => setSpriteError(true)}
-        />
-      ) : null}
-
-      {/* CSS fallback character — shows if sprite fails to load OR while loading */}
-      {(!spriteLoaded || spriteError) && (
-        <CSSPlayerCharacter
-          isFemale={isFemale}
-          hairColor={hairColor}
-          skinTone={skinTone}
-          outfitColor={outfitColor}
-          eyeColor={eyeColor}
-          auraColor={auraColor}
-          hairStyle={hairStyle}
-          isAttacking={isAttacking}
-          isHurt={isHurt}
-        />
+        >
+          <ClassIdleAura playerClass={playerClass} />
+        </div>
       )}
     </div>
   );
@@ -932,7 +1273,7 @@ function CSSPlayerCharacter({
       : "none";
 
   return (
-    <div style={{ position: "relative", width: 96, height: 155, filter }}>
+    <div style={{ position: "relative", width: 110, height: 200, filter }}>
       {/* HEAD */}
       <div
         style={{
@@ -1440,6 +1781,378 @@ function HairSprite({
   );
 }
 
+// ─── Attack Intro Overlay ──────────────────────────────────────────────────────
+function AttackIntroOverlay({
+  card,
+  visible,
+}: {
+  card: AttackCard | null;
+  visible: boolean;
+}) {
+  if (!visible || !card) return null;
+  return (
+    <div
+      style={{
+        position: "absolute",
+        inset: 0,
+        zIndex: 40,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        pointerEvents: "none",
+        animation: "attackIntroFade 0.6s ease-out forwards",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: "0.3rem",
+          background: "rgba(0,0,0,0.6)",
+          border: `1px solid ${card.color}88`,
+          borderRadius: "12px",
+          padding: "0.75rem 1.5rem",
+          boxShadow: `0 0 30px ${card.color}55`,
+        }}
+      >
+        <span
+          style={{
+            fontSize: "2.5rem",
+            filter: `drop-shadow(0 0 8px ${card.color})`,
+          }}
+        >
+          {card.icon}
+        </span>
+        <div
+          style={{
+            fontFamily: '"Sora", sans-serif',
+            fontWeight: 900,
+            fontSize: "clamp(0.85rem, 3vw, 1.2rem)",
+            letterSpacing: "0.1em",
+            color: card.color,
+            textShadow: `0 0 12px ${card.color}`,
+          }}
+        >
+          {card.name}
+        </div>
+        {card.rarity === "legendary" && (
+          <div
+            style={{
+              fontSize: "0.55rem",
+              letterSpacing: "0.15em",
+              color: "gold",
+              fontFamily: '"Sora", sans-serif',
+              fontWeight: 700,
+            }}
+          >
+            ✦ LEGENDARY ✦
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Battle Start Overlay ─────────────────────────────────────────────────────
+function BattleStartOverlay({
+  enemy,
+  gateRank,
+  visible,
+}: {
+  enemy: AnimeBattleSceneProps["enemyData"] | null;
+  gateRank?: string | null;
+  visible: boolean;
+}) {
+  if (!visible || !enemy) return null;
+
+  const isBoss = enemy.isBoss;
+  const gateColors: Record<string, string> = {
+    E: "#888888",
+    D: "#00cc66",
+    C: "#0088ff",
+    B: "#8800cc",
+    A: "#ff6600",
+    S: "#ffdd00",
+    SPECIAL: "#ff0011",
+  };
+  const rankColor = gateRank
+    ? (gateColors[gateRank] ?? "#9d00ff")
+    : isBoss
+      ? "#ff0033"
+      : "#9d00ff";
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        inset: 0,
+        zIndex: 50,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "0.8rem",
+        animation: "battleStartReveal 1.8s ease forwards",
+        pointerEvents: "none",
+        overflow: "hidden",
+      }}
+    >
+      {/* Black flash */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: "#000",
+          animation: "battleStartFlash 1.8s ease forwards",
+        }}
+      />
+      {/* Screen border flash */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          boxShadow: `inset 0 0 60px ${rankColor}66, inset 0 0 120px ${rankColor}33`,
+          animation: "battleBorderFlash 1.8s ease forwards",
+          borderRadius: 0,
+        }}
+      />
+
+      {/* Content */}
+      <div
+        style={{
+          position: "relative",
+          zIndex: 2,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: "0.6rem",
+        }}
+      >
+        {/* Gate rank badge */}
+        {gateRank && (
+          <div
+            style={{
+              padding: "4px 14px",
+              background: `${rankColor}22`,
+              border: `2px solid ${rankColor}`,
+              borderRadius: "20px",
+              fontFamily: '"Sora", sans-serif',
+              fontWeight: 900,
+              fontSize: "0.65rem",
+              letterSpacing: "0.15em",
+              color: rankColor,
+              textShadow: `0 0 12px ${rankColor}`,
+              boxShadow: `0 0 20px ${rankColor}44`,
+              animation: "slideInTop 0.4s ease forwards 0.3s",
+              opacity: 0,
+            }}
+          >
+            {gateRank}-RANK GATE
+          </div>
+        )}
+
+        {/* Enemy name */}
+        <div
+          style={{
+            fontFamily: '"Sora", sans-serif',
+            fontWeight: 900,
+            fontSize: "clamp(1.4rem, 5vw, 2.4rem)",
+            letterSpacing: "0.08em",
+            color: isBoss ? "#ff0033" : "#ffffff",
+            textShadow: isBoss
+              ? "0 0 30px #ff0033, 0 0 60px #ff003366"
+              : `0 0 20px ${rankColor}, 0 0 40px ${rankColor}66`,
+            textAlign: "center",
+            animation: "slideInTop 0.5s ease forwards 0.5s",
+            opacity: 0,
+          }}
+        >
+          {enemy.type === "goblin"
+            ? "GOBLIN"
+            : enemy.type === "shadowBeast"
+              ? "SHADOW BEAST"
+              : enemy.type === "boneKnight"
+                ? "BONE KNIGHT"
+                : enemy.type === "voidDemon"
+                  ? "VOID DEMON"
+                  : enemy.type === "shadowLord"
+                    ? "SHADOW LORD"
+                    : enemy.type === "voidKing"
+                      ? "VOID KING"
+                      : enemy.type === "dragonEmperor"
+                        ? "DRAGON EMPEROR"
+                        : enemy.type.toUpperCase()}
+        </div>
+
+        {/* VS text */}
+        <div
+          style={{
+            fontFamily: '"Sora", sans-serif',
+            fontWeight: 900,
+            fontSize: "clamp(2rem, 8vw, 4rem)",
+            letterSpacing: "0.15em",
+            color: "white",
+            textShadow: "0 0 20px rgba(255,255,255,0.8)",
+            animation: "vsAppear 0.4s ease forwards 0.8s",
+            opacity: 0,
+            lineHeight: 1,
+          }}
+        >
+          VS
+        </div>
+
+        {/* Boss indicator */}
+        {isBoss && (
+          <div
+            style={{
+              fontFamily: '"Sora", sans-serif',
+              fontWeight: 900,
+              fontSize: "0.7rem",
+              letterSpacing: "0.2em",
+              color: "#ff0033",
+              textShadow: "0 0 12px #ff0033",
+              animation: "slideInTop 0.4s ease forwards 1s",
+              opacity: 0,
+            }}
+          >
+            ⚠️ BOSS ENCOUNTER
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Gate Closed Overlay ───────────────────────────────────────────────────────
+function GateClosedOverlay({
+  visible,
+  gateRank,
+}: {
+  visible: boolean;
+  gateRank?: string | null;
+}) {
+  if (!visible) return null;
+
+  const gateColors: Record<string, string> = {
+    E: "#888888",
+    D: "#00cc66",
+    C: "#0088ff",
+    B: "#8800cc",
+    A: "#ff6600",
+    S: "#ffdd00",
+    SPECIAL: "#ff0011",
+  };
+  const rankColor = gateRank ? (gateColors[gateRank] ?? "#9d00ff") : "#9d00ff";
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        inset: 0,
+        zIndex: 55,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "1rem",
+        pointerEvents: "none",
+        animation: "gateClosedFadeOut 2.5s ease forwards",
+        overflow: "hidden",
+      }}
+    >
+      {/* Dark BG */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: "rgba(0,0,0,0.88)",
+          backdropFilter: "blur(8px)",
+        }}
+      />
+
+      {/* Swirling portal closing */}
+      <div
+        style={{
+          position: "absolute",
+          left: "50%",
+          top: "50%",
+          transform: "translate(-50%, -50%)",
+          width: "200px",
+          height: "200px",
+        }}
+      >
+        {[0, 1, 2, 3].map((i) => (
+          <div
+            key={i}
+            style={{
+              position: "absolute",
+              inset: i * 20,
+              borderRadius: "50%",
+              border: `${3 - i * 0.5}px solid ${rankColor}${["ff", "cc", "88", "44"][i]}`,
+              animation: `gatePortalClose ${0.8 + i * 0.3}s ease-in forwards`,
+              animationDelay: `${i * 0.1}s`,
+            }}
+          />
+        ))}
+        <div
+          style={{
+            position: "absolute",
+            inset: "35%",
+            borderRadius: "50%",
+            background: rankColor,
+            boxShadow: `0 0 30px ${rankColor}, 0 0 60px ${rankColor}88`,
+            animation: "gatePortalCore 0.6s ease-in forwards 0.4s",
+            opacity: 0,
+          }}
+        />
+      </div>
+
+      {/* Text */}
+      <div style={{ position: "relative", zIndex: 2, textAlign: "center" }}>
+        {gateRank && (
+          <div
+            style={{
+              fontFamily: '"Sora", sans-serif',
+              fontWeight: 900,
+              fontSize: "0.65rem",
+              letterSpacing: "0.2em",
+              color: rankColor,
+              textShadow: `0 0 12px ${rankColor}`,
+              marginBottom: "0.5rem",
+            }}
+          >
+            {gateRank}-RANK GATE
+          </div>
+        )}
+        <div
+          style={{
+            fontFamily: '"Sora", sans-serif',
+            fontWeight: 900,
+            fontSize: "clamp(1.8rem, 6vw, 3rem)",
+            letterSpacing: "0.15em",
+            color: "white",
+            textShadow: `0 0 30px ${rankColor}, 0 0 60px ${rankColor}88`,
+          }}
+        >
+          GATE CLOSED
+        </div>
+        <div
+          style={{
+            fontFamily: '"Sora", sans-serif',
+            fontSize: "0.65rem",
+            color: "rgba(255,255,255,0.5)",
+            marginTop: "0.4rem",
+            letterSpacing: "0.1em",
+          }}
+        >
+          Dungeon cleared. Gate has been sealed.
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Dragon Quest Battle Scene (Pure 2D) ──────────────────────────────────────
 function PokemonBattleLayout({
   playerAttacking,
@@ -1450,6 +2163,11 @@ function PokemonBattleLayout({
   currentZone,
   attackColor,
   bgType,
+  playerClass,
+  lastAttackCard,
+  battlePhase,
+  gateRank,
+  showGateClosed,
 }: AnimeBattleSceneProps) {
   const { config } = useCharacterStore();
   const [attackFlash, setAttackFlash] = useState<string | null>(null);
@@ -1460,6 +2178,7 @@ function PokemonBattleLayout({
     y: number;
     color: string;
   } | null>(null);
+  const [showAttackIntro, setShowAttackIntro] = useState(false);
   const attackFlashRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const isFemale = config.gender === "female";
@@ -1470,9 +2189,12 @@ function PokemonBattleLayout({
   useEffect(() => {
     if (playerAttacking) {
       setPlayerRushing(true);
+      setShowAttackIntro(true);
       const fc = effectAttackColor;
       setAttackFlash(fc);
       if (attackFlashRef.current) clearTimeout(attackFlashRef.current);
+      // Hide intro after 0.6s
+      setTimeout(() => setShowAttackIntro(false), 600);
       // Hit effect at enemy position
       setTimeout(() => {
         setHitEffect({ x: 65, y: 22, color: fc });
@@ -1560,6 +2282,12 @@ function PokemonBattleLayout({
         />
       )}
 
+      {/* Attack intro overlay — shows skill name/icon */}
+      <AttackIntroOverlay
+        card={lastAttackCard ?? null}
+        visible={showAttackIntro}
+      />
+
       {/* ── DQ BATTLE LAYOUT ── */}
       {/* Enemy — top-right, with rush animation when attacking */}
       <div
@@ -1641,11 +2369,13 @@ function PokemonBattleLayout({
         style={{
           position: "absolute",
           left: "4%",
-          bottom: "42%",
+          bottom: "38%",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
+          justifyContent: "flex-end",
           zIndex: 10,
+          minHeight: "320px",
           filter: "drop-shadow(0 8px 16px rgba(0,0,0,0.8))",
           animation: playerRushing ? "playerRush 0.5s ease-in-out" : undefined,
         }}
@@ -1660,6 +2390,7 @@ function PokemonBattleLayout({
           eyeColor={config.eyeColor}
           auraColor={auraColor}
           hairStyle={config.hairStyle}
+          playerClass={playerClass}
         />
         {/* Player shadow */}
         <div
@@ -1760,7 +2491,100 @@ function PokemonBattleLayout({
         />
       )}
 
+      {/* Battle start animation overlay */}
+      <BattleStartOverlay
+        enemy={enemyData}
+        gateRank={gateRank}
+        visible={battlePhase === "start"}
+      />
+
+      {/* Gate closed overlay */}
+      <GateClosedOverlay
+        visible={showGateClosed ?? false}
+        gateRank={gateRank}
+      />
+
       <style>{`
+        @keyframes classPlayerIdle {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-4px); }
+        }
+        @keyframes classPlayerAttack {
+          0% { transform: translateX(0) scale(1); }
+          25% { transform: translateX(30px) scale(1.08); }
+          55% { transform: translateX(10px) scale(1.03); }
+          100% { transform: translateX(0) scale(1); }
+        }
+        @keyframes classPlayerHurt {
+          0%, 100% { transform: translateX(0); filter: brightness(1); }
+          20% { transform: translateX(-12px); filter: brightness(4) saturate(0); }
+          40% { transform: translateX(12px); filter: brightness(4) saturate(0); }
+          60% { transform: translateX(-6px); }
+          80% { transform: translateX(6px); }
+        }
+        @keyframes classAuraGlow {
+          0% { opacity: 0.25; }
+          100% { opacity: 0.7; }
+        }
+        @keyframes shadowWisp {
+          0%, 100% { transform: translateY(0) scaleX(1); opacity: 0.6; }
+          50% { transform: translateY(-12px) scaleX(0.8); opacity: 0.9; }
+        }
+        @keyframes darkParticle {
+          0%, 100% { transform: translate(0,0) scale(1); opacity: 0.7; }
+          33% { transform: translate(-4px,-8px) scale(1.2); opacity: 1; }
+          66% { transform: translate(5px,-4px) scale(0.8); opacity: 0.5; }
+        }
+        @keyframes lightningFlicker {
+          0%, 100% { opacity: 0.8; transform: scaleX(1); }
+          25% { opacity: 0.2; }
+          50% { opacity: 1; transform: scaleX(1.1); }
+          75% { opacity: 0.4; }
+        }
+        @keyframes electricPulse {
+          0% { opacity: 0.1; box-shadow: 0 0 4px rgba(255,221,0,0.2); }
+          100% { opacity: 0.4; box-shadow: 0 0 12px rgba(255,221,0,0.5); }
+        }
+        @keyframes flameRise {
+          0% { transform: translateY(0) scaleX(1); opacity: 0.8; }
+          50% { transform: translateY(-18px) scaleX(0.7); opacity: 0.6; }
+          100% { transform: translateY(-30px) scaleX(0.4); opacity: 0; }
+        }
+        @keyframes emberFloat {
+          0% { transform: translateY(0) scale(1); opacity: 0.9; }
+          50% { transform: translateY(-15px) scale(1.3); opacity: 0.7; }
+          100% { transform: translateY(-28px) scale(0.5); opacity: 0; }
+        }
+        @keyframes iceCrystalFloat {
+          0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.7; }
+          50% { transform: translateY(-8px) rotate(45deg); opacity: 1; }
+        }
+        @keyframes coldMistPulse {
+          0% { opacity: 0.3; transform: scale(0.97); }
+          100% { opacity: 0.7; transform: scale(1.03); }
+        }
+        @keyframes bloodAuraPulse {
+          0%, 100% { opacity: 0.3; transform: scale(1); }
+          50% { opacity: 0.8; transform: scale(1.04); }
+        }
+        @keyframes bloodCrack {
+          0%, 100% { opacity: 0.3; }
+          50% { opacity: 0.9; box-shadow: 0 0 8px #ff0000; }
+        }
+        @keyframes voidOrbOrbit {
+          0% { transform: translate(-50%,-50%) rotate(0deg) translateX(55px); }
+          100% { transform: translate(-50%,-50%) rotate(360deg) translateX(55px); }
+        }
+        @keyframes voidRingPulse {
+          0%, 100% { opacity: 0.2; transform: translate(-50%,-50%) scale(0.97); }
+          50% { opacity: 0.5; transform: translate(-50%,-50%) scale(1.03); }
+        }
+        @keyframes attackIntroFade {
+          0% { opacity: 0; transform: scale(0.85); }
+          20% { opacity: 1; transform: scale(1.05); }
+          70% { opacity: 1; transform: scale(1); }
+          100% { opacity: 0; transform: scale(0.95); }
+        }
         @keyframes playerIdle {
           0%, 100% { transform: translateY(0px); }
           50% { transform: translateY(-3px); }
@@ -1858,6 +2682,47 @@ function PokemonBattleLayout({
         @keyframes enemyIdleBob {
           0%, 100% { transform: translateY(0px); }
           50% { transform: translateY(-6px); }
+        }
+        @keyframes battleStartReveal {
+          0% { opacity: 1; }
+          75% { opacity: 1; }
+          100% { opacity: 0; pointer-events: none; }
+        }
+        @keyframes battleStartFlash {
+          0% { opacity: 1; }
+          30% { opacity: 0.9; }
+          60% { opacity: 0.5; }
+          85% { opacity: 0.15; }
+          100% { opacity: 0; }
+        }
+        @keyframes battleBorderFlash {
+          0% { opacity: 0; }
+          20% { opacity: 1; }
+          60% { opacity: 0.8; }
+          100% { opacity: 0; }
+        }
+        @keyframes slideInTop {
+          0% { opacity: 0; transform: translateY(-30px) scale(0.85); }
+          100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes vsAppear {
+          0% { opacity: 0; transform: scale(0.5); }
+          60% { opacity: 1; transform: scale(1.15); }
+          100% { opacity: 1; transform: scale(1); }
+        }
+        @keyframes gateClosedFadeOut {
+          0% { opacity: 1; }
+          70% { opacity: 1; }
+          100% { opacity: 0; }
+        }
+        @keyframes gatePortalClose {
+          0% { transform: scale(1) rotate(0deg); opacity: 1; }
+          100% { transform: scale(0) rotate(360deg); opacity: 0; }
+        }
+        @keyframes gatePortalCore {
+          0% { opacity: 0; transform: scale(0); }
+          50% { opacity: 1; transform: scale(1.5); }
+          100% { opacity: 0; transform: scale(0); }
         }
       `}</style>
     </div>

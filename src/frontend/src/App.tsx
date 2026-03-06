@@ -26,6 +26,7 @@ import { TrainerHub } from "@/components/TrainerHub";
 import { WeeklyGoalTracker } from "@/components/WeeklyGoalTracker";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { CharacterCreator } from "@/components/game/CharacterCreator";
+import { GateSelectionScreen } from "@/components/game/GateSelectionScreen";
 import { PokemonBattle } from "@/components/game/PokemonBattle";
 import { Toaster } from "@/components/ui/sonner";
 import { useActor } from "@/hooks/useActor";
@@ -35,7 +36,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
-type AppState = "loading" | "app" | "dungeon";
+type AppState = "loading" | "app" | "dungeon" | "gate";
 
 const PENALTY_CHECK_KEY = "bmx-last-penalty-check";
 
@@ -223,6 +224,15 @@ function AppContent() {
         <OnboardingFlow onComplete={handleOnboardingComplete} />
       )}
 
+      {/* Gate Selection (fullscreen standalone) */}
+      {appState === "gate" && (
+        <GateSelectionScreen
+          playerLevel={profile ? Number(profile.level) : 1}
+          onGateSelected={() => setAppState("dungeon")}
+          onBack={() => setAppState("app")}
+        />
+      )}
+
       {/* Dungeon / Fighting Game (fullscreen) */}
       {appState === "dungeon" && (
         <PokemonBattle
@@ -238,7 +248,8 @@ function AppContent() {
           background: "oklch(0.06 0.01 255)",
           opacity: appState === "loading" ? 0 : 1,
           transition: "opacity 0.5s ease 0.1s",
-          display: appState === "dungeon" ? "none" : "block",
+          display:
+            appState === "dungeon" || appState === "gate" ? "none" : "block",
         }}
       >
         <Navbar
@@ -248,10 +259,14 @@ function AppContent() {
             isLoggedIn ? () => setAccountSettingsOpen(true) : undefined
           }
           onDungeonClick={() => setAppState("dungeon")}
+          onGateClick={() => setAppState("gate")}
           onCharacterClick={() => setCharacterCreatorOpen(true)}
         />
 
-        <main>
+        <main
+          style={{ paddingBottom: "clamp(80px, 18vw, 100px)" }}
+          className="md:pb-0"
+        >
           <HeroSection
             onStartClick={handleStartJourney}
             onTrailerClick={() => setTrailerOpen(true)}
@@ -434,6 +449,165 @@ function AppContent() {
             </div>
           </section>
 
+          {/* Gate System Section Card */}
+          <section
+            id="gates"
+            style={{
+              padding: "0 clamp(1rem, 4vw, 2rem) clamp(2rem, 6vw, 4rem)",
+              maxWidth: "1200px",
+              margin: "0 auto",
+            }}
+          >
+            <div
+              style={{
+                background:
+                  "linear-gradient(135deg, rgba(10,0,20,0.95) 0%, rgba(5,0,15,0.98) 100%)",
+                border: "1px solid rgba(157,0,255,0.35)",
+                borderRadius: "20px",
+                padding: "clamp(1.5rem, 5vw, 3rem)",
+                position: "relative",
+                overflow: "hidden",
+                boxShadow:
+                  "0 0 40px rgba(157,0,255,0.12), 0 0 80px rgba(157,0,255,0.06)",
+              }}
+            >
+              {/* Background glow */}
+              <div
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  background: `
+                    radial-gradient(circle at 30% 50%, rgba(157,0,255,0.1) 0%, transparent 50%),
+                    radial-gradient(circle at 70% 50%, rgba(100,0,200,0.08) 0%, transparent 50%)
+                  `,
+                  pointerEvents: "none",
+                }}
+              />
+              <div
+                style={{
+                  position: "relative",
+                  zIndex: 1,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  textAlign: "center",
+                  gap: "1rem",
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: "clamp(2rem, 6vw, 3rem)",
+                    filter: "drop-shadow(0 0 14px rgba(157,0,255,0.9))",
+                  }}
+                >
+                  🌀
+                </div>
+                <div
+                  style={{
+                    fontFamily: '"Sora", sans-serif',
+                    fontWeight: 900,
+                    fontSize: "clamp(1.5rem, 5vw, 2.5rem)",
+                    letterSpacing: "0.08em",
+                    background:
+                      "linear-gradient(135deg, #9d00ff 0%, #cc66ff 50%, #ff0033 100%)",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    backgroundClip: "text",
+                  }}
+                >
+                  GATE SYSTEM
+                </div>
+                <div
+                  style={{
+                    fontFamily: '"Sora", sans-serif',
+                    fontSize: "clamp(0.75rem, 2vw, 0.95rem)",
+                    color: "rgba(255,255,255,0.5)",
+                    maxWidth: "480px",
+                    lineHeight: 1.6,
+                  }}
+                >
+                  Solo Leveling style dungeon gates. Choose your rank — E to S
+                  to the feared Red Gate. Higher rank means greater danger and
+                  greater rewards.
+                </div>
+                {/* Gate rank badges */}
+                <div
+                  style={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: "0.4rem",
+                    justifyContent: "center",
+                    marginBottom: "0.5rem",
+                  }}
+                >
+                  {[
+                    { rank: "E", color: "#888" },
+                    { rank: "D", color: "#00cc66" },
+                    { rank: "C", color: "#0088ff" },
+                    { rank: "B", color: "#8800cc" },
+                    { rank: "A", color: "#ff6600" },
+                    { rank: "S", color: "#ffdd00" },
+                    { rank: "🔴", color: "#ff0011" },
+                  ].map((g) => (
+                    <div
+                      key={g.rank}
+                      style={{
+                        padding: "0.3rem 0.65rem",
+                        background: `${g.color}18`,
+                        border: `1px solid ${g.color}55`,
+                        borderRadius: "20px",
+                        fontSize: "0.65rem",
+                        fontFamily: '"Sora", sans-serif',
+                        fontWeight: 900,
+                        color: g.color,
+                        letterSpacing: "0.1em",
+                      }}
+                    >
+                      {g.rank}
+                    </div>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  data-ocid="gate.select.primary_button"
+                  onClick={() => setAppState("gate")}
+                  style={{
+                    fontFamily: '"Sora", sans-serif',
+                    fontWeight: 900,
+                    fontSize: "clamp(0.9rem, 2.5vw, 1.1rem)",
+                    letterSpacing: "0.15em",
+                    padding: "1rem 3rem",
+                    background:
+                      "linear-gradient(135deg, #9d00ff 0%, #6600cc 100%)",
+                    border: "none",
+                    borderRadius: "12px",
+                    color: "white",
+                    cursor: "pointer",
+                    boxShadow:
+                      "0 0 30px rgba(157,0,255,0.45), 0 0 60px rgba(157,0,255,0.2)",
+                    touchAction: "manipulation",
+                    minHeight: "56px",
+                    transition: "transform 0.15s ease, box-shadow 0.15s ease",
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLElement).style.transform =
+                      "scale(1.04)";
+                    (e.currentTarget as HTMLElement).style.boxShadow =
+                      "0 0 40px rgba(157,0,255,0.6), 0 0 80px rgba(157,0,255,0.3)";
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLElement).style.transform =
+                      "scale(1)";
+                    (e.currentTarget as HTMLElement).style.boxShadow =
+                      "0 0 30px rgba(157,0,255,0.45), 0 0 60px rgba(157,0,255,0.2)";
+                  }}
+                >
+                  🌀 SELECT GATE
+                </button>
+              </div>
+            </div>
+          </section>
+
           <CameraTracker />
 
           <PlayerDashboardSection
@@ -468,16 +642,22 @@ function AppContent() {
 
         <MusicToggle />
 
-        {/* Fixed mobile dungeon button — bottom center, only on app state */}
+        {/* Fixed mobile bottom bar — two buttons: DUNGEON + GATE */}
         {appState === "app" && (
           <div
             className="md:hidden"
             style={{
               position: "fixed",
-              bottom: "20px",
+              bottom: "16px",
               left: "50%",
               transform: "translateX(-50%)",
               zIndex: 90,
+              display: "flex",
+              gap: "0.5rem",
+              alignItems: "center",
+              maxWidth: "calc(100vw - 20px)",
+              overflow: "hidden",
+              paddingBottom: "env(safe-area-inset-bottom, 0px)",
             }}
           >
             <button
@@ -487,10 +667,10 @@ function AppContent() {
               style={{
                 fontFamily: '"Sora", sans-serif',
                 fontWeight: 900,
-                fontSize: "0.9rem",
-                letterSpacing: "0.12em",
-                height: "56px",
-                width: "220px",
+                fontSize: "0.78rem",
+                letterSpacing: "0.08em",
+                height: "52px",
+                width: "clamp(130px, 42vw, 160px)",
                 background: "linear-gradient(135deg, #ff0033 0%, #9d00ff 100%)",
                 border: "none",
                 borderRadius: "14px",
@@ -501,9 +681,36 @@ function AppContent() {
                 touchAction: "manipulation",
                 WebkitTapHighlightColor: "transparent",
                 animation: "dungeonPulse 2s ease-in-out infinite alternate",
+                flexShrink: 0,
               }}
             >
-              ⚔️ ENTER DUNGEON
+              ⚔️ DUNGEON
+            </button>
+            <button
+              type="button"
+              data-ocid="app.gate.button"
+              onClick={() => setAppState("gate")}
+              style={{
+                fontFamily: '"Sora", sans-serif',
+                fontWeight: 900,
+                fontSize: "0.78rem",
+                letterSpacing: "0.08em",
+                height: "52px",
+                width: "clamp(130px, 42vw, 160px)",
+                background: "linear-gradient(135deg, #9d00ff 0%, #6600cc 100%)",
+                border: "none",
+                borderRadius: "14px",
+                color: "white",
+                cursor: "pointer",
+                boxShadow:
+                  "0 0 20px rgba(157,0,255,0.5), 0 0 40px rgba(157,0,255,0.25), 0 4px 16px rgba(0,0,0,0.5)",
+                touchAction: "manipulation",
+                WebkitTapHighlightColor: "transparent",
+                animation: "gatePulse 2s ease-in-out infinite alternate",
+                flexShrink: 0,
+              }}
+            >
+              🌀 GATES
             </button>
           </div>
         )}
@@ -513,6 +720,10 @@ function AppContent() {
         @keyframes dungeonPulse {
           0% { box-shadow: 0 0 20px rgba(255,0,51,0.5), 0 0 40px rgba(157,0,255,0.3), 0 4px 16px rgba(0,0,0,0.5); }
           100% { box-shadow: 0 0 35px rgba(255,0,51,0.7), 0 0 70px rgba(157,0,255,0.5), 0 4px 20px rgba(0,0,0,0.6); }
+        }
+        @keyframes gatePulse {
+          0% { box-shadow: 0 0 20px rgba(157,0,255,0.5), 0 0 40px rgba(157,0,255,0.25), 0 4px 16px rgba(0,0,0,0.5); }
+          100% { box-shadow: 0 0 35px rgba(157,0,255,0.7), 0 0 70px rgba(157,0,255,0.45), 0 4px 20px rgba(0,0,0,0.6); }
         }
       `}</style>
 

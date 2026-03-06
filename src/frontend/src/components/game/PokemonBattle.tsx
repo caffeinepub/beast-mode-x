@@ -10,6 +10,7 @@ import {
 } from "./ClassSelectionScreen";
 import type { DungeonBgType } from "./DungeonBackground";
 import { ATTACK_CARDS, CLASS_ATTACK_CARDS, useGameStore } from "./GameStore";
+import { type GateDef, GateSelectionScreen } from "./GateSelectionScreen";
 import { InventoryModal } from "./InventoryModal";
 import { SkillInventoryPage } from "./SkillInventoryPage";
 
@@ -156,6 +157,7 @@ function SplashScreen({
           justifyContent: "center",
           position: "relative",
           zIndex: 1,
+          maxWidth: "100%",
         }}
       >
         {[
@@ -290,9 +292,9 @@ function SplashScreen({
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
+          gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
           gap: "0.6rem",
-          maxWidth: "520px",
+          maxWidth: "min(520px, calc(100vw - 2rem))",
           width: "100%",
           marginBottom: "1.5rem",
           position: "relative",
@@ -372,6 +374,7 @@ function SplashScreen({
           zIndex: 1,
           flexWrap: "wrap",
           justifyContent: "center",
+          maxWidth: "calc(100vw - 2rem)",
         }}
       >
         <button
@@ -547,7 +550,15 @@ export function PokemonBattle({ onBack, playerLevel = 1 }: PokemonBattleProps) {
   const [lastVictoryGold, setLastVictoryGold] = useState(0);
   const [showInventory, setShowInventory] = useState(false);
   const [lastAttackColor, setLastAttackColor] = useState("#00ffff");
+  const [lastAttackCard, setLastAttackCard] = useState<
+    import("./GameStore").AttackCard | null
+  >(null);
   const prevBattlePhaseRef = useRef<string>("");
+
+  // Gate system state
+  const [showGateSelection, setShowGateSelection] = useState(false);
+  const [_currentGateDef, setCurrentGateDef] = useState<GateDef | null>(null);
+  const [showGateClosed, setShowGateClosed] = useState(false);
 
   const { actor } = useActorSafe();
   const {
@@ -571,6 +582,7 @@ export function PokemonBattle({ onBack, playerLevel = 1 }: PokemonBattleProps) {
     maxPlayerHP,
     playerMana,
     maxPlayerMana,
+    playerAgility,
     gold,
     gameLevel,
 
@@ -583,6 +595,9 @@ export function PokemonBattle({ onBack, playerLevel = 1 }: PokemonBattleProps) {
     isPlayerHurt,
     isEnemyHurt,
     lastLoot,
+
+    // Gate
+    gateRank,
 
     // Actions
     spawnEnemy,
@@ -683,6 +698,14 @@ export function PokemonBattle({ onBack, playerLevel = 1 }: PokemonBattleProps) {
   }, [clearBattle, spawnEnemy, gameLevel]);
 
   const handleNextBattle = useCallback(() => {
+    // Show gate closed animation if boss was just defeated in dungeon
+    const s0 = useGameStore.getState();
+    const wasBossDungeon =
+      s0.currentZone === "dungeon" && s0.currentEnemy?.isBoss;
+    if (wasBossDungeon) {
+      setShowGateClosed(true);
+      setTimeout(() => setShowGateClosed(false), 2600);
+    }
     nextWave();
     setTimeout(() => {
       const s = useGameStore.getState();
@@ -720,13 +743,27 @@ export function PokemonBattle({ onBack, playerLevel = 1 }: PokemonBattleProps) {
     }, 300);
   }, [resetHP, spawnEnemy, wave, currentZone, gameLevel]);
 
-  const handleEnterDungeon = useCallback(() => {
-    enterDungeon();
-    setTimeout(() => {
-      const s = useGameStore.getState();
-      spawnEnemy(1, "dungeon", s.gameLevel);
-    }, 300);
-  }, [enterDungeon, spawnEnemy]);
+  const handleOpenGateSelection = useCallback(() => {
+    setShowGateSelection(true);
+  }, []);
+
+  const handleGateSelected = useCallback(
+    (gateDef: GateDef) => {
+      setShowGateSelection(false);
+      setCurrentGateDef(gateDef);
+      enterDungeon();
+      useGameStore.getState().setGateRank(gateDef.rank, gateDef.waves);
+      setTimeout(() => {
+        const s = useGameStore.getState();
+        spawnEnemy(1, "dungeon", s.gameLevel);
+      }, 300);
+    },
+    [enterDungeon, spawnEnemy],
+  );
+
+  const _handleEnterDungeon = useCallback(() => {
+    handleOpenGateSelection();
+  }, [handleOpenGateSelection]);
 
   const handleExitDungeon = useCallback(() => {
     exitDungeon();
@@ -755,6 +792,7 @@ export function PokemonBattle({ onBack, playerLevel = 1 }: PokemonBattleProps) {
       const card = availableCards[cardIndex];
       if (!card) return;
       setLastAttackColor(card.color);
+      setLastAttackCard(card);
       playerAttack(card);
     },
     [availableCards, playerAttack],
@@ -772,6 +810,17 @@ export function PokemonBattle({ onBack, playerLevel = 1 }: PokemonBattleProps) {
         onClassSelected={(_className) => {
           setShowClassSelection(false);
         }}
+      />
+    );
+  }
+
+  // ─── Gate selection screen ──────────────────────────────────────────────────
+  if (showGateSelection) {
+    return (
+      <GateSelectionScreen
+        onGateSelected={handleGateSelected}
+        onBack={() => setShowGateSelection(false)}
+        playerLevel={gameLevel}
       />
     );
   }
@@ -823,6 +872,11 @@ export function PokemonBattle({ onBack, playerLevel = 1 }: PokemonBattleProps) {
           equippedWeapon={useGameStore.getState().equippedWeapon}
           attackColor={lastAttackColor}
           bgType={bgType}
+          playerClass={playerClass}
+          lastAttackCard={lastAttackCard}
+          battlePhase={battlePhase}
+          gateRank={gateRank}
+          showGateClosed={showGateClosed}
         />
       </div>
 
@@ -856,6 +910,8 @@ export function PokemonBattle({ onBack, playerLevel = 1 }: PokemonBattleProps) {
             wave={wave}
             currentZone={currentZone}
             gameLevel={gameLevel}
+            playerAgility={playerAgility ?? 1}
+            gateRank={gateRank}
           />
         )}
 
@@ -947,7 +1003,7 @@ export function PokemonBattle({ onBack, playerLevel = 1 }: PokemonBattleProps) {
           <button
             type="button"
             data-ocid="game.enter_dungeon.button"
-            onClick={handleEnterDungeon}
+            onClick={handleOpenGateSelection}
             disabled={battlePhase !== "victory" && battlePhase !== "idle"}
             style={{
               fontFamily: '"Sora", sans-serif',
