@@ -772,7 +772,8 @@ export function MartialArtsSection({
         id="martial"
         data-ocid="martial.section"
         style={{
-          padding: "100px 2rem 80px",
+          padding:
+            "clamp(4rem, 10vw, 100px) clamp(0.75rem, 4vw, 2rem) clamp(3rem, 8vw, 80px)",
           background: "oklch(0.06 0.01 255)",
           position: "relative",
           overflow: "hidden",
@@ -868,11 +869,11 @@ export function MartialArtsSection({
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "360px 1fr",
+              gridTemplateColumns: "1fr",
               gap: "2rem",
               alignItems: "start",
             }}
-            className="grid-cols-1 lg:grid-cols-2"
+            className="lg:grid-cols-[360px_1fr]"
           >
             {/* Left: Trainer card + stats */}
             <div

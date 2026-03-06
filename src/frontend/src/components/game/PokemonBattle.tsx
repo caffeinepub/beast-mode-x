@@ -52,11 +52,13 @@ function SplashScreen({
   onBack,
   onClassSelect,
   onSkillInventory,
+  playerLevel,
 }: {
   onStart: () => void;
   onBack: () => void;
   onClassSelect: () => void;
   onSkillInventory: () => void;
+  playerLevel?: number;
 }) {
   const { gold, kills, gameLevel, sessionXP, playerClass, equippedSkills } =
     useGameStore();
@@ -161,7 +163,7 @@ function SplashScreen({
         }}
       >
         {[
-          { label: "LEVEL", value: gameLevel, icon: "⚡" },
+          { label: "LEVEL", value: playerLevel ?? gameLevel, icon: "⚡" },
           { label: "KILLS", value: kills, icon: "💀" },
           { label: "GOLD", value: gold, icon: "💰" },
           { label: "XP", value: sessionXP, icon: "✨" },
@@ -833,6 +835,7 @@ export function PokemonBattle({ onBack, playerLevel = 1 }: PokemonBattleProps) {
         onBack={onBack}
         onClassSelect={() => setShowClassSelection(true)}
         onSkillInventory={() => setShowSkillInventory(true)}
+        playerLevel={playerLevel}
       />
     );
   }

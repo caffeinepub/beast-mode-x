@@ -17,6 +17,7 @@ import { Navbar } from "@/components/Navbar";
 import { NutritionLogger } from "@/components/NutritionLogger";
 import { OnboardingFlow } from "@/components/OnboardingFlow";
 import { PlayerDashboardSection } from "@/components/PlayerDashboard";
+import { ProfileModal } from "@/components/ProfileModal";
 import { ProgressPhotosSection } from "@/components/ProgressPhotosSection";
 import { QuotesSection } from "@/components/QuotesSection";
 import { SkillTreeSection } from "@/components/SkillTreeSection";
@@ -50,8 +51,9 @@ function AppContent() {
   const [levelUpFlash, setLevelUpFlash] = useState(false);
   const [trailerOpen, setTrailerOpen] = useState(false);
   const [characterCreatorOpen, setCharacterCreatorOpen] = useState(false);
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
 
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, logout } = useAuth();
   const { actor } = useActor();
   const { data: profile, isLoading: profileLoading } = usePlayerProfile();
   const queryClient = useQueryClient();
@@ -261,6 +263,9 @@ function AppContent() {
           onDungeonClick={() => setAppState("dungeon")}
           onGateClick={() => setAppState("gate")}
           onCharacterClick={() => setCharacterCreatorOpen(true)}
+          onProfileClick={
+            isLoggedIn ? () => setProfileModalOpen(true) : undefined
+          }
         />
 
         <main
@@ -608,6 +613,406 @@ function AppContent() {
             </div>
           </section>
 
+          {/* ── Account Quick Actions section ── */}
+          <section
+            id="account"
+            style={{
+              padding: "0 clamp(1rem, 4vw, 2rem) clamp(2rem, 6vw, 4rem)",
+              maxWidth: "1200px",
+              margin: "0 auto",
+            }}
+          >
+            <div
+              data-ocid="account.card"
+              style={{
+                background:
+                  "linear-gradient(135deg, rgba(10,0,20,0.95) 0%, rgba(5,0,15,0.98) 100%)",
+                border: "1px solid rgba(157,0,255,0.25)",
+                borderRadius: "20px",
+                padding: "clamp(1.5rem, 4vw, 2.5rem)",
+                position: "relative",
+                overflow: "hidden",
+                boxShadow:
+                  "0 0 40px rgba(157,0,255,0.1), 0 0 80px rgba(255,0,51,0.05)",
+              }}
+            >
+              {/* bg glow */}
+              <div
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  background:
+                    "radial-gradient(circle at 20% 50%, rgba(157,0,255,0.07) 0%, transparent 60%), radial-gradient(circle at 80% 50%, rgba(255,0,51,0.07) 0%, transparent 60%)",
+                  pointerEvents: "none",
+                }}
+              />
+              <div
+                style={{
+                  position: "relative",
+                  zIndex: 1,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  textAlign: "center",
+                  gap: "1.25rem",
+                }}
+              >
+                {isLoggedIn && profile ? (
+                  <>
+                    {/* User info */}
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        gap: "0.4rem",
+                      }}
+                    >
+                      <div
+                        style={{
+                          fontSize: "2.5rem",
+                          filter: "drop-shadow(0 0 12px rgba(157,0,255,0.7))",
+                        }}
+                      >
+                        ⚔️
+                      </div>
+                      <div
+                        style={{
+                          fontFamily: '"Sora", sans-serif',
+                          fontWeight: 900,
+                          fontSize: "clamp(1.1rem, 3vw, 1.5rem)",
+                          letterSpacing: "0.08em",
+                          color: "#fff",
+                        }}
+                      >
+                        {String(profile.username)}
+                      </div>
+                      <div
+                        style={{
+                          fontFamily: '"Sora", sans-serif',
+                          fontSize: "0.72rem",
+                          letterSpacing: "0.18em",
+                          color: "rgba(157,0,255,0.9)",
+                          fontWeight: 700,
+                        }}
+                      >
+                        LEVEL {Number(profile.level)} ·{" "}
+                        {Number(profile.xp).toLocaleString()} XP
+                      </div>
+                    </div>
+
+                    {/* Action buttons — 2x2 grid on mobile, row on desktop */}
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns:
+                          "repeat(auto-fit, minmax(120px, 1fr))",
+                        gap: "0.75rem",
+                        width: "100%",
+                        maxWidth: "500px",
+                      }}
+                    >
+                      {/* View Profile */}
+                      <button
+                        type="button"
+                        data-ocid="account.profile.button"
+                        onClick={() => setProfileModalOpen(true)}
+                        style={{
+                          fontFamily: '"Sora", sans-serif',
+                          fontWeight: 700,
+                          fontSize: "0.72rem",
+                          letterSpacing: "0.1em",
+                          padding: "0.8rem 0.5rem",
+                          background: "rgba(157,0,255,0.15)",
+                          border: "1px solid rgba(157,0,255,0.45)",
+                          borderRadius: "10px",
+                          color: "#cc66ff",
+                          cursor: "pointer",
+                          touchAction: "manipulation",
+                          WebkitTapHighlightColor: "transparent",
+                          minHeight: "52px",
+                          transition: "all 0.2s ease",
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: "0.25rem",
+                        }}
+                        onMouseEnter={(e) => {
+                          (e.currentTarget as HTMLElement).style.background =
+                            "rgba(157,0,255,0.28)";
+                          (e.currentTarget as HTMLElement).style.boxShadow =
+                            "0 0 14px rgba(157,0,255,0.4)";
+                        }}
+                        onMouseLeave={(e) => {
+                          (e.currentTarget as HTMLElement).style.background =
+                            "rgba(157,0,255,0.15)";
+                          (e.currentTarget as HTMLElement).style.boxShadow =
+                            "none";
+                        }}
+                      >
+                        <span style={{ fontSize: "1.1rem" }}>👤</span>
+                        <span>PROFILE</span>
+                      </button>
+
+                      {/* Account Settings */}
+                      <button
+                        type="button"
+                        data-ocid="account.settings.button"
+                        onClick={() => setAccountSettingsOpen(true)}
+                        style={{
+                          fontFamily: '"Sora", sans-serif',
+                          fontWeight: 700,
+                          fontSize: "0.72rem",
+                          letterSpacing: "0.1em",
+                          padding: "0.8rem 0.5rem",
+                          background: "rgba(0,170,255,0.12)",
+                          border: "1px solid rgba(0,170,255,0.4)",
+                          borderRadius: "10px",
+                          color: "#33bbff",
+                          cursor: "pointer",
+                          touchAction: "manipulation",
+                          WebkitTapHighlightColor: "transparent",
+                          minHeight: "52px",
+                          transition: "all 0.2s ease",
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: "0.25rem",
+                        }}
+                        onMouseEnter={(e) => {
+                          (e.currentTarget as HTMLElement).style.background =
+                            "rgba(0,170,255,0.22)";
+                          (e.currentTarget as HTMLElement).style.boxShadow =
+                            "0 0 14px rgba(0,170,255,0.35)";
+                        }}
+                        onMouseLeave={(e) => {
+                          (e.currentTarget as HTMLElement).style.background =
+                            "rgba(0,170,255,0.12)";
+                          (e.currentTarget as HTMLElement).style.boxShadow =
+                            "none";
+                        }}
+                      >
+                        <span style={{ fontSize: "1.1rem" }}>⚙️</span>
+                        <span>SETTINGS</span>
+                      </button>
+
+                      {/* Logout */}
+                      <button
+                        type="button"
+                        data-ocid="account.logout.button"
+                        onClick={logout}
+                        style={{
+                          fontFamily: '"Sora", sans-serif',
+                          fontWeight: 700,
+                          fontSize: "0.72rem",
+                          letterSpacing: "0.1em",
+                          padding: "0.8rem 0.5rem",
+                          background: "rgba(255,170,0,0.1)",
+                          border: "1px solid rgba(255,170,0,0.35)",
+                          borderRadius: "10px",
+                          color: "#ffcc44",
+                          cursor: "pointer",
+                          touchAction: "manipulation",
+                          WebkitTapHighlightColor: "transparent",
+                          minHeight: "52px",
+                          transition: "all 0.2s ease",
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: "0.25rem",
+                        }}
+                        onMouseEnter={(e) => {
+                          (e.currentTarget as HTMLElement).style.background =
+                            "rgba(255,170,0,0.2)";
+                          (e.currentTarget as HTMLElement).style.boxShadow =
+                            "0 0 14px rgba(255,170,0,0.3)";
+                        }}
+                        onMouseLeave={(e) => {
+                          (e.currentTarget as HTMLElement).style.background =
+                            "rgba(255,170,0,0.1)";
+                          (e.currentTarget as HTMLElement).style.boxShadow =
+                            "none";
+                        }}
+                      >
+                        <span style={{ fontSize: "1.1rem" }}>🚪</span>
+                        <span>LOGOUT</span>
+                      </button>
+
+                      {/* Reset / Delete — subtle danger */}
+                      <button
+                        type="button"
+                        data-ocid="account.reset.button"
+                        onClick={() => setAccountSettingsOpen(true)}
+                        style={{
+                          fontFamily: '"Sora", sans-serif',
+                          fontWeight: 700,
+                          fontSize: "0.72rem",
+                          letterSpacing: "0.1em",
+                          padding: "0.8rem 0.5rem",
+                          background: "rgba(255,0,51,0.08)",
+                          border: "1px solid rgba(255,0,51,0.3)",
+                          borderRadius: "10px",
+                          color: "rgba(255,80,80,0.9)",
+                          cursor: "pointer",
+                          touchAction: "manipulation",
+                          WebkitTapHighlightColor: "transparent",
+                          minHeight: "52px",
+                          transition: "all 0.2s ease",
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: "0.25rem",
+                        }}
+                        onMouseEnter={(e) => {
+                          (e.currentTarget as HTMLElement).style.background =
+                            "rgba(255,0,51,0.16)";
+                          (e.currentTarget as HTMLElement).style.boxShadow =
+                            "0 0 14px rgba(255,0,51,0.3)";
+                        }}
+                        onMouseLeave={(e) => {
+                          (e.currentTarget as HTMLElement).style.background =
+                            "rgba(255,0,51,0.08)";
+                          (e.currentTarget as HTMLElement).style.boxShadow =
+                            "none";
+                        }}
+                      >
+                        <span style={{ fontSize: "1.1rem" }}>🗑️</span>
+                        <span>RESET/DEL</span>
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div
+                      style={{
+                        fontSize: "3rem",
+                        filter: "drop-shadow(0 0 14px rgba(157,0,255,0.7))",
+                      }}
+                    >
+                      🔒
+                    </div>
+                    <div
+                      style={{
+                        fontFamily: '"Sora", sans-serif',
+                        fontWeight: 900,
+                        fontSize: "clamp(1.2rem, 3.5vw, 1.8rem)",
+                        letterSpacing: "0.08em",
+                        background:
+                          "linear-gradient(135deg, #ff0033 0%, #9d00ff 60%, #00ffff 100%)",
+                        WebkitBackgroundClip: "text",
+                        WebkitTextFillColor: "transparent",
+                        backgroundClip: "text",
+                      }}
+                    >
+                      JOIN THE JOURNEY
+                    </div>
+                    <div
+                      style={{
+                        fontFamily: '"Sora", sans-serif',
+                        fontSize: "clamp(0.75rem, 2vw, 0.9rem)",
+                        color: "rgba(255,255,255,0.45)",
+                        maxWidth: "380px",
+                        lineHeight: 1.7,
+                      }}
+                    >
+                      Login or create your account to track XP, complete
+                      missions, and climb the leaderboard.
+                    </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: "1rem",
+                        flexWrap: "wrap",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <button
+                        type="button"
+                        data-ocid="account.login.button"
+                        onClick={() => setLoginModalOpen(true)}
+                        style={{
+                          fontFamily: '"Sora", sans-serif',
+                          fontWeight: 900,
+                          fontSize: "clamp(0.8rem, 2.5vw, 0.95rem)",
+                          letterSpacing: "0.15em",
+                          padding: "0.9rem 2.2rem",
+                          background: "transparent",
+                          border: "2px solid rgba(157,0,255,0.7)",
+                          borderRadius: "12px",
+                          color: "#cc66ff",
+                          cursor: "pointer",
+                          touchAction: "manipulation",
+                          WebkitTapHighlightColor: "transparent",
+                          minHeight: "52px",
+                          minWidth: "140px",
+                          transition: "all 0.2s ease",
+                          boxShadow: "0 0 12px rgba(157,0,255,0.2)",
+                        }}
+                        onMouseEnter={(e) => {
+                          (e.currentTarget as HTMLElement).style.background =
+                            "rgba(157,0,255,0.15)";
+                          (e.currentTarget as HTMLElement).style.boxShadow =
+                            "0 0 22px rgba(157,0,255,0.4)";
+                        }}
+                        onMouseLeave={(e) => {
+                          (e.currentTarget as HTMLElement).style.background =
+                            "transparent";
+                          (e.currentTarget as HTMLElement).style.boxShadow =
+                            "0 0 12px rgba(157,0,255,0.2)";
+                        }}
+                      >
+                        🔑 LOGIN
+                      </button>
+                      <button
+                        type="button"
+                        data-ocid="account.signup.button"
+                        onClick={() => setSignupModalOpen(true)}
+                        style={{
+                          fontFamily: '"Sora", sans-serif',
+                          fontWeight: 900,
+                          fontSize: "clamp(0.8rem, 2.5vw, 0.95rem)",
+                          letterSpacing: "0.15em",
+                          padding: "0.9rem 2.2rem",
+                          background:
+                            "linear-gradient(135deg, #ff0033 0%, #9d00ff 100%)",
+                          border: "none",
+                          borderRadius: "12px",
+                          color: "white",
+                          cursor: "pointer",
+                          touchAction: "manipulation",
+                          WebkitTapHighlightColor: "transparent",
+                          minHeight: "52px",
+                          minWidth: "140px",
+                          transition: "all 0.2s ease",
+                          boxShadow:
+                            "0 0 20px rgba(255,0,51,0.35), 0 0 40px rgba(157,0,255,0.15)",
+                        }}
+                        onMouseEnter={(e) => {
+                          (e.currentTarget as HTMLElement).style.boxShadow =
+                            "0 0 30px rgba(255,0,51,0.55), 0 0 60px rgba(157,0,255,0.3)";
+                          (e.currentTarget as HTMLElement).style.transform =
+                            "scale(1.03)";
+                        }}
+                        onMouseLeave={(e) => {
+                          (e.currentTarget as HTMLElement).style.boxShadow =
+                            "0 0 20px rgba(255,0,51,0.35), 0 0 40px rgba(157,0,255,0.15)";
+                          (e.currentTarget as HTMLElement).style.transform =
+                            "scale(1)";
+                        }}
+                      >
+                        ⚡ SIGN UP FREE
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          </section>
+
           <CameraTracker />
 
           <PlayerDashboardSection
@@ -642,7 +1047,7 @@ function AppContent() {
 
         <MusicToggle />
 
-        {/* Fixed mobile bottom bar — two buttons: DUNGEON + GATE */}
+        {/* Fixed mobile bottom bar — three buttons: DUNGEON + GATES + ACCOUNT */}
         {appState === "app" && (
           <div
             className="md:hidden"
@@ -653,9 +1058,9 @@ function AppContent() {
               transform: "translateX(-50%)",
               zIndex: 90,
               display: "flex",
-              gap: "0.5rem",
+              gap: "0.4rem",
               alignItems: "center",
-              maxWidth: "calc(100vw - 20px)",
+              maxWidth: "calc(100vw - 16px)",
               overflow: "hidden",
               paddingBottom: "env(safe-area-inset-bottom, 0px)",
             }}
@@ -667,10 +1072,10 @@ function AppContent() {
               style={{
                 fontFamily: '"Sora", sans-serif',
                 fontWeight: 900,
-                fontSize: "0.78rem",
-                letterSpacing: "0.08em",
+                fontSize: "0.7rem",
+                letterSpacing: "0.06em",
                 height: "52px",
-                width: "clamp(130px, 42vw, 160px)",
+                width: "clamp(100px, 29vw, 130px)",
                 background: "linear-gradient(135deg, #ff0033 0%, #9d00ff 100%)",
                 border: "none",
                 borderRadius: "14px",
@@ -693,10 +1098,10 @@ function AppContent() {
               style={{
                 fontFamily: '"Sora", sans-serif',
                 fontWeight: 900,
-                fontSize: "0.78rem",
-                letterSpacing: "0.08em",
+                fontSize: "0.7rem",
+                letterSpacing: "0.06em",
                 height: "52px",
-                width: "clamp(130px, 42vw, 160px)",
+                width: "clamp(100px, 29vw, 130px)",
                 background: "linear-gradient(135deg, #9d00ff 0%, #6600cc 100%)",
                 border: "none",
                 borderRadius: "14px",
@@ -712,6 +1117,36 @@ function AppContent() {
             >
               🌀 GATES
             </button>
+            <button
+              type="button"
+              data-ocid="app.account.button"
+              onClick={() =>
+                isLoggedIn
+                  ? setAccountSettingsOpen(true)
+                  : setLoginModalOpen(true)
+              }
+              style={{
+                fontFamily: '"Sora", sans-serif',
+                fontWeight: 900,
+                fontSize: "0.7rem",
+                letterSpacing: "0.06em",
+                height: "52px",
+                width: "clamp(100px, 29vw, 130px)",
+                background: "linear-gradient(135deg, #00aaff 0%, #0044aa 100%)",
+                border: "none",
+                borderRadius: "14px",
+                color: "white",
+                cursor: "pointer",
+                boxShadow:
+                  "0 0 20px rgba(0,170,255,0.45), 0 0 40px rgba(0,68,170,0.25), 0 4px 16px rgba(0,0,0,0.5)",
+                touchAction: "manipulation",
+                WebkitTapHighlightColor: "transparent",
+                animation: "accountPulse 2s ease-in-out infinite alternate",
+                flexShrink: 0,
+              }}
+            >
+              ⚙️ ACCOUNT
+            </button>
           </div>
         )}
       </div>
@@ -725,6 +1160,10 @@ function AppContent() {
           0% { box-shadow: 0 0 20px rgba(157,0,255,0.5), 0 0 40px rgba(157,0,255,0.25), 0 4px 16px rgba(0,0,0,0.5); }
           100% { box-shadow: 0 0 35px rgba(157,0,255,0.7), 0 0 70px rgba(157,0,255,0.45), 0 4px 20px rgba(0,0,0,0.6); }
         }
+        @keyframes accountPulse {
+          0% { box-shadow: 0 0 20px rgba(0,170,255,0.45), 0 0 40px rgba(0,68,170,0.25), 0 4px 16px rgba(0,0,0,0.5); }
+          100% { box-shadow: 0 0 35px rgba(0,170,255,0.65), 0 0 70px rgba(0,68,170,0.4), 0 4px 20px rgba(0,0,0,0.6); }
+        }
       `}</style>
 
       {/* Trailer Modal */}
@@ -735,6 +1174,14 @@ function AppContent() {
         open={characterCreatorOpen}
         onClose={() => setCharacterCreatorOpen(false)}
       />
+
+      {/* Profile Modal */}
+      {isLoggedIn && (
+        <ProfileModal
+          open={profileModalOpen}
+          onClose={() => setProfileModalOpen(false)}
+        />
+      )}
 
       {/* Account Settings Modal */}
       {isLoggedIn && (

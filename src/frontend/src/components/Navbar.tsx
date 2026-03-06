@@ -11,6 +11,7 @@ interface NavbarProps {
   onDungeonClick?: () => void;
   onCharacterClick?: () => void;
   onGateClick?: () => void;
+  onProfileClick?: () => void;
   activeSection?: string;
   onNavClick?: (section: string) => void;
 }
@@ -22,6 +23,7 @@ export function Navbar({
   onDungeonClick,
   onCharacterClick,
   onGateClick,
+  onProfileClick,
 }: NavbarProps) {
   const { isLoggedIn, logout, identity } = useAuth();
   const { data: profile } = usePlayerProfile();
@@ -102,9 +104,9 @@ export function Navbar({
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          gap: "0.5rem",
+          gap: "0.35rem",
           flexWrap: "nowrap",
-          overflow: "hidden",
+          overflow: "visible",
         }}
       >
         {/* Logo */}
@@ -368,6 +370,51 @@ export function Navbar({
                   )}
                 </div>
               )}
+              {/* View Profile button — desktop */}
+              {onProfileClick && (
+                <button
+                  type="button"
+                  data-ocid="nav.profile_view.button"
+                  onClick={onProfileClick}
+                  style={{
+                    fontFamily: '"Sora", sans-serif',
+                    fontSize: "0.68rem",
+                    fontWeight: 700,
+                    letterSpacing: "0.06em",
+                    textTransform: "uppercase",
+                    padding: "0.3rem 0.65rem",
+                    borderRadius: "4px",
+                    background: "rgba(157,0,255,0.2)",
+                    border: "1px solid rgba(157,0,255,0.55)",
+                    color: "#cc66ff",
+                    cursor: "pointer",
+                    transition: "all 0.2s ease",
+                    boxShadow: "0 0 8px rgba(157,0,255,0.25)",
+                    touchAction: "manipulation",
+                    WebkitTapHighlightColor: "transparent",
+                    minHeight: "36px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.3rem",
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLElement).style.background =
+                      "rgba(157,0,255,0.35)";
+                    (e.currentTarget as HTMLElement).style.boxShadow =
+                      "0 0 16px rgba(157,0,255,0.55)";
+                    (e.currentTarget as HTMLElement).style.color = "#dd88ff";
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLElement).style.background =
+                      "rgba(157,0,255,0.2)";
+                    (e.currentTarget as HTMLElement).style.boxShadow =
+                      "0 0 8px rgba(157,0,255,0.25)";
+                    (e.currentTarget as HTMLElement).style.color = "#cc66ff";
+                  }}
+                >
+                  👤 PROFILE
+                </button>
+              )}
               {/* Account Settings button */}
               {onAccountSettings && (
                 <button
@@ -512,10 +559,172 @@ export function Navbar({
           )}
         </div>
 
+        {/* Mobile: Auth buttons always visible (not just in menu) */}
+        <div
+          className="md:hidden"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "0.4rem",
+            flexShrink: 0,
+          }}
+        >
+          {isLoggedIn ? (
+            <>
+              {/* Show rank badge + level on mobile when logged in */}
+              {rankInfo && profile && (
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.3rem",
+                    padding: "0.25rem 0.5rem",
+                    background: "oklch(0.62 0.25 22 / 0.1)",
+                    border: "1px solid oklch(0.62 0.25 22 / 0.3)",
+                    borderRadius: "6px",
+                  }}
+                >
+                  <img
+                    src={rankInfo.badgeImage}
+                    alt={rankInfo.title}
+                    style={{
+                      width: "18px",
+                      height: "18px",
+                      objectFit: "contain",
+                      filter: `drop-shadow(0 0 3px ${rankInfo.color.replace(")", " / 0.7)")})`,
+                    }}
+                  />
+                  <span
+                    style={{
+                      fontFamily: '"Sora", sans-serif',
+                      fontSize: "0.62rem",
+                      fontWeight: 700,
+                      color: rankInfo.color,
+                      letterSpacing: "0.05em",
+                    }}
+                  >
+                    LVL {Number(profile.level)}
+                  </span>
+                </div>
+              )}
+              {/* View Profile button — mobile */}
+              {onProfileClick && (
+                <button
+                  type="button"
+                  data-ocid="nav.profile_view.button"
+                  onClick={onProfileClick}
+                  title="View Profile"
+                  style={{
+                    background: "rgba(157,0,255,0.2)",
+                    border: "1px solid rgba(157,0,255,0.5)",
+                    borderRadius: "4px",
+                    padding: "0.45rem 0.5rem",
+                    color: "#cc66ff",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    touchAction: "manipulation",
+                    WebkitTapHighlightColor: "transparent",
+                    minHeight: "44px",
+                    minWidth: "44px",
+                    fontSize: "1rem",
+                  }}
+                >
+                  👤
+                </button>
+              )}
+              {/* Settings gear on mobile */}
+              {onAccountSettings && (
+                <button
+                  type="button"
+                  data-ocid="navbar.account_settings.button"
+                  onClick={onAccountSettings}
+                  title="Account Settings"
+                  style={{
+                    background: "transparent",
+                    border: "1px solid oklch(0.62 0.22 295 / 0.4)",
+                    borderRadius: "4px",
+                    padding: "0.45rem 0.5rem",
+                    color: "oklch(0.62 0.22 295)",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    touchAction: "manipulation",
+                    WebkitTapHighlightColor: "transparent",
+                    minHeight: "44px",
+                    minWidth: "44px",
+                  }}
+                >
+                  <Settings size={16} />
+                </button>
+              )}
+            </>
+          ) : (
+            <>
+              {/* LOGIN button always visible on mobile navbar */}
+              <button
+                type="button"
+                data-ocid="nav.login.button"
+                onClick={onLoginClick}
+                style={{
+                  fontFamily: '"Sora", sans-serif',
+                  fontWeight: 700,
+                  fontSize: "0.65rem",
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                  padding: "0.4rem 0.75rem",
+                  background: "transparent",
+                  border: "1px solid oklch(0.62 0.22 295 / 0.7)",
+                  borderRadius: "4px",
+                  color: "oklch(0.72 0.22 295)",
+                  cursor: "pointer",
+                  touchAction: "manipulation",
+                  WebkitTapHighlightColor: "transparent",
+                  minHeight: "44px",
+                  boxShadow: "0 0 6px oklch(0.62 0.22 295 / 0.2)",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                LOGIN
+              </button>
+              {/* SIGN UP compact button on mobile navbar */}
+              <button
+                type="button"
+                data-ocid="nav.signup.button"
+                onClick={onSignupClick}
+                style={{
+                  fontFamily: '"Sora", sans-serif',
+                  fontWeight: 700,
+                  fontSize: "0.65rem",
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                  padding: "0.4rem 0.75rem",
+                  background:
+                    "linear-gradient(135deg, oklch(0.62 0.25 22) 0%, oklch(0.55 0.22 340) 100%)",
+                  border: "1px solid oklch(0.72 0.28 22 / 0.6)",
+                  borderRadius: "4px",
+                  color: "oklch(0.98 0 0)",
+                  cursor: "pointer",
+                  touchAction: "manipulation",
+                  WebkitTapHighlightColor: "transparent",
+                  minHeight: "44px",
+                  boxShadow: "0 0 8px oklch(0.62 0.25 22 / 0.4)",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                SIGN UP
+              </button>
+            </>
+          )}
+        </div>
+
         {/* Mobile menu button */}
         <button
           type="button"
           className="md:hidden"
+          data-ocid="nav.menu.toggle"
           onClick={() => setMenuOpen(!menuOpen)}
           style={{
             background: "transparent",
@@ -699,6 +908,36 @@ export function Navbar({
           >
             {isLoggedIn ? (
               <>
+                {onProfileClick && (
+                  <button
+                    type="button"
+                    data-ocid="nav.profile_view.button"
+                    onClick={() => {
+                      onProfileClick();
+                      setMenuOpen(false);
+                    }}
+                    style={{
+                      fontFamily: '"Sora", sans-serif',
+                      fontWeight: 700,
+                      fontSize: "0.72rem",
+                      letterSpacing: "0.1em",
+                      padding: "0.5rem 1rem",
+                      background: "rgba(157,0,255,0.15)",
+                      border: "1px solid rgba(157,0,255,0.5)",
+                      borderRadius: "4px",
+                      color: "#cc66ff",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.4rem",
+                      touchAction: "manipulation",
+                      WebkitTapHighlightColor: "transparent",
+                      minHeight: "44px",
+                    }}
+                  >
+                    👤 VIEW PROFILE
+                  </button>
+                )}
                 {onAccountSettings && (
                   <button
                     type="button"
