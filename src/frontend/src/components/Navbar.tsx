@@ -512,7 +512,7 @@ export function Navbar({
               {link.label}
             </a>
           ))}
-          {/* Dungeon link mobile */}
+          {/* Dungeon link mobile — prominent */}
           {onDungeonClick && (
             <button
               type="button"
@@ -523,23 +523,37 @@ export function Navbar({
               }}
               style={{
                 fontFamily: '"Sora", sans-serif',
-                fontSize: "0.88rem",
-                fontWeight: 700,
-                letterSpacing: "0.08em",
+                fontSize: "0.92rem",
+                fontWeight: 900,
+                letterSpacing: "0.1em",
                 textTransform: "uppercase",
-                textDecoration: "none",
-                color: "oklch(0.75 0.25 22)",
-                padding: "0.6rem 0",
-                borderBottom: "1px solid oklch(0.2 0.02 260 / 0.4)",
-                background: "transparent",
-                border: "none",
+                color: "oklch(0.85 0.25 22)",
+                padding: "0.8rem 1rem",
+                background: "oklch(0.25 0.15 22 / 0.3)",
+                border: "1px solid oklch(0.62 0.25 22 / 0.5)",
+                borderRadius: "10px",
                 cursor: "pointer",
                 textAlign: "left",
                 touchAction: "manipulation",
                 WebkitTapHighlightColor: "transparent",
+                minHeight: "60px",
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.2rem",
+                boxShadow: "0 0 12px oklch(0.62 0.25 22 / 0.25)",
               }}
             >
-              ⚔️ DUNGEON FIGHTER
+              <span>⚔️ DUNGEON FIGHTER</span>
+              <span
+                style={{
+                  fontSize: "0.62rem",
+                  fontWeight: 500,
+                  color: "oklch(0.55 0.12 22)",
+                  letterSpacing: "0.06em",
+                }}
+              >
+                Turn-based RPG • Classes • Loot
+              </span>
             </button>
           )}
           {/* Character Creator mobile */}

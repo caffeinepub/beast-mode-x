@@ -30,94 +30,96 @@ export interface AttackCard {
 
 export const ATTACK_CARDS: AttackCard[] = [
   {
-    id: "basic_strike",
-    name: "Basic Strike",
-    icon: "👊",
-    damage: 15,
+    id: "shadow_fist",
+    name: "SHADOW FIST",
+    icon: "🌑",
+    damage: 18,
     manaCost: 0,
     minLevel: 1,
-    color: "#00ffff",
-    description: "Simple punch attack",
-    rarity: "common",
-  },
-  {
-    id: "power_slam",
-    name: "Power Slam",
-    icon: "💥",
-    damage: 25,
-    manaCost: 5,
-    minLevel: 1,
-    color: "#ffaa00",
-    description: "Heavy slam attack",
-    rarity: "common",
-  },
-  {
-    id: "heal_strike",
-    name: "Heal Strike",
-    icon: "💚",
-    damage: 10,
-    manaCost: 15,
-    minLevel: 1,
-    color: "#00ff88",
-    description: "Attack + heal 30 HP",
-    rarity: "rare",
-    healAmount: 30,
-  },
-  {
-    id: "wood_slash",
-    name: "Wood Slash",
-    icon: "🗡️",
-    damage: 35,
-    manaCost: 8,
-    minLevel: 3,
-    color: "#8B4513",
-    description: "Wooden sword strike",
-    rarity: "common",
-  },
-  {
-    id: "iron_strike",
-    name: "Iron Strike",
-    icon: "⚔️",
-    damage: 55,
-    manaCost: 12,
-    minLevel: 5,
-    color: "#aaaaaa",
-    description: "Iron blade slash",
-    rarity: "rare",
-  },
-  {
-    id: "shadow_slash",
-    name: "Shadow Slash",
-    icon: "🌑",
-    damage: 80,
-    manaCost: 20,
-    minLevel: 8,
     color: "#9d00ff",
-    description: "Dark blade, hits 3x",
+    description: "Dark energy erupts from your fist. Free attack.",
+    rarity: "common",
+  },
+  {
+    id: "beast_surge",
+    name: "BEAST SURGE",
+    icon: "🔥",
+    damage: 30,
+    manaCost: 8,
+    minLevel: 1,
+    color: "#ff4400",
+    description: "Raw primal power burst. Burns through defenses.",
+    rarity: "common",
+  },
+  {
+    id: "void_slash",
+    name: "VOID SLASH",
+    icon: "💠",
+    damage: 55,
+    manaCost: 15,
+    minLevel: 3,
+    color: "#00ffff",
+    description: "Dimensional cut tears through reality.",
+    rarity: "rare",
+  },
+  {
+    id: "crimson_strike",
+    name: "CRIMSON STRIKE",
+    icon: "⚡",
+    damage: 85,
+    manaCost: 22,
+    minLevel: 5,
+    color: "#ff0033",
+    description: "Blood-red piercing attack. High precision.",
+    rarity: "rare",
+  },
+  {
+    id: "soul_rend",
+    name: "SOUL REND",
+    icon: "💀",
+    damage: 120,
+    manaCost: 35,
+    minLevel: 8,
+    color: "#cc00ff",
+    description: "Tears through enemy soul. Hits 3x.",
     rarity: "epic",
     hitCount: 3,
+    healAmount: 20,
   },
   {
-    id: "dragon_fist",
-    name: "Dragon Fist",
-    icon: "🐉",
-    damage: 150,
-    manaCost: 35,
-    minLevel: 15,
-    color: "#ff6600",
-    description: "Explosive dragon punch",
+    id: "thunder_burst",
+    name: "THUNDER BURST",
+    icon: "⚡",
+    damage: 200,
+    manaCost: 50,
+    minLevel: 12,
+    color: "#ffff00",
+    description: "Lightning explosion vaporizes foes.",
+    rarity: "epic",
+    hitCount: 2,
+  },
+  {
+    id: "dark_ascension",
+    name: "DARK ASCENSION",
+    icon: "🌌",
+    damage: 350,
+    manaCost: 70,
+    minLevel: 18,
+    color: "#220044",
+    description: "Shadow eruption consumes all light.",
     rarity: "legendary",
   },
   {
-    id: "void_blast",
-    name: "Void Blast",
-    icon: "💀",
-    damage: 300,
-    manaCost: 60,
+    id: "beast_mode_ultimate",
+    name: "BEAST MODE ULTIMATE",
+    icon: "👑",
+    damage: 600,
+    manaCost: 100,
     minLevel: 25,
-    color: "#ff00ff",
-    description: "Annihilates all foes",
+    color: "#ff00aa",
+    description: "ULTIMATE POWER. All colors. Pure destruction.",
     rarity: "legendary",
+    hitCount: 4,
   },
 ];
 
@@ -142,6 +144,290 @@ export type BattlePhase =
   | "victory"
   | "defeat";
 
+// ─── Class-specific attack cards ──────────────────────────────────────────────
+export const CLASS_ATTACK_CARDS: Record<string, AttackCard[]> = {
+  SHADOW_MONARCH: [
+    {
+      id: "shadow_fist_sm",
+      name: "SHADOW FIST",
+      icon: "🌑",
+      damage: 25,
+      manaCost: 0,
+      minLevel: 1,
+      color: "#9d00ff",
+      description: "Dark energy erupts from your fist. Free attack.",
+      rarity: "common",
+    },
+    {
+      id: "dark_slash",
+      name: "DARK SLASH",
+      icon: "🗡️",
+      damage: 60,
+      manaCost: 25,
+      minLevel: 3,
+      color: "#7700cc",
+      description: "A dimensional blade slices through shadow.",
+      rarity: "rare",
+    },
+    {
+      id: "shadow_army",
+      name: "SHADOW ARMY",
+      icon: "👥",
+      damage: 100,
+      manaCost: 40,
+      minLevel: 8,
+      color: "#5500aa",
+      description: "Shadow soldiers attack in unison. Hits 3x.",
+      rarity: "epic",
+      hitCount: 3,
+    },
+    {
+      id: "void_domination",
+      name: "VOID DOMINATION",
+      icon: "👑",
+      damage: 350,
+      manaCost: 80,
+      minLevel: 20,
+      color: "#cc00ff",
+      description: "The Shadow Monarch's absolute authority. LEGENDARY.",
+      rarity: "legendary",
+    },
+  ],
+  THUNDER_GOD: [
+    {
+      id: "static_punch",
+      name: "STATIC PUNCH",
+      icon: "⚡",
+      damage: 22,
+      manaCost: 0,
+      minLevel: 1,
+      color: "#ffdd00",
+      description: "Electrified fist crackles with static. Free attack.",
+      rarity: "common",
+    },
+    {
+      id: "chain_lightning",
+      name: "CHAIN LIGHTNING",
+      icon: "🌩️",
+      damage: 55,
+      manaCost: 20,
+      minLevel: 3,
+      color: "#00ccff",
+      description: "Lightning jumps between enemies. Hits 2x.",
+      rarity: "rare",
+      hitCount: 2,
+    },
+    {
+      id: "thunder_clap",
+      name: "THUNDER CLAP",
+      icon: "💥",
+      damage: 120,
+      manaCost: 35,
+      minLevel: 8,
+      color: "#ffaa00",
+      description: "Thunderous shockwave stuns the target.",
+      rarity: "epic",
+    },
+    {
+      id: "gods_wrath",
+      name: "GOD'S WRATH",
+      icon: "⚡",
+      damage: 400,
+      manaCost: 75,
+      minLevel: 20,
+      color: "#ffffff",
+      description: "Divine lightning judgment from the heavens. LEGENDARY.",
+      rarity: "legendary",
+    },
+  ],
+  INFERNO_KING: [
+    {
+      id: "ember_strike",
+      name: "EMBER STRIKE",
+      icon: "🔥",
+      damage: 28,
+      manaCost: 0,
+      minLevel: 1,
+      color: "#ff4400",
+      description: "Burning fist ignites the enemy. Free attack.",
+      rarity: "common",
+    },
+    {
+      id: "fire_wave",
+      name: "FIRE WAVE",
+      icon: "🌊",
+      damage: 70,
+      manaCost: 22,
+      minLevel: 3,
+      color: "#ff6600",
+      description: "A wave of scorching flame washes over the enemy.",
+      rarity: "rare",
+    },
+    {
+      id: "magma_burst",
+      name: "MAGMA BURST",
+      icon: "🌋",
+      damage: 130,
+      manaCost: 38,
+      minLevel: 8,
+      color: "#ff2200",
+      description: "Molten magma erupts beneath the enemy.",
+      rarity: "epic",
+    },
+    {
+      id: "dragons_roar",
+      name: "DRAGON'S ROAR",
+      icon: "🐉",
+      damage: 380,
+      manaCost: 80,
+      minLevel: 20,
+      color: "#ff8800",
+      description: "Ancient dragon fire consumes everything. LEGENDARY.",
+      rarity: "legendary",
+    },
+  ],
+  FROST_SOVEREIGN: [
+    {
+      id: "ice_shard",
+      name: "ICE SHARD",
+      icon: "❄️",
+      damage: 20,
+      manaCost: 0,
+      minLevel: 1,
+      color: "#00ffff",
+      description: "Razor-sharp ice shard launched at enemy. Free attack.",
+      rarity: "common",
+    },
+    {
+      id: "blizzard",
+      name: "BLIZZARD",
+      icon: "🌨️",
+      damage: 65,
+      manaCost: 20,
+      minLevel: 3,
+      color: "#aaeeff",
+      description: "Freezing storm batters the enemy continuously.",
+      rarity: "rare",
+    },
+    {
+      id: "cryo_freeze",
+      name: "CRYO FREEZE",
+      icon: "🧊",
+      damage: 110,
+      manaCost: 38,
+      minLevel: 8,
+      color: "#00ccee",
+      description: "Absolute cold freezes enemy in place. Bonus stun.",
+      rarity: "epic",
+    },
+    {
+      id: "absolute_zero",
+      name: "ABSOLUTE ZERO",
+      icon: "💎",
+      damage: 360,
+      manaCost: 78,
+      minLevel: 20,
+      color: "#ccffff",
+      description: "Temperature drops to absolute zero. LEGENDARY.",
+      rarity: "legendary",
+    },
+  ],
+  BLOOD_BERSERKER: [
+    {
+      id: "rage_strike",
+      name: "RAGE STRIKE",
+      icon: "💢",
+      damage: 30,
+      manaCost: 0,
+      minLevel: 1,
+      color: "#cc0000",
+      description: "Fury-powered strike with raw aggression. Free attack.",
+      rarity: "common",
+    },
+    {
+      id: "blood_slash",
+      name: "BLOOD SLASH",
+      icon: "🩸",
+      damage: 80,
+      manaCost: 18,
+      minLevel: 3,
+      color: "#aa0000",
+      description: "Crimson blade draws blood and heals the berserker.",
+      rarity: "rare",
+      healAmount: 20,
+    },
+    {
+      id: "berserk_mode",
+      name: "BERSERK MODE",
+      icon: "😤",
+      damage: 140,
+      manaCost: 30,
+      minLevel: 8,
+      color: "#880000",
+      description: "Pure unbridled rage unleashed. Maximum damage.",
+      rarity: "epic",
+    },
+    {
+      id: "crimson_extinction",
+      name: "CRIMSON EXTINCTION",
+      icon: "☠️",
+      damage: 420,
+      manaCost: 70,
+      minLevel: 20,
+      color: "#ff0044",
+      description: "Total annihilation through pure bloodlust. LEGENDARY.",
+      rarity: "legendary",
+    },
+  ],
+  VOID_ARCHMAGE: [
+    {
+      id: "void_touch",
+      name: "VOID TOUCH",
+      icon: "🔮",
+      damage: 22,
+      manaCost: 0,
+      minLevel: 1,
+      color: "#cc00ff",
+      description: "Touch of void energy drains life. Free attack.",
+      rarity: "common",
+    },
+    {
+      id: "space_rend",
+      name: "SPACE REND",
+      icon: "💠",
+      damage: 75,
+      manaCost: 25,
+      minLevel: 3,
+      color: "#aa00dd",
+      description: "Tears through the fabric of space itself.",
+      rarity: "rare",
+    },
+    {
+      id: "time_stop",
+      name: "TIME STOP",
+      icon: "⏱️",
+      damage: 100,
+      manaCost: 40,
+      minLevel: 8,
+      color: "#ff00cc",
+      description: "Time frozen — enemy helpless against assault.",
+      rarity: "epic",
+    },
+    {
+      id: "singularity",
+      name: "SINGULARITY",
+      icon: "🌀",
+      damage: 500,
+      manaCost: 85,
+      minLevel: 20,
+      color: "#ff44ff",
+      description:
+        "Collapses reality into a single point of infinite power. LEGENDARY.",
+      rarity: "legendary",
+    },
+  ],
+};
+
 export interface GameState {
   // Player
   playerHP: number;
@@ -155,6 +441,9 @@ export interface GameState {
   gameXP: number;
   sessionXP: number;
   sessionKills: number;
+  playerClass: string | null;
+  classKills: Record<string, number>;
+  classXP: Record<string, number>;
 
   // Inventory
   inventory: InventoryItem[];
@@ -190,6 +479,8 @@ export interface GameState {
   markXPSynced: () => void;
   addItem: (item: InventoryItem) => void;
   resetGame: () => void;
+  setPlayerClass: (className: string) => void;
+  resetClassProgress: (className: string) => void;
 
   // Turn-based battle actions
   setBattlePhase: (phase: BattlePhase) => void;
@@ -221,7 +512,7 @@ export const WEAPONS: Record<
   }
 > = {
   fists: {
-    name: "Iron Fists",
+    name: "Shadow Fists",
     icon: "👊",
     range: 2.0,
     damage: 10,
@@ -229,10 +520,10 @@ export const WEAPONS: Record<
     minLevel: 1,
     color: "#00ffff",
     rarity: "common",
-    description: "Basic punching attack",
+    description: "Your fists infused with dark energy",
   },
   woodSword: {
-    name: "Wood Sword",
+    name: "Void Dagger",
     icon: "🗡️",
     range: 2.5,
     damage: 18,
@@ -240,10 +531,10 @@ export const WEAPONS: Record<
     minLevel: 3,
     color: "#8B4513",
     rarity: "common",
-    description: "A basic wooden sword",
+    description: "A blade that cuts through dimensions",
   },
   ironSword: {
-    name: "Iron Sword",
+    name: "Crimson Edge",
     icon: "⚔️",
     range: 2.5,
     damage: 30,
@@ -251,10 +542,10 @@ export const WEAPONS: Record<
     minLevel: 5,
     color: "#aaaaaa",
     rarity: "common",
-    description: "Reliable iron blade",
+    description: "Red-forged blade of pure power",
   },
   shadowBlade: {
-    name: "Shadow Blade",
+    name: "Soul Reaper",
     icon: "🌑",
     range: 3.0,
     damage: 50,
@@ -263,10 +554,10 @@ export const WEAPONS: Record<
     color: "#9d00ff",
     rarity: "epic",
     hitCount: 3,
-    description: "Neon purple cone attack, hits 3 enemies",
+    description: "Three-hit shadow slash",
   },
   dragonSword: {
-    name: "Dragon Sword",
+    name: "Thunder Blade",
     icon: "🐉",
     range: 3.5,
     damage: 100,
@@ -275,10 +566,10 @@ export const WEAPONS: Record<
     color: "#ff6600",
     rarity: "legendary",
     aoeRadius: 2.5,
-    description: "Dragon Fist - orange explosion radius",
+    description: "Lightning-infused dragon weapon",
   },
   voidScythe: {
-    name: "Void Scythe",
+    name: "Void Scythe of Ascension",
     icon: "💀",
     range: 5.0,
     damage: 200,
@@ -287,7 +578,7 @@ export const WEAPONS: Record<
     color: "#ff00ff",
     rarity: "legendary",
     aoeRadius: 5.0,
-    description: "Void Blast - hits all enemies in radius",
+    description: "Ultimate weapon. Destroys all.",
   },
 };
 
@@ -615,13 +906,13 @@ const initialInventory: InventoryItem[] = [
   {
     id: "fists",
     type: "weapon",
-    name: "Iron Fists",
+    name: "Shadow Fists",
     rarity: "common",
     attackBonus: 10,
     defenseBonus: 0,
     quantity: 1,
     icon: "👊",
-    description: "Your bare hands",
+    description: "Your fists infused with dark energy",
   },
   {
     id: "health_potion_starter",
@@ -650,6 +941,9 @@ export const useGameStore = create<GameState>()(
       gameXP: 0,
       sessionXP: 0,
       sessionKills: 0,
+      playerClass: null,
+      classKills: {},
+      classXP: {},
       inventory: initialInventory,
       equippedWeapon: "fists",
       currentZone: "normal",
@@ -693,6 +987,16 @@ export const useGameStore = create<GameState>()(
         const newMaxHP = 100 + (newLevel - 1) * 10;
         const newMaxMana = 50 + (newLevel - 1) * 5;
 
+        // Track class-specific progress
+        const newClassKills = { ...state.classKills };
+        const newClassXP = { ...state.classXP };
+        if (state.playerClass) {
+          newClassKills[state.playerClass] =
+            (newClassKills[state.playerClass] ?? 0) + 1;
+          newClassXP[state.playerClass] =
+            (newClassXP[state.playerClass] ?? 0) + xp;
+        }
+
         set({
           kills: newKills,
           sessionKills: newSessionKills,
@@ -703,6 +1007,8 @@ export const useGameStore = create<GameState>()(
           maxPlayerHP: newMaxHP,
           maxPlayerMana: newMaxMana,
           inventory: newInventory,
+          classKills: newClassKills,
+          classXP: newClassXP,
         });
       },
 
@@ -832,6 +1138,27 @@ export const useGameStore = create<GameState>()(
           battlePhase: "idle",
           currentEnemy: null,
           battleLog: [],
+        });
+      },
+
+      setPlayerClass: (className) => {
+        const state = get();
+        const existing = state.classKills[className] ?? 0;
+        set({
+          playerClass: className,
+          classKills: { ...state.classKills, [className]: existing },
+          classXP: {
+            ...state.classXP,
+            [className]: state.classXP[className] ?? 0,
+          },
+        });
+      },
+
+      resetClassProgress: (className) => {
+        const state = get();
+        set({
+          classKills: { ...state.classKills, [className]: 0 },
+          classXP: { ...state.classXP, [className]: 0 },
         });
       },
 
@@ -1092,6 +1419,9 @@ export const useGameStore = create<GameState>()(
         equippedWeapon: state.equippedWeapon,
         maxPlayerHP: state.maxPlayerHP,
         maxPlayerMana: state.maxPlayerMana,
+        playerClass: state.playerClass,
+        classKills: state.classKills,
+        classXP: state.classXP,
       }),
     },
   ),

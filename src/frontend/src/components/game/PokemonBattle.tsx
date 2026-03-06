@@ -4,7 +4,12 @@ import { toast } from "sonner";
 import { AnimeBattleScene } from "./AnimeBattleScene";
 import { BattleHUD, DefeatScreen, VictoryScreen } from "./BattleHUD";
 import { CharacterCreator } from "./CharacterCreator";
-import { ATTACK_CARDS, useGameStore } from "./GameStore";
+import {
+  CLASS_DEFINITIONS,
+  ClassSelectionScreen,
+} from "./ClassSelectionScreen";
+import type { DungeonBgType } from "./DungeonBackground";
+import { ATTACK_CARDS, CLASS_ATTACK_CARDS, useGameStore } from "./GameStore";
 import { InventoryModal } from "./InventoryModal";
 
 interface PokemonBattleProps {
@@ -19,13 +24,16 @@ interface XPFloat {
 let xpFloatCounter = 0;
 
 // ─── Get best 4 attack cards for current level ─────────────────────────────
-function getBestCards(gameLevel: number) {
-  // All cards available for this level (or locked), up to 4 slots
-  const allCards = [...ATTACK_CARDS];
+function getBestCards(gameLevel: number, playerClass?: string | null) {
+  // Use class-specific cards if a class is selected
+  const cardPool =
+    playerClass && CLASS_ATTACK_CARDS[playerClass]
+      ? CLASS_ATTACK_CARDS[playerClass]
+      : [...ATTACK_CARDS];
 
   // Sort: available cards first by damage desc, locked cards last
-  const available = allCards.filter((c) => gameLevel >= c.minLevel);
-  const locked = allCards.filter((c) => gameLevel < c.minLevel);
+  const available = cardPool.filter((c) => gameLevel >= c.minLevel);
+  const locked = cardPool.filter((c) => gameLevel < c.minLevel);
 
   // Take best 3 available + 1 locked slot (preview)
   const best = available.slice(-4); // last 4 = highest level
@@ -34,24 +42,39 @@ function getBestCards(gameLevel: number) {
   }
 
   // Ensure we always have 4 items (pad with basics if needed)
+  const fallback = cardPool[0] ?? ATTACK_CARDS[0];
   while (best.length < 4) {
-    best.unshift(ATTACK_CARDS[0]);
+    best.unshift(fallback);
   }
 
   return best.slice(0, 4);
 }
 
+const BATTLE_BACKGROUNDS: DungeonBgType[] = [
+  "cave",
+  "tunnel",
+  "ruins",
+  "desert",
+  "volcano",
+  "void",
+];
+
 // ─── Splash Screen ─────────────────────────────────────────────────────────────
 function SplashScreen({
   onStart,
   onBack,
+  onClassSelect,
 }: {
   onStart: () => void;
   onBack: () => void;
+  onClassSelect: () => void;
 }) {
-  const { gold, kills, gameLevel, sessionXP } = useGameStore();
+  const { gold, kills, gameLevel, sessionXP, playerClass } = useGameStore();
   const [inventoryOpen, setInventoryOpen] = useState(false);
   const [characterCreatorOpen, setCharacterCreatorOpen] = useState(false);
+  const classInfo = playerClass
+    ? CLASS_DEFINITIONS.find((c) => c.id === playerClass)
+    : null;
 
   return (
     <div
@@ -182,6 +205,97 @@ function SplashScreen({
         ))}
       </div>
 
+      {/* Class badge */}
+      {classInfo ? (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "0.75rem",
+            marginBottom: "1rem",
+            padding: "0.6rem 1.2rem",
+            background: `${classInfo.primaryColor}15`,
+            border: `1px solid ${classInfo.primaryColor}55`,
+            borderRadius: "10px",
+            position: "relative",
+            zIndex: 1,
+          }}
+        >
+          <span style={{ fontSize: "1.5rem" }}>{classInfo.icon}</span>
+          <div>
+            <div
+              style={{
+                fontSize: "0.58rem",
+                letterSpacing: "0.1em",
+                color: classInfo.secondaryColor,
+                fontWeight: 700,
+              }}
+            >
+              {classInfo.elementIcon} {classInfo.elementType}
+            </div>
+            <div
+              style={{
+                fontSize: "0.85rem",
+                fontWeight: 900,
+                color: classInfo.primaryColor,
+                letterSpacing: "0.08em",
+              }}
+            >
+              {classInfo.name}
+            </div>
+          </div>
+          <button
+            type="button"
+            data-ocid="game.class.open_modal_button"
+            onClick={onClassSelect}
+            style={{
+              marginLeft: "auto",
+              fontFamily: '"Sora", sans-serif',
+              fontWeight: 700,
+              fontSize: "0.6rem",
+              letterSpacing: "0.08em",
+              padding: "0.4rem 0.75rem",
+              background: "transparent",
+              border: `1px solid ${classInfo.primaryColor}66`,
+              borderRadius: "6px",
+              color: classInfo.primaryColor,
+              cursor: "pointer",
+              touchAction: "manipulation",
+            }}
+          >
+            CHANGE
+          </button>
+        </div>
+      ) : (
+        <button
+          type="button"
+          data-ocid="game.class.open_modal_button"
+          onClick={onClassSelect}
+          style={{
+            fontFamily: '"Sora", sans-serif',
+            fontWeight: 700,
+            fontSize: "0.8rem",
+            letterSpacing: "0.1em",
+            padding: "0.75rem 2rem",
+            background:
+              "linear-gradient(135deg, rgba(157,0,255,0.2) 0%, rgba(255,0,51,0.2) 100%)",
+            border: "1px solid rgba(157,0,255,0.5)",
+            borderRadius: "10px",
+            color: "#9d00ff",
+            cursor: "pointer",
+            boxShadow: "0 0 16px rgba(157,0,255,0.3)",
+            touchAction: "manipulation",
+            minHeight: "48px",
+            marginBottom: "1rem",
+            position: "relative",
+            zIndex: 1,
+            animation: "classGlow 2s ease-in-out infinite alternate",
+          }}
+        >
+          ⚡ CHOOSE YOUR CLASS
+        </button>
+      )}
+
       {/* Feature cards */}
       <div
         style={{
@@ -197,19 +311,21 @@ function SplashScreen({
       >
         {[
           {
-            icon: "🃏",
-            title: "CARD BATTLES",
-            desc: "Pokemon-style turn-based combat",
+            icon: classInfo ? classInfo.icon : "🃏",
+            title: classInfo ? classInfo.name : "CARD BATTLES",
+            desc: classInfo
+              ? `${classInfo.elementIcon} ${classInfo.elementType}`
+              : "Pokemon-style turn-based combat",
           },
           {
             icon: "🏰",
             title: "BOSS DUNGEONS",
-            desc: "Epic boss encounters with loot",
+            desc: "Cave, Tunnel, Ruins, Desert, Volcano, Void",
           },
           {
             icon: "⬆️",
             title: "LEVEL UP",
-            desc: "Unlock powerful attack cards",
+            desc: "Unlock legendary attacks at Lv 20",
           },
           {
             icon: "💎",
@@ -386,10 +502,12 @@ function SplashScreen({
 // ─── Main PokemonBattle ────────────────────────────────────────────────────────
 export function PokemonBattle({ onBack, playerLevel = 1 }: PokemonBattleProps) {
   const [gameStarted, setGameStarted] = useState(false);
+  const [showClassSelection, setShowClassSelection] = useState(false);
   const [xpFloats, setXPFloats] = useState<XPFloat[]>([]);
   const [lastVictoryXP, setLastVictoryXP] = useState(0);
   const [lastVictoryGold, setLastVictoryGold] = useState(0);
   const [showInventory, setShowInventory] = useState(false);
+  const [lastAttackColor, setLastAttackColor] = useState("#00ffff");
   const prevBattlePhaseRef = useRef<string>("");
 
   const { actor } = useActorSafe();
@@ -404,6 +522,7 @@ export function PokemonBattle({ onBack, playerLevel = 1 }: PokemonBattleProps) {
     enterDungeon,
     exitDungeon,
     nextWave,
+    playerClass,
 
     // Player state
     playerHP,
@@ -552,21 +671,42 @@ export function PokemonBattle({ onBack, playerLevel = 1 }: PokemonBattleProps) {
     setGameStarted(false);
   }, [exitDungeon, clearBattle]);
 
-  // Get attack cards
-  const availableCards = getBestCards(gameLevel);
+  // Computed background type based on wave
+  const bgType = BATTLE_BACKGROUNDS[(wave - 1) % BATTLE_BACKGROUNDS.length];
+
+  // Get attack cards - class-specific if class selected
+  const availableCards = getBestCards(gameLevel, playerClass);
 
   const handleAttackCard = useCallback(
     (cardIndex: number) => {
       const card = availableCards[cardIndex];
       if (!card || gameLevel < card.minLevel) return;
+      setLastAttackColor(card.color);
       playerAttack(card);
     },
     [availableCards, gameLevel, playerAttack],
   );
 
+  // ─── Class selection screen ─────────────────────────────────────────────────
+  if (showClassSelection) {
+    return (
+      <ClassSelectionScreen
+        onClassSelected={(_className) => {
+          setShowClassSelection(false);
+        }}
+      />
+    );
+  }
+
   // ─── Splash screen ─────────────────────────────────────────────────────────
   if (!gameStarted) {
-    return <SplashScreen onStart={handleStartGame} onBack={onBack} />;
+    return (
+      <SplashScreen
+        onStart={handleStartGame}
+        onBack={onBack}
+        onClassSelect={() => setShowClassSelection(true)}
+      />
+    );
   }
 
   const enemyData = currentEnemy
@@ -602,6 +742,8 @@ export function PokemonBattle({ onBack, playerLevel = 1 }: PokemonBattleProps) {
           enemyData={enemyData}
           currentZone={currentZone}
           equippedWeapon={useGameStore.getState().equippedWeapon}
+          attackColor={lastAttackColor}
+          bgType={bgType}
         />
       </div>
 
@@ -832,6 +974,10 @@ export function PokemonBattle({ onBack, playerLevel = 1 }: PokemonBattleProps) {
           20% { opacity: 1; transform: translateX(-50%) translateY(-20px) scale(1.1); }
           80% { opacity: 1; transform: translateX(-50%) translateY(-60px) scale(1); }
           100% { opacity: 0; transform: translateX(-50%) translateY(-90px) scale(0.9); }
+        }
+        @keyframes classGlow {
+          0% { box-shadow: 0 0 12px rgba(157,0,255,0.3); }
+          100% { box-shadow: 0 0 28px rgba(157,0,255,0.7), 0 0 48px rgba(157,0,255,0.3); }
         }
       `}</style>
     </div>

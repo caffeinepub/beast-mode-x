@@ -4,14 +4,17 @@ import { persist } from "zustand/middleware";
 export interface CharacterConfig {
   gender: "male" | "female";
   bodyType: "slim" | "athletic" | "strong";
-  hairStyle: number; // 0-7
+  hairStyle: number; // 0-11
   hairColor: string;
   skinTone: string;
   eyeColor: string;
-  outfitStyle: number; // 0-5
+  outfitStyle: number; // 0-8
   outfitColor: string;
   auraColor: string;
-  accessory: number; // 0-4
+  accessory: number; // 0-7
+  characterName: string;
+  selectedClass: string | null;
+  classProgress: Record<string, { xp: number; kills: number }>;
 }
 
 interface CharacterStore {
@@ -31,6 +34,9 @@ export const DEFAULT_CHARACTER_CONFIG: CharacterConfig = {
   outfitColor: "#001133",
   auraColor: "#00aaff",
   accessory: 0,
+  characterName: "BEAST WARRIOR",
+  selectedClass: null,
+  classProgress: {},
 };
 
 export const useCharacterStore = create<CharacterStore>()(

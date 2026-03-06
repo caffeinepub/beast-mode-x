@@ -274,6 +274,166 @@ function AppContent() {
             onLoginClick={() => setLoginModalOpen(true)}
           />
 
+          {/* Dungeon Section Card — visible and prominent on mobile */}
+          <section
+            id="dungeon"
+            style={{
+              padding: "clamp(2rem, 6vw, 4rem) clamp(1rem, 4vw, 2rem)",
+              maxWidth: "1200px",
+              margin: "0 auto",
+            }}
+          >
+            <div
+              style={{
+                background:
+                  "linear-gradient(135deg, rgba(20,0,10,0.95) 0%, rgba(10,0,20,0.98) 100%)",
+                border: "1px solid rgba(255,0,51,0.3)",
+                borderRadius: "20px",
+                padding: "clamp(1.5rem, 5vw, 3rem)",
+                position: "relative",
+                overflow: "hidden",
+                boxShadow:
+                  "0 0 40px rgba(255,0,51,0.1), 0 0 80px rgba(157,0,255,0.08)",
+              }}
+            >
+              {/* Background glow */}
+              <div
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  background: `
+                    radial-gradient(circle at 30% 50%, rgba(157,0,255,0.08) 0%, transparent 50%),
+                    radial-gradient(circle at 70% 50%, rgba(255,0,51,0.08) 0%, transparent 50%)
+                  `,
+                  pointerEvents: "none",
+                }}
+              />
+
+              <div
+                style={{
+                  position: "relative",
+                  zIndex: 1,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  textAlign: "center",
+                  gap: "1rem",
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: "clamp(2rem, 6vw, 3rem)",
+                    filter: "drop-shadow(0 0 12px rgba(255,0,51,0.8))",
+                  }}
+                >
+                  ⚔️
+                </div>
+                <div
+                  style={{
+                    fontFamily: '"Sora", sans-serif',
+                    fontWeight: 900,
+                    fontSize: "clamp(1.5rem, 5vw, 2.5rem)",
+                    letterSpacing: "0.08em",
+                    background:
+                      "linear-gradient(135deg, #ff0033 0%, #9d00ff 50%, #00ffff 100%)",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    backgroundClip: "text",
+                  }}
+                >
+                  DUNGEON FIGHTER
+                </div>
+                <div
+                  style={{
+                    fontFamily: '"Sora", sans-serif',
+                    fontSize: "clamp(0.75rem, 2vw, 0.95rem)",
+                    color: "rgba(255,255,255,0.5)",
+                    maxWidth: "480px",
+                    lineHeight: 1.6,
+                  }}
+                >
+                  Turn-based card battle RPG. Choose your class. Enter the
+                  dungeon. Defeat bosses and collect legendary loot.
+                </div>
+
+                {/* Class badges */}
+                <div
+                  style={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: "0.4rem",
+                    justifyContent: "center",
+                    marginBottom: "0.5rem",
+                  }}
+                >
+                  {[
+                    { icon: "👑", name: "Shadow", color: "#9d00ff" },
+                    { icon: "⚡", name: "Thunder", color: "#ffdd00" },
+                    { icon: "🔥", name: "Inferno", color: "#ff4400" },
+                    { icon: "❄️", name: "Frost", color: "#00ffff" },
+                    { icon: "⚔️", name: "Berserker", color: "#cc0000" },
+                    { icon: "🌀", name: "Archmage", color: "#cc00ff" },
+                  ].map((cls) => (
+                    <div
+                      key={cls.name}
+                      style={{
+                        padding: "0.3rem 0.65rem",
+                        background: `${cls.color}15`,
+                        border: `1px solid ${cls.color}44`,
+                        borderRadius: "20px",
+                        fontSize: "0.62rem",
+                        fontFamily: '"Sora", sans-serif',
+                        fontWeight: 700,
+                        color: cls.color,
+                        letterSpacing: "0.06em",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.3rem",
+                      }}
+                    >
+                      {cls.icon} {cls.name}
+                    </div>
+                  ))}
+                </div>
+
+                <button
+                  type="button"
+                  data-ocid="dungeon.enter.primary_button"
+                  onClick={() => setAppState("dungeon")}
+                  style={{
+                    fontFamily: '"Sora", sans-serif',
+                    fontWeight: 900,
+                    fontSize: "clamp(0.9rem, 2.5vw, 1.1rem)",
+                    letterSpacing: "0.15em",
+                    padding: "1rem 3rem",
+                    background:
+                      "linear-gradient(135deg, #ff0033 0%, #9d00ff 100%)",
+                    border: "none",
+                    borderRadius: "12px",
+                    color: "white",
+                    cursor: "pointer",
+                    boxShadow:
+                      "0 0 30px rgba(255,0,51,0.4), 0 0 60px rgba(157,0,255,0.2)",
+                    touchAction: "manipulation",
+                    minHeight: "56px",
+                    animation: "dungeonPulse 2s ease-in-out infinite alternate",
+                    transition: "transform 0.15s ease",
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLElement).style.transform =
+                      "scale(1.04)";
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLElement).style.transform =
+                      "scale(1)";
+                  }}
+                >
+                  ⚔️ ENTER DUNGEON
+                </button>
+              </div>
+            </div>
+          </section>
+
           <CameraTracker />
 
           <PlayerDashboardSection
@@ -307,7 +467,54 @@ function AppContent() {
         <Footer />
 
         <MusicToggle />
+
+        {/* Fixed mobile dungeon button — bottom center, only on app state */}
+        {appState === "app" && (
+          <div
+            className="md:hidden"
+            style={{
+              position: "fixed",
+              bottom: "20px",
+              left: "50%",
+              transform: "translateX(-50%)",
+              zIndex: 90,
+            }}
+          >
+            <button
+              type="button"
+              data-ocid="app.enter_dungeon.button"
+              onClick={() => setAppState("dungeon")}
+              style={{
+                fontFamily: '"Sora", sans-serif',
+                fontWeight: 900,
+                fontSize: "0.9rem",
+                letterSpacing: "0.12em",
+                height: "56px",
+                width: "220px",
+                background: "linear-gradient(135deg, #ff0033 0%, #9d00ff 100%)",
+                border: "none",
+                borderRadius: "14px",
+                color: "white",
+                cursor: "pointer",
+                boxShadow:
+                  "0 0 20px rgba(255,0,51,0.5), 0 0 40px rgba(157,0,255,0.3), 0 4px 16px rgba(0,0,0,0.5)",
+                touchAction: "manipulation",
+                WebkitTapHighlightColor: "transparent",
+                animation: "dungeonPulse 2s ease-in-out infinite alternate",
+              }}
+            >
+              ⚔️ ENTER DUNGEON
+            </button>
+          </div>
+        )}
       </div>
+
+      <style>{`
+        @keyframes dungeonPulse {
+          0% { box-shadow: 0 0 20px rgba(255,0,51,0.5), 0 0 40px rgba(157,0,255,0.3), 0 4px 16px rgba(0,0,0,0.5); }
+          100% { box-shadow: 0 0 35px rgba(255,0,51,0.7), 0 0 70px rgba(157,0,255,0.5), 0 4px 20px rgba(0,0,0,0.6); }
+        }
+      `}</style>
 
       {/* Trailer Modal */}
       <TrailerModal open={trailerOpen} onClose={() => setTrailerOpen(false)} />

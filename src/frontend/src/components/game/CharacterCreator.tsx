@@ -17,6 +17,10 @@ const HAIR_STYLES = [
   { label: "Mohawk", icon: "🔥" },
   { label: "Curly", icon: "🌪️" },
   { label: "Straight", icon: "➡️" },
+  { label: "Twin Tails", icon: "🎀🎀" },
+  { label: "Wild Messy", icon: "💥" },
+  { label: "Slicked Back", icon: "🌊" },
+  { label: "Undercut", icon: "✂️🔥" },
 ];
 
 const HAIR_COLORS = [
@@ -58,6 +62,9 @@ const ACCESSORIES = [
   { label: "Eyepatch", icon: "🏴‍☠️" },
   { label: "Scar", icon: "⚡" },
   { label: "Face Paint", icon: "🎭" },
+  { label: "Headphones", icon: "🎧" },
+  { label: "Tribal Tattoo", icon: "🔮" },
+  { label: "Glowing Rune", icon: "✨" },
 ];
 
 const OUTFIT_STYLES = [
@@ -67,6 +74,9 @@ const OUTFIT_STYLES = [
   { label: "Berserker", icon: "💀" },
   { label: "Knight", icon: "🛡️" },
   { label: "Shadow", icon: "🌑" },
+  { label: "Ninja", icon: "🌑" },
+  { label: "Demon Hunter", icon: "🔱" },
+  { label: "God-Tier", icon: "👑" },
 ];
 
 const OUTFIT_COLORS = [
@@ -87,6 +97,975 @@ const AURA_COLORS = [
   { label: "White", value: "#ffffff" },
 ];
 
+// ─── Hair shape renderer ───────────────────────────────────────────────────────
+function HairShape({
+  hairStyle,
+  hairColor,
+  isFemale,
+}: {
+  hairStyle: number;
+  hairColor: string;
+  isFemale: boolean;
+}) {
+  const glow = `drop-shadow(0 0 4px ${hairColor})`;
+
+  switch (hairStyle) {
+    case 0: // Spiky
+      return (
+        <>
+          {[-20, -10, 0, 10, 20].map((x, idx) => (
+            <div
+              key={x}
+              style={{
+                position: "absolute",
+                bottom: idx % 2 === 0 ? "88%" : "82%",
+                left: `calc(50% + ${x}px)`,
+                transform: "translateX(-50%)",
+                width: 9,
+                height: idx % 2 === 0 ? 30 : 22,
+                background: hairColor,
+                clipPath: "polygon(50% 0%, 5% 100%, 95% 100%)",
+                filter: glow,
+              }}
+            />
+          ))}
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              height: "52%",
+              background: hairColor,
+              borderRadius: "50% 50% 0 0",
+              filter: glow,
+            }}
+          />
+        </>
+      );
+
+    case 1: // Long
+      return (
+        <>
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: -6,
+              right: -6,
+              height: "58%",
+              background: hairColor,
+              borderRadius: "50% 50% 0 0",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              top: "48%",
+              left: -10,
+              width: 16,
+              height: isFemale ? 130 : 110,
+              background: `linear-gradient(${hairColor}ee, ${hairColor}44, transparent)`,
+              borderRadius: "0 0 8px 50%",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              top: "48%",
+              right: -10,
+              width: 16,
+              height: isFemale ? 120 : 100,
+              background: `linear-gradient(${hairColor}ee, ${hairColor}44, transparent)`,
+              borderRadius: "0 0 50% 8px",
+            }}
+          />
+          {isFemale && (
+            <div
+              style={{
+                position: "absolute",
+                top: "60%",
+                left: "50%",
+                transform: "translateX(-50%)",
+                width: 8,
+                height: 90,
+                background: `linear-gradient(${hairColor}cc, transparent)`,
+                borderRadius: "0 0 4px 4px",
+              }}
+            />
+          )}
+        </>
+      );
+
+    case 2: // Short
+      return (
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: -4,
+            right: -4,
+            height: "46%",
+            background: hairColor,
+            borderRadius: "50% 50% 0 0",
+            filter: glow,
+          }}
+        />
+      );
+
+    case 3: // Ponytail
+      return (
+        <>
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              height: "50%",
+              background: hairColor,
+              borderRadius: "50% 50% 0 0",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              top: "8%",
+              right: -8,
+              width: 13,
+              height: 95,
+              background: `linear-gradient(${hairColor}, ${hairColor}88, transparent)`,
+              borderRadius: "0 20px 20px 0",
+              transform: "rotate(12deg)",
+            }}
+          />
+        </>
+      );
+
+    case 4: // Bun
+      return (
+        <>
+          <div
+            style={{
+              position: "absolute",
+              top: 2,
+              left: 0,
+              right: 0,
+              height: "45%",
+              background: hairColor,
+              borderRadius: "50% 50% 0 0",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              top: "-18%",
+              left: "50%",
+              transform: "translateX(-50%)",
+              width: 28,
+              height: 28,
+              background: hairColor,
+              borderRadius: "50%",
+              boxShadow: `0 0 8px ${hairColor}`,
+            }}
+          />
+        </>
+      );
+
+    case 5: // Mohawk
+      return (
+        <>
+          <div
+            style={{
+              position: "absolute",
+              top: "-24%",
+              left: "50%",
+              transform: "translateX(-50%)",
+              width: 18,
+              height: 46,
+              background: hairColor,
+              clipPath: "polygon(50% 0%, 5% 100%, 95% 100%)",
+              filter: `drop-shadow(0 0 8px ${hairColor})`,
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              top: "4%",
+              left: "50%",
+              transform: "translateX(-50%)",
+              width: 18,
+              height: "42%",
+              background: hairColor,
+              borderRadius: "2px 2px 0 0",
+            }}
+          />
+          {/* Shaved sides */}
+          <div
+            style={{
+              position: "absolute",
+              top: "10%",
+              left: 0,
+              width: "28%",
+              height: "55%",
+              background: "rgba(0,0,0,0.3)",
+              borderRadius: "0 0 0 4px",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              top: "10%",
+              right: 0,
+              width: "28%",
+              height: "55%",
+              background: "rgba(0,0,0,0.3)",
+              borderRadius: "0 0 4px 0",
+            }}
+          />
+        </>
+      );
+
+    case 6: // Curly
+      return (
+        <>
+          {[-18, -6, 6, 18].map((x) => (
+            <div
+              key={x}
+              style={{
+                position: "absolute",
+                top: "-10%",
+                left: `calc(50% + ${x}px)`,
+                transform: "translateX(-50%)",
+                width: 16,
+                height: 16,
+                background: hairColor,
+                borderRadius: "50%",
+                filter: glow,
+              }}
+            />
+          ))}
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: -6,
+              right: -6,
+              height: "55%",
+              background: hairColor,
+              borderRadius: "50% 50% 0 0",
+            }}
+          />
+          {/* Curly tufts on sides */}
+          {[-38, 30].map((x) => (
+            <div
+              key={x}
+              style={{
+                position: "absolute",
+                top: "30%",
+                left: `calc(50% + ${x}px)`,
+                transform: "translateX(-50%)",
+                width: 14,
+                height: 20,
+                background: hairColor,
+                borderRadius: "50%",
+              }}
+            />
+          ))}
+        </>
+      );
+
+    case 7: // Straight
+      return (
+        <>
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: -4,
+              right: -4,
+              height: "48%",
+              background: hairColor,
+              borderRadius: "6px 6px 0 0",
+            }}
+          />
+          {/* Straight side strands */}
+          <div
+            style={{
+              position: "absolute",
+              top: "44%",
+              left: -8,
+              width: 14,
+              height: 70,
+              background: `linear-gradient(${hairColor}, transparent)`,
+              borderRadius: "0 0 0 4px",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              top: "44%",
+              right: -8,
+              width: 14,
+              height: 70,
+              background: `linear-gradient(${hairColor}, transparent)`,
+              borderRadius: "0 0 4px 0",
+            }}
+          />
+        </>
+      );
+
+    case 8: // Twin Tails
+      return (
+        <>
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: -2,
+              right: -2,
+              height: "48%",
+              background: hairColor,
+              borderRadius: "50% 50% 0 0",
+            }}
+          />
+          {/* Left twin tail */}
+          <div
+            style={{
+              position: "absolute",
+              top: "20%",
+              left: -14,
+              width: 14,
+              height: 110,
+              background: `linear-gradient(${hairColor}ff, ${hairColor}88, transparent)`,
+              borderRadius: "8px 0 8px 50%",
+              transform: "rotate(-8deg)",
+            }}
+          />
+          {/* Right twin tail */}
+          <div
+            style={{
+              position: "absolute",
+              top: "20%",
+              right: -14,
+              width: 14,
+              height: 110,
+              background: `linear-gradient(${hairColor}ff, ${hairColor}88, transparent)`,
+              borderRadius: "0 8px 50% 8px",
+              transform: "rotate(8deg)",
+            }}
+          />
+          {/* Hair ties */}
+          <div
+            style={{
+              position: "absolute",
+              top: "30%",
+              left: -12,
+              width: 10,
+              height: 8,
+              background: "#ff66aa",
+              borderRadius: "4px",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              top: "30%",
+              right: -12,
+              width: 10,
+              height: 8,
+              background: "#ff66aa",
+              borderRadius: "4px",
+            }}
+          />
+        </>
+      );
+
+    case 9: // Wild Messy
+      return (
+        <>
+          {[-24, -14, -4, 6, 16, 24, 10].map((x, idx) => (
+            <div
+              key={`spike-${x}`}
+              style={{
+                position: "absolute",
+                bottom: idx % 2 === 0 ? "85%" : "80%",
+                left: `calc(50% + ${x}px)`,
+                transform: `translateX(-50%) rotate(${(idx - 3) * 15}deg)`,
+                width: 8 + (idx % 3) * 3,
+                height: 20 + (idx % 3) * 8,
+                background: hairColor,
+                clipPath: "polygon(50% 0%, 0% 100%, 100% 100%)",
+                filter: glow,
+              }}
+            />
+          ))}
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: -8,
+              right: -8,
+              height: "55%",
+              background: hairColor,
+              borderRadius: "50% 50% 0 0",
+              filter: glow,
+            }}
+          />
+        </>
+      );
+
+    case 10: // Slicked Back
+      return (
+        <>
+          {/* Main slicked-back cap */}
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: -4,
+              right: -4,
+              height: "50%",
+              background: hairColor,
+              borderRadius: "50% 50% 0 0",
+            }}
+          />
+          {/* Wave ridge at top */}
+          <div
+            style={{
+              position: "absolute",
+              top: "-6%",
+              left: "10%",
+              right: "10%",
+              height: "22%",
+              background: hairColor,
+              borderRadius: "50%",
+              filter: glow,
+            }}
+          />
+          {/* Side tuck lines */}
+          <div
+            style={{
+              position: "absolute",
+              top: "18%",
+              left: "2%",
+              width: "16%",
+              height: "4px",
+              background: `${hairColor}aa`,
+              borderRadius: "2px",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              top: "28%",
+              left: "2%",
+              width: "12%",
+              height: "3px",
+              background: `${hairColor}66`,
+              borderRadius: "2px",
+            }}
+          />
+        </>
+      );
+
+    case 11: // Undercut
+      return (
+        <>
+          {/* Tall dramatic top section */}
+          <div
+            style={{
+              position: "absolute",
+              top: "-18%",
+              left: "20%",
+              right: "20%",
+              height: "60%",
+              background: hairColor,
+              borderRadius: "8px 8px 0 0",
+              filter: glow,
+            }}
+          />
+          {/* Short side coverage */}
+          <div
+            style={{
+              position: "absolute",
+              top: "10%",
+              left: 0,
+              right: 0,
+              height: "38%",
+              background: hairColor,
+              borderRadius: "0",
+            }}
+          />
+          {/* Hard undercut line */}
+          <div
+            style={{
+              position: "absolute",
+              top: "44%",
+              left: 0,
+              right: 0,
+              height: "3px",
+              background: "rgba(0,0,0,0.5)",
+            }}
+          />
+        </>
+      );
+
+    default:
+      return (
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: -4,
+            right: -4,
+            height: "45%",
+            background: hairColor,
+            borderRadius: "50% 50% 0 0",
+            filter: glow,
+          }}
+        />
+      );
+  }
+}
+
+// ─── Body shape based on outfit ───────────────────────────────────────────────
+function OutfitDetails({
+  outfitStyle,
+  outfitColor,
+  auraColor,
+  isFemale,
+}: {
+  outfitStyle: number;
+  outfitColor: string;
+  auraColor: string;
+  isFemale: boolean;
+}) {
+  const label = OUTFIT_STYLES[outfitStyle]?.label ?? "Warrior";
+
+  return (
+    <>
+      {/* Chest emblem */}
+      <div
+        style={{
+          position: "absolute",
+          top: "22%",
+          left: "50%",
+          transform: "translateX(-50%)",
+          width: 18,
+          height: 18,
+          background: `radial-gradient(${auraColor}90, transparent)`,
+          borderRadius: "50%",
+          border: `1px solid ${auraColor}`,
+          boxShadow: `0 0 10px ${auraColor}`,
+        }}
+      />
+
+      {/* Collar/neckline detail */}
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: "20%",
+          right: "20%",
+          height: "16%",
+          background: `${auraColor}22`,
+          borderRadius: "0 0 8px 8px",
+          borderBottom: `1px solid ${auraColor}50`,
+        }}
+      />
+
+      {/* Shoulder pauldrons for Warrior/Knight/Berserker */}
+      {(label === "Warrior" || label === "Knight" || label === "Berserker") && (
+        <>
+          <div
+            style={{
+              position: "absolute",
+              top: "-6px",
+              left: "-12px",
+              width: 18,
+              height: 14,
+              background: auraColor,
+              borderRadius: "6px 6px 0 0",
+              opacity: 0.85,
+              boxShadow: `0 0 6px ${auraColor}`,
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              top: "-6px",
+              right: "-12px",
+              width: 18,
+              height: 14,
+              background: auraColor,
+              borderRadius: "6px 6px 0 0",
+              opacity: 0.85,
+              boxShadow: `0 0 6px ${auraColor}`,
+            }}
+          />
+        </>
+      )}
+
+      {/* Cape for Mage/Shadow/God-Tier */}
+      {(label === "Mage" || label === "Shadow" || label === "God-Tier") && (
+        <div
+          style={{
+            position: "absolute",
+            top: "10%",
+            left: "-10px",
+            right: "-10px",
+            bottom: "-30px",
+            background: `linear-gradient(${auraColor}44, ${auraColor}11, transparent)`,
+            clipPath:
+              "polygon(10% 0%, 90% 0%, 100% 30%, 115% 100%, -15% 100%, 0% 30%)",
+            borderRadius: "0 0 20px 20px",
+            zIndex: -1,
+          }}
+        />
+      )}
+
+      {/* Hood hint for Assassin/Ninja */}
+      {(label === "Assassin" || label === "Ninja") && (
+        <div
+          style={{
+            position: "absolute",
+            top: "-4px",
+            left: "0%",
+            right: "0%",
+            height: "18%",
+            background: outfitColor,
+            borderRadius: "6px 6px 0 0",
+            border: `1px solid ${auraColor}40`,
+            opacity: 0.9,
+          }}
+        />
+      )}
+
+      {/* Asymmetric armor for Demon Hunter */}
+      {label === "Demon Hunter" && (
+        <div
+          style={{
+            position: "absolute",
+            top: "-4px",
+            left: "-12px",
+            width: 22,
+            height: 20,
+            background: auraColor,
+            borderRadius: "6px",
+            opacity: 0.9,
+            boxShadow: `0 0 8px ${auraColor}`,
+          }}
+        />
+      )}
+
+      {/* Crown for God-Tier */}
+      {label === "God-Tier" && (
+        <div
+          style={{
+            position: "absolute",
+            top: "-12px",
+            left: "50%",
+            transform: "translateX(-50%)",
+            fontSize: "0.75rem",
+          }}
+        >
+          👑
+        </div>
+      )}
+
+      {/* Belt */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: "28%",
+          left: 0,
+          right: 0,
+          height: "8%",
+          background: `${auraColor}44`,
+          borderTop: `1px solid ${auraColor}60`,
+          borderBottom: `1px solid ${auraColor}60`,
+        }}
+      />
+
+      {/* Belt buckle */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: "30%",
+          left: "50%",
+          transform: "translateX(-50%)",
+          width: 8,
+          height: 8,
+          background: auraColor,
+          borderRadius: "2px",
+          boxShadow: `0 0 6px ${auraColor}`,
+        }}
+      />
+
+      {/* Female chest plate elegance */}
+      {isFemale && (
+        <div
+          style={{
+            position: "absolute",
+            top: "12%",
+            left: "15%",
+            right: "15%",
+            height: "30%",
+            background: `${auraColor}18`,
+            borderRadius: "0 0 40% 40%",
+            border: `1px solid ${auraColor}30`,
+          }}
+        />
+      )}
+    </>
+  );
+}
+
+// ─── Accessory renderer ───────────────────────────────────────────────────────
+function AccessoryRenderer({
+  accessory,
+  auraColor,
+  hairColor,
+}: {
+  accessory: number;
+  auraColor: string;
+  hairColor: string;
+}) {
+  switch (accessory) {
+    case 1: // Headband
+      return (
+        <div
+          style={{
+            position: "absolute",
+            top: "28%",
+            left: -4,
+            right: -4,
+            height: 10,
+            background: `linear-gradient(90deg, ${auraColor}cc, ${hairColor}cc, ${auraColor}cc)`,
+            borderRadius: "2px",
+            boxShadow: `0 0 6px ${auraColor}`,
+          }}
+        />
+      );
+    case 2: // Eyepatch
+      return (
+        <div
+          style={{
+            position: "absolute",
+            top: "38%",
+            left: "12%",
+            width: 22,
+            height: 16,
+            background: "#111",
+            border: `2px solid ${hairColor}`,
+            borderRadius: "3px",
+          }}
+        />
+      );
+    case 3: // Scar
+      return (
+        <div
+          style={{
+            position: "absolute",
+            top: "34%",
+            left: "50%",
+            transform: "translateX(-50%) rotate(15deg)",
+            width: 3,
+            height: 28,
+            background: "#ff3333",
+            borderRadius: "2px",
+            opacity: 0.85,
+          }}
+        />
+      );
+    case 4: // Face Paint
+      return (
+        <>
+          <div
+            style={{
+              position: "absolute",
+              top: "28%",
+              left: "15%",
+              width: 8,
+              height: 26,
+              background: auraColor,
+              borderRadius: "4px",
+              opacity: 0.75,
+              transform: "rotate(-12deg)",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              top: "28%",
+              right: "15%",
+              width: 8,
+              height: 26,
+              background: auraColor,
+              borderRadius: "4px",
+              opacity: 0.75,
+              transform: "rotate(12deg)",
+            }}
+          />
+        </>
+      );
+    case 5: // Headphones
+      return (
+        <>
+          {/* Left cup */}
+          <div
+            style={{
+              position: "absolute",
+              top: "22%",
+              left: -10,
+              width: 14,
+              height: 18,
+              background: "#222",
+              border: `2px solid ${auraColor}`,
+              borderRadius: "50%",
+              boxShadow: `0 0 6px ${auraColor}`,
+            }}
+          />
+          {/* Right cup */}
+          <div
+            style={{
+              position: "absolute",
+              top: "22%",
+              right: -10,
+              width: 14,
+              height: 18,
+              background: "#222",
+              border: `2px solid ${auraColor}`,
+              borderRadius: "50%",
+              boxShadow: `0 0 6px ${auraColor}`,
+            }}
+          />
+          {/* Band over top */}
+          <div
+            style={{
+              position: "absolute",
+              top: "2%",
+              left: "8%",
+              right: "8%",
+              height: "28%",
+              border: `2px solid ${auraColor}88`,
+              borderBottom: "none",
+              borderRadius: "50% 50% 0 0",
+            }}
+          />
+        </>
+      );
+    case 6: // Tribal Tattoo
+      return (
+        <>
+          <div
+            style={{
+              position: "absolute",
+              top: "44%",
+              right: "16%",
+              width: 10,
+              height: 10,
+              background: "transparent",
+              border: `2px solid ${auraColor}`,
+              borderRadius: "50%",
+              boxShadow: `0 0 4px ${auraColor}, inset 0 0 4px ${auraColor}`,
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              top: "50%",
+              right: "14%",
+              width: 3,
+              height: 16,
+              background: `linear-gradient(${auraColor}, transparent)`,
+              borderRadius: "2px",
+            }}
+          />
+        </>
+      );
+    case 7: // Glowing Rune
+      return (
+        <div
+          style={{
+            position: "absolute",
+            top: "16%",
+            left: "50%",
+            transform: "translateX(-50%) rotate(45deg)",
+            width: 12,
+            height: 12,
+            background: auraColor,
+            borderRadius: "2px",
+            boxShadow: `0 0 12px ${auraColor}, 0 0 24px ${auraColor}66`,
+            opacity: 0.9,
+          }}
+        />
+      );
+    default:
+      return null;
+  }
+}
+
+// ─── Boot renderer ────────────────────────────────────────────────────────────
+function LegWithBoot({
+  width,
+  height,
+  outfitColor,
+  auraColor,
+  isFemale,
+}: {
+  width: number;
+  height: number;
+  outfitColor: string;
+  auraColor: string;
+  isFemale: boolean;
+}) {
+  const legH = height * 0.72;
+  const bootH = height * 0.28;
+  const bootColor = "#0d0d0d";
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        width,
+      }}
+    >
+      {/* Leg */}
+      <div
+        style={{
+          width,
+          height: legH,
+          background: outfitColor,
+          borderRadius: "0",
+          border: `1px solid ${auraColor}30`,
+          filter: "brightness(0.85)",
+        }}
+      />
+      {/* Boot */}
+      <div
+        style={{
+          width: isFemale ? width : width + 2,
+          height: bootH,
+          background: bootColor,
+          borderRadius: "0 0 4px 4px",
+          border: `1px solid ${auraColor}40`,
+          boxShadow: `0 0 4px ${auraColor}20`,
+          marginLeft: isFemale ? 0 : -1,
+          // Heeled boot for female
+          ...(isFemale
+            ? {
+                clipPath: "polygon(0 0, 100% 0, 100% 70%, 80% 100%, 0% 100%)",
+              }
+            : {}),
+        }}
+      />
+    </div>
+  );
+}
+
 // ─── Mini Preview Character (CSS-based anime 2D) ───────────────────────────────
 function CharacterPreview() {
   const { config } = useCharacterStore();
@@ -100,175 +1079,32 @@ function CharacterPreview() {
     gender,
     bodyType,
     accessory,
+    outfitStyle,
+    characterName,
   } = config;
 
   const isFemale = gender === "female";
   const bodyWidth =
-    bodyType === "slim" ? 54 : bodyType === "athletic" ? 66 : 80;
+    bodyType === "slim" ? 52 : bodyType === "athletic" ? 64 : 78;
   const bodyHeight =
-    bodyType === "slim" ? 100 : bodyType === "athletic" ? 90 : 88;
-  // Hair shapes based on style index
-  const getHairShape = () => {
-    switch (hairStyle) {
-      case 0: // Spiky
-        return (
-          <>
-            {[-22, -12, 0, 12, 22].map((x, idx) => (
-              <div
-                key={x}
-                style={{
-                  position: "absolute",
-                  bottom: idx % 2 === 0 ? "90%" : "85%",
-                  left: `calc(50% + ${x}px)`,
-                  transform: "translateX(-50%)",
-                  width: 10,
-                  height: idx % 2 === 0 ? 28 : 20,
-                  background: hairColor,
-                  clipPath: "polygon(50% 0%, 0% 100%, 100% 100%)",
-                  filter: `drop-shadow(0 0 4px ${hairColor})`,
-                }}
-              />
-            ))}
-            <div
-              style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                right: 0,
-                height: "50%",
-                background: hairColor,
-                borderRadius: "50% 50% 0 0",
-              }}
-            />
-          </>
-        );
-      case 1: // Long
-        return (
-          <>
-            <div
-              style={{
-                position: "absolute",
-                top: 0,
-                left: -6,
-                right: -6,
-                height: "60%",
-                background: hairColor,
-                borderRadius: "50% 50% 0 0",
-              }}
-            />
-            <div
-              style={{
-                position: "absolute",
-                top: "50%",
-                left: -8,
-                width: 14,
-                height: 120,
-                background: `linear-gradient(${hairColor}, transparent)`,
-                borderRadius: "0 0 50% 50%",
-              }}
-            />
-            {!isFemale && (
-              <div
-                style={{
-                  position: "absolute",
-                  top: "50%",
-                  right: -8,
-                  width: 14,
-                  height: 100,
-                  background: `linear-gradient(${hairColor}, transparent)`,
-                  borderRadius: "0 0 50% 50%",
-                }}
-              />
-            )}
-          </>
-        );
-      case 3: // Ponytail
-        return (
-          <>
-            <div
-              style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                right: 0,
-                height: "50%",
-                background: hairColor,
-                borderRadius: "50% 50% 0 0",
-              }}
-            />
-            <div
-              style={{
-                position: "absolute",
-                top: "10%",
-                right: -6,
-                width: 12,
-                height: 90,
-                background: `linear-gradient(${hairColor}, transparent)`,
-                borderRadius: "0 20px 20px 0",
-                transform: "rotate(10deg)",
-              }}
-            />
-          </>
-        );
-      case 5: // Mohawk
-        return (
-          <>
-            <div
-              style={{
-                position: "absolute",
-                top: "-20%",
-                left: "50%",
-                transform: "translateX(-50%)",
-                width: 16,
-                height: 40,
-                background: hairColor,
-                clipPath: "polygon(50% 0%, 0% 100%, 100% 100%)",
-                filter: `drop-shadow(0 0 6px ${hairColor})`,
-              }}
-            />
-            <div
-              style={{
-                position: "absolute",
-                top: "5%",
-                left: "50%",
-                transform: "translateX(-50%)",
-                width: 20,
-                height: "40%",
-                background: hairColor,
-                borderRadius: "4px 4px 0 0",
-              }}
-            />
-          </>
-        );
-      default: // Short / others
-        return (
-          <div
-            style={{
-              position: "absolute",
-              top: 0,
-              left: -4,
-              right: -4,
-              height: "45%",
-              background: hairColor,
-              borderRadius: "50% 50% 0 0",
-              filter: `drop-shadow(0 0 4px ${hairColor})`,
-            }}
-          />
-        );
-    }
-  };
+    bodyType === "slim" ? 96 : bodyType === "athletic" ? 88 : 86;
+
+  // Hip ratio for female
+  const hipWidth = isFemale ? Math.round(bodyWidth * 1.15) : bodyWidth;
+
+  const legWidth = isFemale ? 24 : 28;
 
   return (
     <div
       style={{
         position: "relative",
         width: "100%",
-        height: "360px",
+        height: "380px",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "flex-end",
-        paddingBottom: "20px",
+        paddingBottom: "16px",
       }}
     >
       {/* Aura glow background */}
@@ -276,20 +1112,21 @@ function CharacterPreview() {
         style={{
           position: "absolute",
           inset: 0,
-          background: `radial-gradient(ellipse 60% 80% at 50% 70%, ${auraColor}18 0%, transparent 70%)`,
+          background: `radial-gradient(ellipse 55% 75% at 50% 65%, ${auraColor}20 0%, transparent 70%)`,
           pointerEvents: "none",
         }}
       />
+      {/* Floor shadow */}
       <div
         style={{
           position: "absolute",
-          bottom: "15%",
+          bottom: "12%",
           left: "50%",
           transform: "translateX(-50%)",
-          width: "120px",
-          height: "30px",
-          background: `radial-gradient(ellipse, ${auraColor}40 0%, transparent 70%)`,
-          filter: "blur(8px)",
+          width: "110px",
+          height: "24px",
+          background: `radial-gradient(ellipse, ${auraColor}50 0%, transparent 70%)`,
+          filter: "blur(6px)",
         }}
       />
 
@@ -307,116 +1144,230 @@ function CharacterPreview() {
           style={{
             position: "relative",
             width: 70,
-            height: 76,
+            height: 80,
             background: skinTone,
-            borderRadius: isFemale ? "50% 50% 45% 45%" : "48% 48% 42% 42%",
-            boxShadow: `0 0 12px ${auraColor}30`,
+            borderRadius: isFemale
+              ? "46% 46% 42% 42% / 50% 50% 40% 40%"
+              : "44% 44% 38% 38% / 48% 48% 36% 36%",
+            boxShadow: `0 0 14px ${auraColor}35`,
             zIndex: 2,
+            overflow: "visible",
           }}
         >
           {/* Hair */}
-          {getHairShape()}
+          <HairShape
+            hairStyle={hairStyle}
+            hairColor={hairColor}
+            isFemale={isFemale}
+          />
 
-          {/* Eyes */}
+          {/* Eyebrows */}
           <div
             style={{
               position: "absolute",
-              top: "42%",
-              left: "20%",
-              width: 12,
-              height: isFemale ? 10 : 9,
-              background: eyeColor,
-              borderRadius: isFemale ? "50%" : "3px",
-              boxShadow: `0 0 8px ${eyeColor}`,
+              top: "32%",
+              left: "18%",
+              width: 14,
+              height: 3,
+              background: hairColor,
+              borderRadius: "2px",
+              transform: isFemale ? "rotate(-5deg)" : "rotate(-8deg)",
             }}
           />
           <div
             style={{
               position: "absolute",
-              top: "42%",
-              right: "20%",
-              width: 12,
-              height: isFemale ? 10 : 9,
-              background: eyeColor,
-              borderRadius: isFemale ? "50%" : "3px",
-              boxShadow: `0 0 8px ${eyeColor}`,
+              top: "32%",
+              right: "18%",
+              width: 14,
+              height: 3,
+              background: hairColor,
+              borderRadius: "2px",
+              transform: isFemale ? "rotate(5deg)" : "rotate(8deg)",
+            }}
+          />
+
+          {/* Left eye */}
+          <div
+            style={{
+              position: "absolute",
+              top: "43%",
+              left: "16%",
+              width: 15,
+              height: isFemale ? 13 : 11,
+              background: "#111",
+              borderRadius: isFemale ? "50% 50% 40% 40%" : "3px",
+              overflow: "hidden",
+              boxShadow: `0 0 5px ${eyeColor}66`,
+            }}
+          >
+            {/* Iris */}
+            <div
+              style={{
+                position: "absolute",
+                inset: "1px",
+                background: eyeColor,
+                borderRadius: isFemale ? "50% 50% 40% 40%" : "2px",
+                boxShadow: `0 0 6px ${eyeColor}`,
+              }}
+            />
+            {/* Pupil */}
+            <div
+              style={{
+                position: "absolute",
+                top: "20%",
+                left: "30%",
+                width: 5,
+                height: 5,
+                background: "#000",
+                borderRadius: "50%",
+              }}
+            />
+            {/* Catchlight */}
+            <div
+              style={{
+                position: "absolute",
+                top: "15%",
+                left: "55%",
+                width: 3,
+                height: 3,
+                background: "#ffffff",
+                borderRadius: "50%",
+              }}
+            />
+          </div>
+
+          {/* Right eye */}
+          <div
+            style={{
+              position: "absolute",
+              top: "43%",
+              right: "16%",
+              width: 15,
+              height: isFemale ? 13 : 11,
+              background: "#111",
+              borderRadius: isFemale ? "50% 50% 40% 40%" : "3px",
+              overflow: "hidden",
+              boxShadow: `0 0 5px ${eyeColor}66`,
+            }}
+          >
+            <div
+              style={{
+                position: "absolute",
+                inset: "1px",
+                background: eyeColor,
+                borderRadius: isFemale ? "50% 50% 40% 40%" : "2px",
+                boxShadow: `0 0 6px ${eyeColor}`,
+              }}
+            />
+            <div
+              style={{
+                position: "absolute",
+                top: "20%",
+                left: "30%",
+                width: 5,
+                height: 5,
+                background: "#000",
+                borderRadius: "50%",
+              }}
+            />
+            <div
+              style={{
+                position: "absolute",
+                top: "15%",
+                left: "55%",
+                width: 3,
+                height: 3,
+                background: "#ffffff",
+                borderRadius: "50%",
+              }}
+            />
+          </div>
+
+          {/* Nose */}
+          <div
+            style={{
+              position: "absolute",
+              top: "60%",
+              left: "50%",
+              transform: "translateX(-50%)",
+              width: 2,
+              height: 8,
+              background: `${skinTone}`,
+              borderRadius: "1px",
+              boxShadow: "1px 1px 0 rgba(0,0,0,0.15)",
+            }}
+          />
+          {/* Nose tip dots */}
+          <div
+            style={{
+              position: "absolute",
+              top: "72%",
+              left: "42%",
+              width: 3,
+              height: 2,
+              background: "rgba(0,0,0,0.15)",
+              borderRadius: "50%",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              top: "72%",
+              left: "56%",
+              width: 3,
+              height: 2,
+              background: "rgba(0,0,0,0.15)",
+              borderRadius: "50%",
+            }}
+          />
+
+          {/* Lips */}
+          <div
+            style={{
+              position: "absolute",
+              bottom: "16%",
+              left: "50%",
+              transform: "translateX(-50%)",
+              width: isFemale ? 16 : 12,
+              height: isFemale ? 4 : 3,
+              background: isFemale ? "#e88" : `${skinTone}`,
+              borderRadius: "50%",
+              boxShadow: isFemale ? "0 0 3px #e8888866" : "none",
+              border: "1px solid rgba(0,0,0,0.1)",
+            }}
+          />
+
+          {/* Cheekbone highlight */}
+          <div
+            style={{
+              position: "absolute",
+              top: "48%",
+              left: "8%",
+              width: 10,
+              height: 6,
+              background: isFemale ? "rgba(255,160,160,0.18)" : "transparent",
+              borderRadius: "50%",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              top: "48%",
+              right: "8%",
+              width: 10,
+              height: 6,
+              background: isFemale ? "rgba(255,160,160,0.18)" : "transparent",
+              borderRadius: "50%",
             }}
           />
 
           {/* Accessory */}
-          {accessory === 1 && ( // Headband
-            <div
-              style={{
-                position: "absolute",
-                top: "28%",
-                left: -4,
-                right: -4,
-                height: 10,
-                background: `linear-gradient(${auraColor}, ${hairColor})`,
-                borderRadius: "2px",
-                boxShadow: `0 0 6px ${auraColor}`,
-              }}
-            />
-          )}
-          {accessory === 2 && ( // Eyepatch
-            <div
-              style={{
-                position: "absolute",
-                top: "38%",
-                left: "14%",
-                width: 20,
-                height: 16,
-                background: "#111",
-                border: `2px solid ${hairColor}`,
-                borderRadius: "3px",
-              }}
-            />
-          )}
-          {accessory === 3 && ( // Scar
-            <div
-              style={{
-                position: "absolute",
-                top: "35%",
-                left: "50%",
-                transform: "translateX(-50%) rotate(15deg)",
-                width: 3,
-                height: 26,
-                background: "#ff3333",
-                borderRadius: "2px",
-                opacity: 0.8,
-              }}
-            />
-          )}
-          {accessory === 4 && ( // Face Paint
-            <>
-              <div
-                style={{
-                  position: "absolute",
-                  top: "30%",
-                  left: "16%",
-                  width: 8,
-                  height: 24,
-                  background: auraColor,
-                  borderRadius: "4px",
-                  opacity: 0.7,
-                  transform: "rotate(-10deg)",
-                }}
-              />
-              <div
-                style={{
-                  position: "absolute",
-                  top: "30%",
-                  right: "16%",
-                  width: 8,
-                  height: 24,
-                  background: auraColor,
-                  borderRadius: "4px",
-                  opacity: 0.7,
-                  transform: "rotate(10deg)",
-                }}
-              />
-            </>
-          )}
+          <AccessoryRenderer
+            accessory={accessory}
+            auraColor={auraColor}
+            hairColor={hairColor}
+          />
         </div>
 
         {/* Neck */}
@@ -430,7 +1381,7 @@ function CharacterPreview() {
           }}
         />
 
-        {/* Shoulders */}
+        {/* Shoulders + Torso + Arms */}
         <div
           style={{
             position: "relative",
@@ -444,15 +1395,33 @@ function CharacterPreview() {
           {/* Left arm */}
           <div
             style={{
-              width: isFemale ? 16 : 18,
-              height: bodyHeight * 0.7,
-              background: outfitColor,
-              borderRadius: "0 0 8px 8px",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
               marginTop: 4,
-              border: `1px solid ${auraColor}40`,
-              boxShadow: `0 0 8px ${auraColor}20`,
             }}
-          />
+          >
+            <div
+              style={{
+                width: isFemale ? 15 : 18,
+                height: bodyHeight * 0.68,
+                background: outfitColor,
+                borderRadius: "0 0 6px 6px",
+                border: `1px solid ${auraColor}40`,
+                boxShadow: `0 0 6px ${auraColor}15`,
+              }}
+            />
+            {/* Left hand */}
+            <div
+              style={{
+                width: isFemale ? 11 : 14,
+                height: 9,
+                background: skinTone,
+                borderRadius: "3px 3px 4px 4px",
+                marginTop: 1,
+              }}
+            />
+          </div>
 
           {/* Body */}
           <div
@@ -461,97 +1430,115 @@ function CharacterPreview() {
               height: bodyHeight,
               background: outfitColor,
               border: `2px solid ${auraColor}60`,
-              boxShadow: `0 0 16px ${auraColor}30, inset 0 0 20px ${auraColor}10`,
+              boxShadow: `0 0 16px ${auraColor}28, inset 0 0 18px ${auraColor}10`,
               position: "relative",
               borderRadius: isFemale
-                ? "10px 10px 20px 20px"
-                : "6px 6px 12px 12px",
+                ? "8px 8px 18px 18px"
+                : "5px 5px 10px 10px",
+              overflow: "visible",
             }}
           >
-            {/* Outfit detail - chest emblem */}
-            <div
-              style={{
-                position: "absolute",
-                top: "25%",
-                left: "50%",
-                transform: "translateX(-50%)",
-                width: 20,
-                height: 20,
-                background: `radial-gradient(${auraColor}80, transparent)`,
-                borderRadius: "50%",
-                border: `1px solid ${auraColor}`,
-                boxShadow: `0 0 10px ${auraColor}`,
-              }}
+            <OutfitDetails
+              outfitStyle={outfitStyle}
+              outfitColor={outfitColor}
+              auraColor={auraColor}
+              isFemale={isFemale}
             />
-            {/* Belt area for warrior/knight */}
-            {(OUTFIT_STYLES[config.outfitStyle]?.label === "Warrior" ||
-              OUTFIT_STYLES[config.outfitStyle]?.label === "Knight") && (
-              <div
-                style={{
-                  position: "absolute",
-                  bottom: "30%",
-                  left: 0,
-                  right: 0,
-                  height: 8,
-                  background: `linear-gradient(90deg, transparent, ${auraColor}60, transparent)`,
-                }}
-              />
-            )}
           </div>
 
           {/* Right arm */}
           <div
             style={{
-              width: isFemale ? 16 : 18,
-              height: bodyHeight * 0.7,
-              background: outfitColor,
-              borderRadius: "0 0 8px 8px",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
               marginTop: 4,
-              border: `1px solid ${auraColor}40`,
-              boxShadow: `0 0 8px ${auraColor}20`,
             }}
-          />
+          >
+            <div
+              style={{
+                width: isFemale ? 15 : 18,
+                height: bodyHeight * 0.68,
+                background: outfitColor,
+                borderRadius: "0 0 6px 6px",
+                border: `1px solid ${auraColor}40`,
+                boxShadow: `0 0 6px ${auraColor}15`,
+              }}
+            />
+            {/* Right hand */}
+            <div
+              style={{
+                width: isFemale ? 11 : 14,
+                height: 9,
+                background: skinTone,
+                borderRadius: "3px 3px 4px 4px",
+                marginTop: 1,
+              }}
+            />
+          </div>
         </div>
 
+        {/* Hip area (wider for female) */}
+        <div
+          style={{
+            width: hipWidth + 4,
+            height: 12,
+            background: outfitColor,
+            border: `1px solid ${auraColor}40`,
+            borderRadius: "0 0 4px 4px",
+            marginTop: -2,
+          }}
+        />
+
         {/* Legs */}
-        <div style={{ display: "flex", gap: 6 }}>
-          <div
-            style={{
-              width: isFemale ? 24 : 28,
-              height: 80,
-              background: outfitColor,
-              borderRadius: "0 0 8px 8px",
-              border: `1px solid ${auraColor}40`,
-              filter: "brightness(0.85)",
-            }}
+        <div style={{ display: "flex", gap: isFemale ? 6 : 8 }}>
+          <LegWithBoot
+            width={legWidth}
+            height={82}
+            outfitColor={outfitColor}
+            auraColor={auraColor}
+            isFemale={isFemale}
           />
-          <div
-            style={{
-              width: isFemale ? 24 : 28,
-              height: 80,
-              background: outfitColor,
-              borderRadius: "0 0 8px 8px",
-              border: `1px solid ${auraColor}40`,
-              filter: "brightness(0.85)",
-            }}
+          <LegWithBoot
+            width={legWidth}
+            height={82}
+            outfitColor={outfitColor}
+            auraColor={auraColor}
+            isFemale={isFemale}
           />
         </div>
       </div>
 
-      {/* Name label */}
+      {/* Character name label */}
       <div
         style={{
-          marginTop: 8,
+          marginTop: 10,
           fontFamily: '"Sora", sans-serif',
-          fontSize: "0.6rem",
-          letterSpacing: "0.2em",
+          fontSize: "0.7rem",
+          fontWeight: 800,
+          letterSpacing: "0.18em",
           color: auraColor,
-          textShadow: `0 0 8px ${auraColor}`,
+          textShadow: `0 0 10px ${auraColor}, 0 0 20px ${auraColor}66`,
           textTransform: "uppercase",
+          textAlign: "center",
+          maxWidth: "200px",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
         }}
       >
-        {isFemale ? "♀ FEMALE" : "♂ MALE"} ·{" "}
-        {OUTFIT_STYLES[config.outfitStyle]?.label}
+        {characterName || "BEAST WARRIOR"}
+      </div>
+      <div
+        style={{
+          fontFamily: '"Sora", sans-serif',
+          fontSize: "0.52rem",
+          letterSpacing: "0.15em",
+          color: `${auraColor}88`,
+          marginTop: 2,
+        }}
+      >
+        {isFemale ? "♀" : "♂"} {OUTFIT_STYLES[outfitStyle]?.label}
       </div>
     </div>
   );
@@ -643,7 +1630,7 @@ export function CharacterCreator({ open, onClose }: CharacterCreatorProps) {
       <div
         style={{
           width: "100%",
-          maxWidth: "860px",
+          maxWidth: "880px",
           maxHeight: "95vh",
           background: "rgba(6, 4, 18, 0.98)",
           border: "1px solid rgba(157, 0, 255, 0.4)",
@@ -729,7 +1716,7 @@ export function CharacterCreator({ open, onClose }: CharacterCreatorProps) {
           {/* Preview panel */}
           <div
             style={{
-              width: "280px",
+              width: "290px",
               flexShrink: 0,
               borderRight: "1px solid rgba(157,0,255,0.15)",
               background: "rgba(0,0,0,0.3)",
@@ -763,6 +1750,40 @@ export function CharacterCreator({ open, onClose }: CharacterCreatorProps) {
               minWidth: 0,
             }}
           >
+            {/* CHARACTER NAME INPUT — above all tabs */}
+            <div style={{ ...sectionStyle, marginBottom: "1rem" }}>
+              <label style={labelStyle} htmlFor="char-name-input">
+                CHARACTER NAME
+              </label>
+              <input
+                id="char-name-input"
+                data-ocid="character.name.input"
+                type="text"
+                maxLength={20}
+                value={config.characterName ?? "BEAST WARRIOR"}
+                onChange={(e) =>
+                  setConfig({ characterName: e.target.value.toUpperCase() })
+                }
+                placeholder="BEAST WARRIOR"
+                style={{
+                  width: "100%",
+                  fontFamily: '"Sora", sans-serif',
+                  fontWeight: 700,
+                  fontSize: "0.75rem",
+                  letterSpacing: "0.12em",
+                  padding: "0.6rem 0.9rem",
+                  background: "rgba(0,0,0,0.5)",
+                  border: `1px solid ${config.auraColor}60`,
+                  borderRadius: "8px",
+                  color: config.auraColor,
+                  outline: "none",
+                  boxSizing: "border-box",
+                  boxShadow: `0 0 10px ${config.auraColor}20`,
+                  textTransform: "uppercase",
+                }}
+              />
+            </div>
+
             {/* Tab buttons */}
             <div
               style={{
@@ -819,7 +1840,7 @@ export function CharacterCreator({ open, onClose }: CharacterCreatorProps) {
                       <button
                         key={g}
                         type="button"
-                        data-ocid={`character.gender.${g === "male" ? "toggle" : "toggle"}`}
+                        data-ocid="character.gender.toggle"
                         onClick={() => setConfig({ gender: g })}
                         style={{
                           flex: 1,
@@ -942,10 +1963,10 @@ export function CharacterCreator({ open, onClose }: CharacterCreatorProps) {
                         onClick={() => setConfig({ hairStyle: i })}
                         style={{
                           fontFamily: '"Sora", sans-serif',
-                          fontSize: "0.55rem",
+                          fontSize: "0.52rem",
                           fontWeight: 600,
-                          letterSpacing: "0.05em",
-                          padding: "0.6rem 0.3rem",
+                          letterSpacing: "0.04em",
+                          padding: "0.55rem 0.25rem",
                           borderRadius: "6px",
                           background:
                             config.hairStyle === i
@@ -969,7 +1990,7 @@ export function CharacterCreator({ open, onClose }: CharacterCreatorProps) {
                           minHeight: "52px",
                         }}
                       >
-                        <span style={{ fontSize: "1rem" }}>{hs.icon}</span>
+                        <span style={{ fontSize: "0.9rem" }}>{hs.icon}</span>
                         <span>{hs.label}</span>
                       </button>
                     ))}
@@ -1045,9 +2066,9 @@ export function CharacterCreator({ open, onClose }: CharacterCreatorProps) {
                         onClick={() => setConfig({ accessory: i })}
                         style={{
                           fontFamily: '"Sora", sans-serif',
-                          fontSize: "0.6rem",
+                          fontSize: "0.55rem",
                           fontWeight: 600,
-                          padding: "0.55rem 0.75rem",
+                          padding: "0.5rem 0.65rem",
                           borderRadius: "6px",
                           background:
                             config.accessory === i
@@ -1072,7 +2093,7 @@ export function CharacterCreator({ open, onClose }: CharacterCreatorProps) {
                           minWidth: "60px",
                         }}
                       >
-                        <span style={{ fontSize: "1rem" }}>{a.icon}</span>
+                        <span style={{ fontSize: "0.85rem" }}>{a.icon}</span>
                         <span>{a.label}</span>
                       </button>
                     ))}
@@ -1101,10 +2122,10 @@ export function CharacterCreator({ open, onClose }: CharacterCreatorProps) {
                         onClick={() => setConfig({ outfitStyle: i })}
                         style={{
                           fontFamily: '"Sora", sans-serif',
-                          fontSize: "0.6rem",
+                          fontSize: "0.58rem",
                           fontWeight: 600,
-                          letterSpacing: "0.05em",
-                          padding: "0.65rem 0.4rem",
+                          letterSpacing: "0.04em",
+                          padding: "0.6rem 0.35rem",
                           borderRadius: "6px",
                           background:
                             config.outfitStyle === i
@@ -1128,7 +2149,7 @@ export function CharacterCreator({ open, onClose }: CharacterCreatorProps) {
                           minHeight: "56px",
                         }}
                       >
-                        <span style={{ fontSize: "1.2rem" }}>{os.icon}</span>
+                        <span style={{ fontSize: "1.1rem" }}>{os.icon}</span>
                         <span>{os.label}</span>
                       </button>
                     ))}
@@ -1241,10 +2262,10 @@ export function CharacterCreator({ open, onClose }: CharacterCreatorProps) {
             width: 100% !important;
             border-right: none !important;
             border-bottom: 1px solid rgba(157,0,255,0.15);
-            max-height: 240px;
+            max-height: 260px;
           }
           .preview-panel > div:last-child {
-            transform: scale(0.7);
+            transform: scale(0.65);
             transform-origin: top center;
           }
         }

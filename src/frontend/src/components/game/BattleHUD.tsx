@@ -117,6 +117,37 @@ const RARITY_COLORS: Record<string, string> = {
   legendary: "#ff8800",
 };
 
+// ─── Rarity badge dot ─────────────────────────────────────────────────────────
+function RarityDot({ rarity }: { rarity: string }) {
+  const isLegendary = rarity === "legendary";
+  const color =
+    rarity === "legendary"
+      ? "#ff8800"
+      : rarity === "epic"
+        ? "#9d00ff"
+        : rarity === "rare"
+          ? "#4488ff"
+          : "#888888";
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        top: 5,
+        right: 5,
+        width: 7,
+        height: 7,
+        borderRadius: "50%",
+        background: color,
+        boxShadow: `0 0 ${isLegendary ? 8 : 4}px ${color}`,
+        animation: isLegendary
+          ? "legendaryPulse 1.2s ease-in-out infinite"
+          : "none",
+      }}
+    />
+  );
+}
+
 // ─── Attack Card ──────────────────────────────────────────────────────────────
 function AttackCardItem({
   card,
@@ -134,6 +165,7 @@ function AttackCardItem({
   onClick: () => void;
 }) {
   const rarityColor = RARITY_COLORS[card.rarity] || "#aaaaaa";
+  const cardColor = card.color;
   const isDisabled = disabled || locked;
 
   return (
@@ -145,9 +177,9 @@ function AttackCardItem({
       style={{
         fontFamily: '"Sora", sans-serif',
         cursor: isDisabled ? "not-allowed" : "pointer",
-        background: isDisabled ? "rgba(0,0,0,0.5)" : "rgba(0,0,0,0.8)",
+        background: isDisabled ? "rgba(0,0,0,0.5)" : "rgba(0,0,0,0.82)",
         backdropFilter: "blur(8px)",
-        border: `2px solid ${isDisabled ? "rgba(100,100,100,0.3)" : `${rarityColor}88`}`,
+        border: `2px solid ${isDisabled ? "rgba(100,100,100,0.3)" : `${cardColor}88`}`,
         borderRadius: "10px",
         padding: "8px 6px",
         display: "flex",
@@ -158,7 +190,7 @@ function AttackCardItem({
         transition: "all 0.15s ease",
         boxShadow: isDisabled
           ? "none"
-          : `0 0 10px ${rarityColor}33, inset 0 0 6px ${rarityColor}11`,
+          : `0 0 12px ${cardColor}40, inset 0 0 8px ${cardColor}0d`,
         touchAction: "manipulation",
         minHeight: "clamp(64px, 12vw, 80px)",
         minWidth: "clamp(64px, 12vw, 80px)",
@@ -169,15 +201,17 @@ function AttackCardItem({
       onMouseEnter={(e) => {
         if (!isDisabled) {
           e.currentTarget.style.transform = "scale(1.05) translateY(-2px)";
-          e.currentTarget.style.boxShadow = `0 0 20px ${rarityColor}66, inset 0 0 10px ${rarityColor}22`;
-          e.currentTarget.style.borderColor = rarityColor;
+          e.currentTarget.style.background = `${cardColor}22`;
+          e.currentTarget.style.boxShadow = `0 0 20px ${cardColor}66, inset 0 0 12px ${cardColor}22`;
+          e.currentTarget.style.borderColor = cardColor;
         }
       }}
       onMouseLeave={(e) => {
         if (!isDisabled) {
           e.currentTarget.style.transform = "scale(1)";
-          e.currentTarget.style.boxShadow = `0 0 10px ${rarityColor}33, inset 0 0 6px ${rarityColor}11`;
-          e.currentTarget.style.borderColor = `${rarityColor}88`;
+          e.currentTarget.style.background = "rgba(0,0,0,0.82)";
+          e.currentTarget.style.boxShadow = `0 0 12px ${cardColor}40, inset 0 0 8px ${cardColor}0d`;
+          e.currentTarget.style.borderColor = `${cardColor}88`;
         }
       }}
     >
@@ -196,7 +230,7 @@ function AttackCardItem({
         </>
       ) : (
         <>
-          {/* Rarity glow line */}
+          {/* Rarity glow line at top */}
           <div
             style={{
               position: "absolute",
@@ -204,17 +238,21 @@ function AttackCardItem({
               left: 0,
               right: 0,
               height: "2px",
-              background: rarityColor,
+              background: `linear-gradient(90deg, transparent, ${rarityColor}, transparent)`,
               boxShadow: `0 0 6px ${rarityColor}`,
             }}
           />
+          {/* Rarity dot badge */}
+          <RarityDot rarity={card.rarity} />
+
           <span style={{ fontSize: "1.4rem", lineHeight: 1 }}>{card.icon}</span>
           <span
             style={{
               fontSize: "0.52rem",
               fontWeight: 700,
               letterSpacing: "0.04em",
-              color: noMana ? "#666" : "#fff",
+              color: noMana ? "#666" : cardColor,
+              textShadow: noMana ? "none" : `0 0 6px ${cardColor}88`,
               textAlign: "center",
               lineHeight: 1.2,
             }}
@@ -737,6 +775,10 @@ export function BattleHUD({
         @keyframes bossTextPulse {
           0%, 100% { transform: scale(1); }
           50% { transform: scale(1.04); }
+        }
+        @keyframes legendaryPulse {
+          0%, 100% { opacity: 1; box-shadow: 0 0 8px #ff8800; transform: scale(1); }
+          50% { opacity: 0.6; box-shadow: 0 0 16px #ff8800, 0 0 24px #ff880066; transform: scale(1.3); }
         }
       `}</style>
     </>
